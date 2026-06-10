@@ -1,0 +1,30 @@
+{
+  "name": "SCADA Alarm Summary Offline Analyzer",
+  "short_name": "SCADA Alarm",
+  "description": "Công cụ PWA offline đọc và phân tích Alarm Summary SCADA từ Excel/CSV, tối ưu cho mẫu ESUM.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f3f6fb",
+  "theme_color": "#155eef",
+  "lang": "vi",
+  "categories": [
+    "utilities",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
