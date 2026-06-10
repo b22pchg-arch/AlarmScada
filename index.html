@@ -3,196 +3,94 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SCADA Alarm Summary Offline Analyzer</title>
+<title>SCADA Alarm Summary PWA Offline - ESUM Auto Detect v2</title>
 <style>
-:root{
-  --bg:#f5f7fb; --panel:#ffffff; --ink:#101828; --muted:#667085; --line:#d0d5dd;
-  --brand:#155eef; --brand2:#0b4fd5; --good:#039855; --warn:#dc6803; --bad:#d92d20; --violet:#6938ef;
-  --chip:#eef4ff; --shadow:0 10px 25px rgba(16,24,40,.08);
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Segoe UI",Tahoma,sans-serif;font-size:14px;line-height:1.42}
-header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#0b3b8f,#155eef 55%,#2e90fa);color:white;padding:14px 16px;box-shadow:var(--shadow)}
-header h1{margin:0 0 4px 0;font-size:20px;letter-spacing:.2px}
-header .sub{opacity:.94;font-size:13px}
-main{max-width:1500px;margin:0 auto;padding:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
-.grid{display:grid;gap:12px}
-.grid.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media(max-width:920px){.grid.cols2,.grid.cols3,.grid.cols4{grid-template-columns:1fr} header{position:static}}
-label{font-weight:700;color:#344054;display:block;margin-bottom:6px}
-input,select,textarea,button{font:inherit;border-radius:10px;border:1px solid var(--line);padding:10px;background:#fff;color:var(--ink)}
-input[type=file]{width:100%;background:#f9fafb}
-button{cursor:pointer;background:var(--brand);border-color:var(--brand);color:white;font-weight:700;transition:.15s}
-button:hover{background:var(--brand2)}
-button.secondary{background:#fff;color:#344054;border-color:var(--line)}
-button.warn{background:var(--warn);border-color:var(--warn)}
-button.bad{background:var(--bad);border-color:var(--bad)}
-button.good{background:var(--good);border-color:var(--good)}
-button:disabled{opacity:.45;cursor:not-allowed}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.row>*{min-width:0}.grow{flex:1 1 220px}.w120{width:120px}.w180{width:180px}.w260{width:260px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tab{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#344054;font-weight:700;cursor:pointer}.tab.active{background:var(--brand);color:white;border-color:var(--brand)}
-.view{display:none}.view.active{display:block}
-.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.kpi{border:1px solid var(--line);border-radius:13px;background:#fcfcfd;padding:12px}.kpi .v{font-size:22px;font-weight:800}.kpi .t{color:var(--muted);font-size:12px;margin-top:2px}.kpi.good .v{color:var(--good)}.kpi.warn .v{color:var(--warn)}.kpi.bad .v{color:var(--bad)}.kpi.violet .v{color:var(--violet)}
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff;max-height:650px}
-table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}th,td{border-bottom:1px solid #eaecf0;padding:8px 10px;text-align:left;vertical-align:top;white-space:nowrap}th{position:sticky;top:0;background:#f2f4f7;color:#344054;z-index:1}td.wrap,th.wrap{white-space:normal;min-width:260px}.mono{font-family:Consolas,Menlo,monospace}.muted{color:var(--muted)}.small{font-size:12px}.pill{display:inline-block;border-radius:999px;padding:2px 8px;background:var(--chip);color:#1d4ed8;font-weight:700;font-size:12px;margin:1px}.pill.bad{background:#fef3f2;color:#b42318}.pill.warn{background:#fff4e5;color:#b54708}.pill.good{background:#ecfdf3;color:#027a48}.pill.gray{background:#f2f4f7;color:#344054}.pill.violet{background:#f4f3ff;color:#5925dc}
-.notice{border-left:5px solid var(--brand);background:#eff6ff;padding:10px 12px;border-radius:10px}.notice.warn{border-left-color:var(--warn);background:#fff8ee}.notice.bad{border-left-color:var(--bad);background:#fff1f0}.notice.good{border-left-color:var(--good);background:#edfcf2}
-.chart{display:grid;gap:6px}.barrow{display:grid;grid-template-columns:minmax(160px,320px) 1fr 64px;gap:8px;align-items:center}.barlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.barbg{height:18px;background:#eaecf0;border-radius:999px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,#84caff,#155eef);border-radius:999px;min-width:2px}.bar.bad{background:linear-gradient(90deg,#f97066,#d92d20)}.bar.warn{background:linear-gradient(90deg,#fec84b,#dc6803)}.bar.good{background:linear-gradient(90deg,#6ce9a6,#039855)}
-.timeline{position:relative;border-left:3px solid #b2ddff;padding-left:14px;margin-left:7px}.timeline .event{position:relative;padding:7px 10px;margin:8px 0;border:1px solid #eaecf0;background:#fff;border-radius:10px}.timeline .event:before{content:"";position:absolute;left:-22px;top:13px;width:10px;height:10px;background:#155eef;border-radius:50%;border:2px solid #fff}.event.trip{border-color:#fda29b;background:#fff6f5}.event.open{border-color:#75e0a7;background:#f6fef9}.event.block{border-color:#fec84b;background:#fffbeb}.hl{background:#fffa8b;border-radius:3px;padding:0 2px}.drop{border:2px dashed #98a2b3;border-radius:14px;background:#f9fafb;text-align:center;padding:18px;color:#475467}.drop.drag{border-color:var(--brand);background:#eff6ff}
-.copybox{white-space:pre-wrap;background:#0b1220;color:#d1e9ff;padding:12px;border-radius:12px;max-height:360px;overflow:auto;font-family:Consolas,monospace;font-size:12px}
-details{border:1px solid var(--line);border-radius:12px;background:#fff;margin:10px 0}summary{font-weight:800;cursor:pointer;padding:10px 12px}details .inside{padding:0 12px 12px 12px}.dangerText{color:var(--bad);font-weight:800}.okText{color:var(--good);font-weight:800}.warnText{color:var(--warn);font-weight:800}
-.footer{color:#667085;font-size:12px;text-align:center;padding:12px}.spinner{display:inline-block;width:16px;height:16px;border:2px solid #d0d5dd;border-top-color:#155eef;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px}@keyframes spin{to{transform:rotate(360deg)}}
-@media print{header,.noPrint,.tabs,button,input,select,textarea{display:none!important}.view{display:block!important}.card{break-inside:avoid;box-shadow:none}.tablewrap{max-height:none;overflow:visible}body{background:#fff}}
-
-/* PWA toolbar */
-.pwa-toolbar{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
-.pwa-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 10px;color:#fff;backdrop-filter:blur(6px)}
-.pwa-toolbar button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px}
-.pwa-toolbar button:hover{background:rgba(255,255,255,.26)}
-.pwa-toolbar button:disabled{opacity:.55;cursor:not-allowed}
-@media(max-width:640px){.pwa-toolbar{gap:6px}.pwa-toolbar button,.pwa-pill{width:100%;justify-content:center}}
-
+:root{--bg:#f3f6fb;--panel:#fff;--ink:#101828;--muted:#667085;--line:#d0d5dd;--blue:#155eef;--blue2:#0b4fd5;--green:#039855;--orange:#dc6803;--red:#d92d20;--violet:#6938ef;--cyan:#088ab2;--shadow:0 8px 24px rgba(16,24,40,.08)}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Segoe UI",Tahoma,sans-serif;font-size:14px;line-height:1.42} header{background:linear-gradient(135deg,#092b68,#155eef 55%,#2e90fa);color:#fff;padding:14px 16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20} header h1{margin:0 0 3px;font-size:20px} header .sub{font-size:13px;opacity:.94} main{max-width:1600px;margin:auto;padding:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}.card h2,.card h3{margin-top:0}.grid{display:grid;gap:12px}.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}.cols5{grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:1100px){.cols2,.cols3,.cols4,.cols5{grid-template-columns:1fr} header{position:static}}
+label{display:block;font-weight:800;color:#344054;margin-bottom:6px} input,select,textarea,button{font:inherit;border-radius:10px;border:1px solid var(--line);padding:9px 10px;background:#fff;color:var(--ink)}input[type=file]{width:100%;background:#f9fafb}button{background:var(--blue);color:white;border-color:var(--blue);font-weight:800;cursor:pointer}button:hover{background:var(--blue2)}button.secondary{background:#fff;color:#344054;border-color:var(--line)}button.good{background:var(--green);border-color:var(--green)}button.warn{background:var(--orange);border-color:var(--orange)}button.bad{background:var(--red);border-color:var(--red)}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.row>*{min-width:0}.grow{flex:1 1 220px}.w100{width:100px}.w140{width:140px}.w180{width:180px}.w260{width:260px}.small{font-size:12px}.muted{color:var(--muted)}.mono{font-family:Consolas,Menlo,monospace}.notice{border-left:5px solid var(--blue);background:#eff6ff;border-radius:10px;padding:10px 12px}.notice.good{border-left-color:var(--green);background:#edfcf2}.notice.warn{border-left-color:var(--orange);background:#fff8ee}.notice.bad{border-left-color:var(--red);background:#fff1f0}.drop{border:2px dashed #98a2b3;border-radius:14px;background:#f9fafb;text-align:center;padding:18px;color:#475467}.drop.drag{border-color:var(--blue);background:#eff6ff}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tab{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#344054;font-weight:800;cursor:pointer}.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}.view{display:none}.view.active{display:block}.kpis{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px}.kpi{border:1px solid var(--line);border-radius:13px;background:#fcfcfd;padding:12px}.kpi .v{font-size:22px;font-weight:900}.kpi .t{font-size:12px;color:var(--muted);margin-top:2px}.kpi.good .v{color:var(--green)}.kpi.warn .v{color:var(--orange)}.kpi.bad .v{color:var(--red)}.kpi.violet .v{color:var(--violet)}.kpi.cyan .v{color:var(--cyan)}@media(max-width:1200px){.kpis{grid-template-columns:repeat(4,1fr)}}@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff;max-height:650px}table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}th,td{border-bottom:1px solid #eaecf0;padding:7px 9px;text-align:left;vertical-align:top;white-space:nowrap}th{position:sticky;top:0;background:#f2f4f7;color:#344054;z-index:2}td.wrap,th.wrap{white-space:normal;min-width:260px}.pill{display:inline-block;border-radius:999px;padding:2px 8px;background:#eef4ff;color:#1d4ed8;font-weight:800;font-size:12px;margin:1px}.pill.bad{background:#fef3f2;color:#b42318}.pill.warn{background:#fff4e5;color:#b54708}.pill.good{background:#ecfdf3;color:#027a48}.pill.gray{background:#f2f4f7;color:#344054}.pill.violet{background:#f4f3ff;color:#5925dc}.pill.cyan{background:#ecfdff;color:#0e7090}.chart{display:grid;gap:6px}.barrow{display:grid;grid-template-columns:minmax(170px,360px) 1fr 70px;gap:8px;align-items:center}.barlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.barbg{height:18px;background:#eaecf0;border-radius:999px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,#84caff,#155eef);border-radius:999px;min-width:2px}.bar.bad{background:linear-gradient(90deg,#f97066,#d92d20)}.bar.warn{background:linear-gradient(90deg,#fec84b,#dc6803)}.bar.good{background:linear-gradient(90deg,#6ce9a6,#039855)}.timeline{position:relative;border-left:3px solid #b2ddff;padding-left:14px;margin-left:8px}.timeline .event{position:relative;padding:8px 10px;margin:8px 0;border:1px solid #eaecf0;background:#fff;border-radius:10px}.timeline .event:before{content:"";position:absolute;left:-22px;top:14px;width:10px;height:10px;background:#155eef;border-radius:50%;border:2px solid #fff}.event.trip{border-color:#fda29b;background:#fff6f5}.event.open{border-color:#75e0a7;background:#f6fef9}.event.block{border-color:#fec84b;background:#fffbeb}.event.comm{border-color:#bdb4fe;background:#f4f3ff}.event.pickup{border-color:#84caff;background:#eff8ff}.callout{padding:12px;border-radius:12px;border:1px solid #d0d5dd;background:#fcfcfd;margin:8px 0}.callout.bad{border-color:#fda29b;background:#fff6f5}.callout.good{border-color:#75e0a7;background:#f6fef9}.callout.warn{border-color:#fec84b;background:#fffbeb}.hl{background:#fffa8b;border-radius:3px;padding:0 2px}.copybox{white-space:pre-wrap;background:#0b1220;color:#d1e9ff;padding:12px;border-radius:12px;max-height:420px;overflow:auto;font-family:Consolas,monospace;font-size:12px}.spinner{display:inline-block;width:16px;height:16px;border:2px solid #d0d5dd;border-top-color:#155eef;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px}@keyframes spin{to{transform:rotate(360deg)}}details{border:1px solid var(--line);border-radius:12px;background:#fff;margin:10px 0}summary{font-weight:900;cursor:pointer;padding:10px 12px}details .inside{padding:0 12px 12px}.footer{text-align:center;color:#667085;font-size:12px;padding:12px}.dangerText{color:var(--red);font-weight:900}.warnText{color:var(--orange);font-weight:900}.okText{color:var(--green);font-weight:900}@media print{header,.noPrint,.tabs,button,input,select,textarea{display:none!important}.view{display:block!important}.card{break-inside:avoid;box-shadow:none}.tablewrap{max-height:none;overflow:visible}body{background:#fff}}
 </style>
 
-<!-- PWA OFFLINE META -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#155eef">
 <meta name="application-name" content="SCADA Alarm Analyzer">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="SCADA Alarm Analyzer">
+<meta name="apple-mobile-web-app-title" content="SCADA Alarm">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-
 </head>
 <body>
-<header>
-  <h1>SCADA Alarm Summary Offline Analyzer</h1>
-  <div class="sub">Đọc Excel/CSV Alarm Summary tại máy offline • Tự nhận cột • Thống kê Alarm • Phân tích trình tự sự cố và máy cắt</div>
-  <div class="pwa-toolbar noPrint" aria-label="PWA offline controls">
-    <span id="pwaStatus" class="pwa-pill">PWA: sẵn sàng khi mở qua localhost/HTTPS</span>
-    <button id="pwaInstallBtn" type="button" disabled>CÀI ĐẶT PWA</button>
-    <button id="pwaUpdateBtn" type="button">KIỂM TRA BẢN CẬP NHẬT MỚI</button>
-    <button id="pwaClearCacheBtn" type="button">XÓA CACHE PWA</button>
-  </div>
-</header>
+<header><h1>SCADA Alarm Summary PWA Offline - tự nhận mẫu ESUM</h1><div class="sub">Đọc Excel/CSV offline • Chuẩn hoá cột Time Stamp / Path / Status / Value / Ind / Comment • Khử trùng cặp Spont/Alarm • Phân tích sự cố, MC/LBS/Recloser</div></header>
 <main>
-  <section class="card noPrint">
-    <div class="grid cols3">
-      <div>
-        <label>1) Chọn file Alarm Summary Excel/CSV</label>
-        <input id="fileInput" type="file" accept=".xlsx,.csv,.txt">
-      </div>
-      <div>
-        <label>Sheet dữ liệu</label>
-        <select id="sheetSelect" disabled></select>
-      </div>
-      <div>
-        <label>Trạng thái</label>
-        <div id="status" class="notice">Chưa tải file. Hỗ trợ tốt nhất: .xlsx, .csv. File .xls cũ nên lưu lại thành .xlsx.</div>
-      </div>
-    </div>
-    <div id="dropZone" class="drop" style="margin-top:12px">Kéo thả file .xlsx/.csv vào đây hoặc bấm chọn file.</div>
-  </section>
+<section class="card noPrint" id="pwaCard">
+  <div class="row">
+    <button id="installPwaBtn" class="good" type="button" style="display:none">CÀI ĐẶT PWA</button>
+    <button id="updatePwaBtn" class="secondary" type="button">KIỂM TRA BẢN CẬP NHẬT MỚI</button>
+    <button id="clearPwaBtn" class="warn" type="button">XÓA CACHE PWA</button>
+    <div id="pwaStatus" class="small muted grow">Bản này dùng lõi ESUM Enhanced: tự nhận Time Stamp, Path 1, Path 2, Path 4, Status, Value, Ind, Comment.</div>
+  </div>
+</section>
 
-  <section class="card noPrint" id="mappingCard" style="display:none">
-    <h2 style="margin-top:0">2) Nhận diện cột dữ liệu</h2>
-    <div class="notice warn small">Nếu tự nhận sai cột, chọn lại tại đây rồi bấm <b>Phân tích lại</b>. Phần mềm không sửa file Excel gốc.</div>
-    <div class="grid cols4" style="margin-top:12px">
-      <div><label>Thời gian</label><select id="mapTime"></select></div>
-      <div><label>Tên/Message Alarm</label><select id="mapMessage"></select></div>
-      <div><label>Thiết bị / Object / Tag</label><select id="mapDevice"></select></div>
-      <div><label>Trạng thái</label><select id="mapState"></select></div>
-      <div><label>Trạm / Substation</label><select id="mapStation"></select></div>
-      <div><label>Ngăn lộ / Bay</label><select id="mapBay"></select></div>
-      <div><label>Mức độ / Priority</label><select id="mapSeverity"></select></div>
-      <div><label>Ack / Xác nhận</label><select id="mapAck"></select></div>
-    </div>
-    <div class="row" style="margin-top:12px">
-      <button id="analyzeBtn" class="good">Phân tích lại</button>
-      <button id="sampleBtn" class="secondary">Xem 20 dòng đầu</button>
-      <button id="exportCsvBtn" class="secondary" disabled>Xuất CSV đã lọc</button>
-      <button id="exportReportBtn" class="secondary" disabled>Xuất báo cáo HTML</button>
-      <button onclick="window.print()" class="secondary">In / Lưu PDF</button>
-    </div>
-  </section>
+<section class="card noPrint">
+  <div class="grid cols3">
+    <div><label>1) Chọn file Alarm Summary Excel/CSV</label><input id="fileInput" type="file" accept=".xlsx,.csv,.txt"></div>
+    <div><label>Sheet dữ liệu</label><select id="sheetSelect" disabled></select></div>
+    <div><label>Trạng thái</label><div id="status" class="notice">Chưa tải file. Hỗ trợ tốt nhất: .xlsx/.csv. File .xls cũ hãy mở Excel và Save As thành .xlsx.</div></div>
+  </div>
+  <div class="grid cols4" style="margin-top:12px">
+    <div><label><input type="checkbox" id="dedupeToggle" checked> Khử trùng bản ghi giống nhau, bỏ qua cột Ind</label><div class="small muted">Phù hợp mẫu ESUM vì cùng alarm thường có 2 dòng SpontTrueTime/AlarmTrueTime.</div></div>
+    <div><label>Ngưỡng chattering</label><select id="chatThreshold"><option value="4">≥4 lần</option><option value="6" selected>≥6 lần</option><option value="10">≥10 lần</option></select></div>
+    <div><label>Cách hiểu ngày 06/10/26</label><select id="dateMode"><option value="auto" selected>Tự động</option><option value="mdy">MM/DD/YY</option><option value="dmy">DD/MM/YY</option></select></div>
+    <div><label>Giới hạn bảng dữ liệu</label><select id="rowLimit"><option value="200">200 dòng</option><option value="500" selected>500 dòng</option><option value="1000">1000 dòng</option><option value="5000">5000 dòng</option></select></div>
+  </div>
+  <div id="dropZone" class="drop" style="margin-top:12px">Kéo thả file .xlsx/.csv vào đây hoặc bấm chọn file.</div>
+</section>
 
-  <section class="tabs noPrint" id="tabs" style="display:none">
-    <button class="tab active" data-view="overview">Tổng quan</button>
-    <button class="tab" data-view="sequence">Trình tự Alarm</button>
-    <button class="tab" data-view="breaker">Phân tích thiết bị / MC</button>
-    <button class="tab" data-view="raw">Dữ liệu</button>
-    <button class="tab" data-view="guide">HDSD</button>
-  </section>
+<section class="card noPrint" id="mappingCard" style="display:none">
+  <h2>2) Nhận diện cột dữ liệu</h2>
+  <div class="notice warn small">Với file ESUM, phần mềm sẽ tự nhận: <b>Time Stamp</b>, <b>Path 1</b> = trạm/nhóm, <b>Path 2</b> = thiết bị/ngăn lộ, <b>Path 4</b> = tên điểm/alarm, <b>Status</b>, <b>Value</b>, <b>Ind</b>, <b>Unit</b>, <b>Comment</b>. Nếu file tương tự có tên cột khác, chọn lại tại đây rồi bấm phân tích.</div>
+  <div class="grid cols5" style="margin-top:12px">
+    <div><label>Thời gian</label><select id="mapTime"></select></div>
+    <div><label>Trạm / nhóm</label><select id="mapStation"></select></div>
+    <div><label>Thiết bị / ngăn lộ</label><select id="mapDevice"></select></div>
+    <div><label>Tên điểm / Alarm</label><select id="mapMessage"></select></div>
+    <div><label>Trạng thái Status</label><select id="mapStatus"></select></div>
+    <div><label>Giá trị Value</label><select id="mapValue"></select></div>
+    <div><label>Ind / nguồn sự kiện</label><select id="mapInd"></select></div>
+    <div><label>Đơn vị Unit</label><select id="mapUnit"></select></div>
+    <div><label>Comment</label><select id="mapComment"></select></div>
+    <div><label>Limit / Priority</label><select id="mapLimit"></select></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="analyzeBtn" class="good">Phân tích lại</button><button id="sampleBtn" class="secondary">Xem 20 dòng đầu</button><button id="exportCsvBtn" class="secondary" disabled>Xuất CSV đã lọc</button><button id="exportReportBtn" class="secondary" disabled>Xuất báo cáo HTML</button><button onclick="window.print()" class="secondary">In / Lưu PDF</button>
+  </div>
+</section>
 
-  <section id="overview" class="view active">
-    <div id="kpiBox"></div>
-    <div class="grid cols2">
-      <div class="card"><h3>Top thiết bị phát Alarm</h3><div id="chartDevice" class="chart"></div></div>
-      <div class="card"><h3>Top nội dung Alarm</h3><div id="chartMessage" class="chart"></div></div>
-      <div class="card"><h3>Phân bố theo giờ</h3><div id="chartHour" class="chart"></div></div>
-      <div class="card"><h3>Alarm lặp / Chattering</h3><div id="chatBox"></div></div>
-    </div>
-    <div class="card"><h3>Nhận xét nhanh</h3><div id="quickFindings"></div></div>
-  </section>
+<section class="tabs noPrint" id="tabs" style="display:none">
+  <button class="tab active" data-view="overview">Tổng quan</button>
+  <button class="tab" data-view="quality">Mẫu ESUM & chất lượng dữ liệu</button>
+  <button class="tab" data-view="sequence">Trình tự Alarm</button>
+  <button class="tab" data-view="breaker">Phân tích thiết bị / MC</button>
+  <button class="tab" data-view="chattering">Chattering & Burst</button>
+  <button class="tab" data-view="raw">Dữ liệu</button>
+  <button class="tab" data-view="guide">HDSD</button>
+</section>
 
-  <section id="sequence" class="view">
-    <div class="card noPrint">
-      <h3 style="margin-top:0">Bộ lọc trình tự Alarm</h3>
-      <div class="row">
-        <div class="grow"><label>Từ khóa</label><input id="fText" placeholder="Ví dụ: 374, trip, protection, SF6, TCS..."></div>
-        <div class="w180"><label>Từ thời gian</label><input id="fFrom" type="datetime-local"></div>
-        <div class="w180"><label>Đến thời gian</label><input id="fTo" type="datetime-local"></div>
-        <div class="w180"><label>Thiết bị</label><select id="fDevice"><option value="">Tất cả</option></select></div>
-        <div class="w180"><label>Trạng thái</label><select id="fState"><option value="">Tất cả</option></select></div>
-        <div class="w120"><label>Số dòng</label><input id="fLimit" type="number" value="500" min="50" step="50"></div>
-        <button id="applyFilterBtn">Lọc</button>
-      </div>
-    </div>
-    <div class="card"><h3>Trình tự theo thời gian</h3><div id="sequenceTable" class="tablewrap"></div></div>
-  </section>
+<section id="overview" class="view active"><div id="kpiBox"></div><div class="grid cols2"><div class="card"><h3>Top thiết bị/ngăn lộ</h3><div id="chartDevice" class="chart"></div></div><div class="card"><h3>Top alarm/điểm tín hiệu</h3><div id="chartMessage" class="chart"></div></div><div class="card"><h3>Phân bố theo giờ</h3><div id="chartHour" class="chart"></div></div><div class="card"><h3>Nhóm loại sự kiện</h3><div id="chartCategory" class="chart"></div></div></div><div class="card"><h3>Nhận xét nhanh từ dữ liệu</h3><div id="quickFindings"></div></div></section>
 
-  <section id="breaker" class="view">
-    <div class="card noPrint">
-      <h3 style="margin-top:0">Phân tích nhanh thiết bị / máy cắt</h3>
-      <div class="row">
-        <div class="grow"><label>Mã thiết bị / máy cắt cần phân tích</label><input id="targetDevice" placeholder="Ví dụ: 374 hoặc MC 374"></div>
-        <div class="w120"><label>Cửa sổ phản hồi mở (giây)</label><input id="openWindow" type="number" min="1" value="5"></div>
-        <div class="w120"><label>Trước/sau sự kiện (phút)</label><input id="aroundMin" type="number" min="1" value="10"></div>
-        <button id="analyzeBreakerBtn" class="bad">Phân tích</button>
-      </div>
-      <div class="small muted" style="margin-top:8px">Gợi ý: nhập đúng mã ngăn/máy cắt trong Alarm Summary. Công cụ sẽ tìm lệnh TRIP/CẮT, phản hồi OPEN/MỞ, alarm khóa/liên động/nguồn DC/SF6/TCS/cuộn cắt/Local-Remote.</div>
-    </div>
-    <div class="card"><h3>Kết luận phân tích</h3><div id="breakerResult" class="notice">Chưa chọn thiết bị.</div></div>
-    <div class="card"><h3>Timeline liên quan</h3><div id="breakerTimeline"></div></div>
-    <div class="card"><h3>Bảng sự kiện liên quan</h3><div id="breakerTable" class="tablewrap"></div></div>
-  </section>
+<section id="quality" class="view"><div class="grid cols2"><div class="card"><h3>Cấu trúc file & cột nhận diện</h3><div id="structureBox"></div></div><div class="card"><h3>Kiểm tra trùng lặp / nhiễu đếm</h3><div id="duplicateBox"></div></div></div><div class="card"><h3>Top mã lộ/thiết bị rút ra từ chuỗi Path</h3><div id="codeBox"></div></div></section>
 
-  <section id="raw" class="view">
-    <div class="card"><h3>Dữ liệu đã chuẩn hóa</h3><div id="rawTable" class="tablewrap"></div></div>
-  </section>
+<section id="sequence" class="view"><div class="card noPrint"><h3>Bộ lọc trình tự</h3><div class="grid cols5"><div><label>Từ khóa</label><input id="fText" placeholder="372, 374, Trip, Pickup, DSSE..."></div><div><label>Thiết bị</label><input id="fDevice" placeholder="Path 2 / Object"></div><div><label>Trạng thái</label><select id="fStatus"><option value="">Tất cả</option><option>App</option><option>Dis</option><option>Ack</option></select></div><div><label>Loại</label><select id="fCategory"><option value="">Tất cả</option></select></div><div><label>Giới hạn</label><select id="fLimit"><option value="100">100</option><option value="300" selected>300</option><option value="1000">1000</option></select></div><div><label>Từ thời điểm</label><input id="fFrom" type="datetime-local"></div><div><label>Đến thời điểm</label><input id="fTo" type="datetime-local"></div><div style="align-self:end"><button id="applyFilterBtn" class="good">Áp dụng lọc</button></div></div></div><div class="card"><h3>Kết quả lọc</h3><div id="sequenceInfo" class="notice"></div><div id="sequenceTable" style="margin-top:10px"></div></div></section>
 
-  <section id="guide" class="view">
-    <div class="card">
-      <h2>Hướng dẫn sử dụng nhanh</h2>
-      <ol>
-        <li>Xuất Alarm Summary từ SCADA sang <b>.xlsx</b> hoặc <b>.csv</b>.</li>
-        <li>Mở file HTML này trên máy offline, chọn file dữ liệu.</li>
-        <li>Kiểm tra phần nhận diện cột. Nếu sai, chọn lại các cột: thời gian, message, thiết bị, trạng thái...</li>
-        <li>Tab <b>Tổng quan</b>: xem thiết bị nhiều alarm, alarm lặp, phân bố theo giờ.</li>
-        <li>Tab <b>Trình tự Alarm</b>: lọc theo mã thiết bị, từ khóa hoặc thời gian.</li>
-        <li>Tab <b>Phân tích thiết bị / MC</b>: nhập mã như <b>374</b> để kiểm tra có lệnh trip/cắt, có phản hồi mở hay không, và các alarm khóa/liên động/mạch trip đi kèm.</li>
-      </ol>
-      <div class="notice warn"><b>Lưu ý:</b> Đây là công cụ hỗ trợ phân tích Alarm Summary, không thay thế SOE/Record rơle/sơ đồ nhị thứ. Kết luận “MC không tác động” cần đối chiếu thêm tín hiệu 52a/52b, SOE rơle, nguồn DC, mạch trip, cuộn cắt, SF6/lò xo tích năng, Local/Remote và liên động.</div>
-    </div>
-  </section>
+<section id="breaker" class="view"><div class="card noPrint"><h3>Phân tích thiết bị / máy cắt / LBS / Recloser</h3><div class="row"><div class="grow"><label>Nhập mã thiết bị cần phân tích</label><input id="targetDevice" placeholder="Ví dụ: 374, 372_QUAN BA, RE_E22.1_372_QUAN BA, LBS_E22.3_374_180"></div><div class="w180"><label>Cửa sổ Trip → Open</label><select id="tripWindow"><option value="1">1 giây</option><option value="2" selected>2 giây</option><option value="5">5 giây</option><option value="10">10 giây</option><option value="30">30 giây</option></select></div><button id="analyzeBreakerBtn" class="bad">Phân tích</button></div><div class="small muted" style="margin-top:8px">Mục tiêu: xác định có Pickup/Trip, có Status Intransit/Open/Close sau Trip hay không, có tín hiệu khóa/liên động/nguồn DC/AC/Invalid/Relay Fault đi kèm không. Kết luận chỉ dựa trên bản ghi trong file, không thay thế kiểm tra rơ-le và mạch nhị thứ.</div></div><div class="grid cols2"><div class="card"><h3>Kết luận & giả thiết nguyên nhân</h3><div id="breakerResult" class="notice">Chưa nhập thiết bị.</div></div><div class="card"><h3>Thống kê theo thiết bị đang chọn</h3><div id="breakerStats"></div></div></div><div class="card"><h3>Timeline thiết bị</h3><div id="breakerTimeline"></div></div></section>
 
-  <div class="footer">Chạy hoàn toàn offline trong trình duyệt. Không gửi dữ liệu ra ngoài.</div>
+<section id="chattering" class="view"><div class="grid cols2"><div class="card"><h3>Alarm lặp / chattering</h3><div id="chatBox"></div></div><div class="card"><h3>Burst theo phút</h3><div id="burstBox"></div></div></div><div class="card"><h3>Nhận xét về chattering/burst</h3><div id="chatFindings"></div></div></section>
+
+<section id="raw" class="view"><div class="card"><h3>Dữ liệu chuẩn hoá</h3><div id="rawInfo" class="notice"></div><div id="rawTable" style="margin-top:10px"></div></div></section>
+
+<section id="guide" class="view"><div class="card"><h2>Hướng dẫn sử dụng nhanh</h2><ol><li>Xuất Alarm Summary từ SCADA/EMS sang <b>.xlsx</b> hoặc <b>.csv</b>; nếu là .xls cũ hãy Save As thành .xlsx.</li><li>Mở file HTML này trực tiếp trong trình duyệt ở máy offline, chọn file dữ liệu.</li><li>Kiểm tra cột nhận diện. Với mẫu ESUM, nên bật <b>khử trùng bỏ qua Ind</b> để không đếm đôi dòng SpontTrueTime/AlarmTrueTime.</li><li>Tab <b>Tổng quan</b> xem thiết bị nhiều alarm, nhóm loại sự kiện và phân bố theo giờ.</li><li>Tab <b>Trình tự</b> lọc theo mã thiết bị hoặc từ khóa như 374, Trip, Pickup, Relay Fault.</li><li>Tab <b>Phân tích thiết bị / MC</b> nhập mã thiết bị để xem có Trip và có phản hồi Open/Close sau Trip hay không.</li></ol><details open><summary>Quy tắc kết luận Trip → Open</summary><div class="inside"><p>Công cụ tìm dòng có từ khóa <b>Trip</b>, sau đó tìm trạng thái <b>Open</b> hoặc <b>Status = Open</b> trong cửa sổ thời gian chọn. Nếu có Trip nhưng không thấy Open trong file, công cụ cảnh báo: chưa thấy phản hồi mở về SCADA. Khi đó cần kiểm tra mạch cắt, cuộn cắt, nguồn DC, khóa liên động, Local/Remote, tiếp điểm 52a/52b, mapping tín hiệu trạng thái và bản ghi SOE/rơ-le.</p></div></details></div></section>
+
+<div class="footer">File HTML offline, không gửi dữ liệu ra ngoài. Phân tích dựa trên dữ liệu đọc trong trình duyệt.</div>
 </main>
-
 <script>
 /* JSZip embedded for offline XLSX unzip */
 /*!
@@ -213,676 +111,111 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 (function(){
 'use strict';
 const $ = id => document.getElementById(id);
-let workbook = {sheets:[]};
-let currentSheet = null;
-let headerInfo = null;
-let records = [];
-let filtered = [];
-let rawRows = [];
-let sourceName = '';
-
 const COL_NONE = '__none__';
-const VI_DAYS = ['CN','T2','T3','T4','T5','T6','T7'];
-const mapIds = ['mapTime','mapMessage','mapDevice','mapState','mapStation','mapBay','mapSeverity','mapAck'];
-const fieldMap = {
-  mapTime:'time', mapMessage:'message', mapDevice:'device', mapState:'state',
-  mapStation:'station', mapBay:'bay', mapSeverity:'severity', mapAck:'ack'
-};
+let workbook=null, currentSheet=null, rawRows=[], headerInfo=null, sourceName='', records=[], uniqueRecords=[], filtered=[], stats=null;
+const fields = {mapTime:'time',mapStation:'station',mapDevice:'device',mapMessage:'message',mapStatus:'status',mapValue:'value',mapInd:'ind',mapUnit:'unit',mapComment:'comment',mapLimit:'limit'};
+const fieldLabels = {time:'Thời gian',station:'Trạm/nhóm',device:'Thiết bị/ngăn lộ',message:'Tên điểm/alarm',status:'Status',value:'Value',ind:'Ind',unit:'Unit',comment:'Comment',limit:'Limit/Priority'};
 const keywordGroups = {
-  time: ['time','date','ngày','gio','giờ','thời gian','timestamp','event time','occurrence','alarm time','thoi gian'],
-  message: ['alarm','message','mô tả','mo ta','description','event','text','nội dung','noi dung','name','comment','caption'],
-  device: ['object','tag','device','equipment','point','element','asset','thiết bị','thiet bi','bay','ngăn','ngan','feeder','address'],
-  state: ['state','status','condition','value','trạng thái','trang thai','event state','type','transition'],
-  station: ['station','substation','site','plant','trạm','tram','nhà máy','nha may'],
-  bay: ['bay','feeder','ngăn lộ','ngan lo','line','xuất tuyến','xuat tuyen','lộ','lo'],
-  severity: ['severity','priority','class','level','mức','muc','alarm class','importance'],
-  ack: ['ack','acknowledge','acknowledged','xác nhận','xac nhan','operator','user']
+  time:['time stamp','timestamp','date time','datetime','time','date','thời gian','gio','ngay'],
+  station:['path 1','station','substation','trạm','tram','nhom','group'],
+  device:['path 2','object','device','tag','bay','equipment','thiết bị','thiet bi','ngăn lộ','ngan lo'],
+  message:['path 4','message','alarm','description','point','signal','event','tên điểm','ten diem','nội dung','noi dung'],
+  status:['status','state','trạng thái','trang thai'],
+  value:['value','giá trị','gia tri'],
+  ind:['ind','indicator','source','event type','kiểu','kieu'],
+  unit:['unit','đơn vị','don vi'],
+  comment:['comment','comments','ghi chú','ghi chu'],
+  limit:['limit','priority','severity','mức độ','muc do']
 };
+const VI_DAYS=['CN','T2','T3','T4','T5','T6','T7'];
+const categoryDefs = [
+  ['TRIP/CẮT', /\btrip\b|\bcắt\b|\bcat\b|trip\s*1|accumulated.*trip/i, 'bad'],
+  ['PICKUP/KHỞI ĐỘNG', /pickup|khởi động|khoi dong|pick\s*up/i, 'warn'],
+  ['STATUS OPEN/CLOSE', /\bopen\b|\bclose\b|intransit|52a|52b|status/i, 'good'],
+  ['BẢO VỆ/FAULT', /fault|overcurrent|earth|ground|67|51|sef|sgf|directionality|protection flag|relay fault/i, 'bad'],
+  ['NGUỒN AC/DC', /auxiliary supply|ext\. ac|ac power|dc|battery|supply fail|power loss|battery discharged/i, 'warn'],
+  ['KHÓA/LIÊN ĐỘNG', /block|lock|interlock|local|remote|sf6|spring|trip circuit|tcs|close inhibit|trip inhibit/i, 'bad'],
+  ['INVALID/COMM', /invalid|communication|comm|quality|bad|loss|fail|timeout|interruption/i, 'violet'],
+  ['ĐIỆN ÁP/DÒNG/CÔNG SUẤT', /voltage|current|phase|live|\b_hz\b|\bhz\b|\bia\b|\bib\b|\bic\b|\b_p\b|\b_q\b|mw|mvar|kw|\ba\b/i, 'cyan'],
+  ['DSSE/TOPO/VIOLATION', /dsse|topo|violation|violations/i, 'gray'],
+  ['OLTC/TAP/FAN', /oltc|tap|fan state|fan/i, 'warn'],
+  ['CONTROL/ACK', /control|ctrl|ack/i, 'gray']
+];
+function norm(s){return String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[_\-\/]+/g,' ').replace(/\s+/g,' ').trim();}
+function compact(s){return String(s??'').replace(/\s+/g,' ').trim();}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function fmt(n){return Number(n||0).toLocaleString('vi-VN');}
+function pct(n,d){return d?((n/d*100).toFixed(n/d*100>=10?0:1)+'%'):'0%';}
+function pad(n){return String(n).padStart(2,'0');}
+function formatDate(d){if(!d) return ''; return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${String(d.getMilliseconds()).padStart(3,'0')} ${VI_DAYS[d.getDay()]}`;}
+function inputDT(d){if(!d) return ''; return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function setStatus(html, cls='notice'){ $('status').className=cls; $('status').innerHTML=html; }
+function downloadText(filename,text,mime='text/plain;charset=utf-8'){const blob=new Blob([text],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function safeBase(n){return (n||'alarm').replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_\-À-ỹ]+/g,'_').slice(0,90);}
 
-function setStatus(html, cls='notice'){
-  const el = $('status'); el.className = cls; el.innerHTML = html;
-}
-function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function stripDiacritics(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D'); }
-function norm(s){ return stripDiacritics(String(s||'').toLowerCase()).replace(/[_\-\/\.]+/g,' ').replace(/\s+/g,' ').trim(); }
-function compact(s){ return String(s ?? '').replace(/\s+/g,' ').trim(); }
-function downloadText(filename, text, mime='text/plain;charset=utf-8'){
-  const blob = new Blob([text], {type:mime});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-}
-function fmtNumber(n){ return Number(n||0).toLocaleString('vi-VN'); }
-function pad2(n){ return String(n).padStart(2,'0'); }
-function formatDate(d){ if(!d) return ''; return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())} ${VI_DAYS[d.getDay()]}`; }
-function toInputDT(d){ if(!d) return ''; return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
+async function parseFile(file){sourceName=file.name;setStatus('<span class="spinner"></span> Đang đọc file...', 'notice');const ext=file.name.split('.').pop().toLowerCase();if(ext==='xlsx'){workbook=await readXlsx(await file.arrayBuffer());}else if(ext==='csv'||ext==='txt'){workbook={sheets:[{name:file.name.replace(/\.[^.]+$/,''),rows:parseCsv(await file.text())}]};}else if(ext==='xls'){throw new Error('File .xls nhị phân cũ chưa hỗ trợ. Hãy mở bằng Excel và Save As thành .xlsx hoặc .csv.');}else{throw new Error('Định dạng chưa hỗ trợ.');}if(!workbook.sheets.length) throw new Error('Không tìm thấy sheet.');fillSheetSelect();$('mappingCard').style.display='';$('tabs').style.display='';loadSheet(0);}
+async function readXlsx(arrayBuffer){if(typeof JSZip==='undefined') throw new Error('Thiếu JSZip trong HTML.');const zip=await JSZip.loadAsync(arrayBuffer);const text=async p=>{const f=zip.file(p);return f?await f.async('text'):''};const wbXml=await text('xl/workbook.xml');if(!wbXml) throw new Error('Không đọc được xl/workbook.xml.');const rels=parseRels(await text('xl/_rels/workbook.xml.rels'));const shared=parseSharedStrings(await text('xl/sharedStrings.xml'));const wbDoc=new DOMParser().parseFromString(wbXml,'application/xml');const sheets=Array.from(wbDoc.getElementsByTagName('sheet'));const out=[];for(const sh of sheets){const name=sh.getAttribute('name')||('Sheet'+(out.length+1));const rid=sh.getAttribute('r:id')||sh.getAttribute('id');let target=rels[rid];if(!target) target=`worksheets/sheet${sh.getAttribute('sheetId')}.xml`;const path=normalizeXlPath(target);const xml=await text(path);if(xml) out.push({name,rows:parseSheetXml(xml,shared)});}return {sheets:out};}
+function normalizeXlPath(target){target=(target||'').replace(/^\//,'');if(target.startsWith('xl/')) return target;return 'xl/'+target.replace(/^\.\//,'');}
+function parseRels(xml){const map={};if(!xml) return map;const doc=new DOMParser().parseFromString(xml,'application/xml');Array.from(doc.getElementsByTagName('Relationship')).forEach(r=>map[r.getAttribute('Id')]=r.getAttribute('Target'));return map;}
+function parseSharedStrings(xml){if(!xml) return [];const doc=new DOMParser().parseFromString(xml,'application/xml');return Array.from(doc.getElementsByTagName('si')).map(si=>Array.from(si.getElementsByTagName('t')).map(t=>t.textContent).join(''));}
+function parseSheetXml(xml,shared){const doc=new DOMParser().parseFromString(xml,'application/xml');const rows=[];Array.from(doc.getElementsByTagName('row')).forEach(row=>{const arr=[];Array.from(row.getElementsByTagName('c')).forEach(c=>{const idx=colIndex((c.getAttribute('r')||'A1').replace(/[0-9]/g,''));const t=c.getAttribute('t');let val='';if(t==='inlineStr'){const is=c.getElementsByTagName('is')[0];val=is?Array.from(is.getElementsByTagName('t')).map(x=>x.textContent).join(''):'';}else{const v=c.getElementsByTagName('v')[0];val=v?v.textContent:'';if(t==='s') val=shared[Number(val)]??'';else if(t==='b') val=val==='1'?'TRUE':'FALSE';else if(t==='str') val=String(val);else if(val!==''&&!isNaN(Number(val))) val=Number(val);}arr[idx]=val;});rows.push(arr.map(x=>x===undefined?'':x));});return trimRows(rows);}
+function colIndex(letters){let n=0;for(const ch of String(letters||'A').toUpperCase()){n=n*26+(ch.charCodeAt(0)-64);}return Math.max(0,n-1);}
+function trimRows(rows){let max=0;rows.forEach(r=>{while(r.length&&String(r[r.length-1]??'').trim()==='') r.pop();max=Math.max(max,r.length);});return rows.filter(r=>r.some(x=>String(x??'').trim()!=='')).map(r=>{while(r.length<max) r.push('');return r;});}
+function parseCsv(text){text=text.replace(/^\uFEFF/,'');const sample=text.slice(0,4000);const delims=[',',';','\t','|'];const delim=delims.map(d=>[d,(sample.match(new RegExp(d==='\t'?'\\t':'\\'+d,'g'))||[]).length]).sort((a,b)=>b[1]-a[1])[0][0];const rows=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const ch=text[i],next=text[i+1];if(q){if(ch==='"'&&next==='"'){cur+='"';i++;}else if(ch==='"')q=false;else cur+=ch;}else{if(ch==='"')q=true;else if(ch===delim){row.push(cur);cur='';}else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else if(ch==='\r'){}else cur+=ch;}}row.push(cur);rows.push(row);return trimRows(rows);}
 
-async function parseFile(file){
-  sourceName = file.name;
-  setStatus('<span class="spinner"></span> Đang đọc file...', 'notice');
-  const ext = file.name.split('.').pop().toLowerCase();
-  if(ext === 'xlsx'){
-    const buf = await file.arrayBuffer();
-    workbook = await readXlsx(buf);
-  } else if(ext === 'csv' || ext === 'txt'){
-    const text = await file.text();
-    workbook = {sheets:[{name:file.name.replace(/\.[^.]+$/,''), rows:parseCsv(text)}]};
-  } else if(ext === 'xls'){
-    throw new Error('File .xls nhị phân cũ chưa hỗ trợ trong bản offline gọn này. Hãy mở bằng Excel và Save As thành .xlsx hoặc .csv.');
-  } else {
-    throw new Error('Định dạng chưa hỗ trợ. Vui lòng chọn .xlsx, .csv hoặc .txt.');
-  }
-  if(!workbook.sheets.length) throw new Error('Không tìm thấy sheet dữ liệu trong file.');
-  fillSheetSelect();
-  $('mappingCard').style.display = '';
-  $('tabs').style.display = '';
-  loadSheet(0);
-}
+function fillSheetSelect(){const sel=$('sheetSelect');sel.innerHTML='';workbook.sheets.forEach((s,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=`${s.name} (${fmt(s.rows.length)} dòng)`;sel.appendChild(opt);});sel.disabled=false;}
+function loadSheet(idx){currentSheet=workbook.sheets[idx];rawRows=currentSheet.rows||[];headerInfo=detectHeader(rawRows);fillMapping(headerInfo.headers,headerInfo.mapping);analyzeCurrent();}
+function detectHeader(rows){let best={idx:0,score:-1,headers:[]};for(let i=0;i<Math.min(rows.length,40);i++){const row=rows[i]||[];let score=0;const texts=row.map(x=>norm(x));texts.forEach(h=>{Object.values(keywordGroups).flat().forEach(k=>{const nk=norm(k);if(h===nk) score+=9; else if(h.includes(nk)) score+=4;});if(/^path\s*[1-5]$/.test(h)) score+=12;if(h.length>1&&h.length<60) score+=.1;});score+=Math.min(row.filter(x=>String(x??'').trim()).length,16)*.2;if(score>best.score) best={idx:i,score,headers:row.map((h,j)=>compact(h)||`Cột ${j+1}`)};}const headers=best.headers;const mapping={};Object.keys(keywordGroups).forEach(field=>{let bc=COL_NONE,bs=0;headers.forEach((h,idx)=>{const nh=norm(h);let sc=0;keywordGroups[field].forEach(k=>{const nk=norm(k);if(nh===nk) sc+=15; else if(nh.includes(nk)) sc+=7;});if(field==='station'&&nh==='path 1') sc+=20;if(field==='device'&&nh==='path 2') sc+=20;if(field==='message'&&nh==='path 4') sc+=20;if(field==='time'&&nh==='time stamp') sc+=20;if(sc>bs){bs=sc;bc=String(idx);}});mapping[field]=bc;});return {headerRow:best.idx,headers,mapping};}
+function fillMapping(headers,mapping){Object.keys(fields).forEach(id=>{const sel=$(id);sel.innerHTML='';const none=document.createElement('option');none.value=COL_NONE;none.textContent='-- Không dùng --';sel.appendChild(none);headers.forEach((h,i)=>{const opt=document.createElement('option');opt.value=String(i);opt.textContent=`${colLetters(i)} - ${h}`;sel.appendChild(opt);});sel.value=mapping[fields[id]]??COL_NONE;});}
+function colLetters(i){let s='',n=i+1;while(n>0){let r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26);}return s;}
+function getMapping(){const out={};Object.keys(fields).forEach(id=>out[fields[id]]=$(id).value);return out;}
+function cell(row,idx){if(idx===COL_NONE||idx===''||idx==null) return '';return row[Number(idx)]??'';}
+function parseAnyDate(v){if(v instanceof Date) return v;if(typeof v==='number'&&v>20000&&v<80000){const epoch=new Date(Date.UTC(1899,11,30));return new Date(epoch.getTime()+v*86400000);}const s=compact(v);if(!s) return null;let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?(?::(\d{1,3}))?/);if(m){let a=+m[1],b=+m[2],y=+m[3];if(y<100)y+=2000;const mode=$('dateMode')?.value||'auto';let mo,da;if(mode==='dmy'){da=a;mo=b;}else if(mode==='mdy'){mo=a;da=b;}else{if(a>12){da=a;mo=b;}else if(b>12){mo=a;da=b;}else{mo=a;da=b;}}return new Date(y,mo-1,da,+m[4],+m[5],+(m[6]||0),+(m[7]||0));}const d=new Date(s);return isNaN(d)?null:d;}
+function makeRecord(row,rowNum,m){const raw={};headerInfo.headers.forEach((h,i)=>raw[h]=row[i]??'');const time=cell(row,m.time);const station=compact(cell(row,m.station));const device=compact(cell(row,m.device));const point=compact(cell(row,m.message));const status=compact(cell(row,m.status));const value=compact(cell(row,m.value));const ind=compact(cell(row,m.ind));const unit=compact(cell(row,m.unit));const comment=compact(cell(row,m.comment));const limit=compact(cell(row,m.limit));const allCells=row.map(compact).filter(Boolean);const fullText=allCells.join(' | ');const device2=device||station||'(trống)';const point2=point||comment||'(không rõ nội dung)';const cats=classify(fullText+' '+point2+' '+comment+' '+status+' '+value+' '+ind);const dt=parseAnyDate(time);const active=isActive(status,value,fullText);const clear=isClear(status,value,fullText);return {rowNum,raw,row,timeRaw:time,timeDate:dt,time:dt?formatDate(dt):compact(time),station,device:device2,point:point2,status,value,ind,unit,comment,limit,fullText,categories:cats,active,clear,severity:scoreSeverity(cats,status,value,fullText),codes:extractCodes(fullText)};}
+function classify(text){return categoryDefs.filter(d=>d[1].test(text)).map(d=>d[0]);}
+function catClass(cat){const d=categoryDefs.find(x=>x[0]===cat);return d?d[2]:'gray';}
+function scoreSeverity(cats,status,value,text){let s=10;if(cats.includes('TRIP/CẮT')) s=Math.max(s,95);if(cats.includes('KHÓA/LIÊN ĐỘNG')) s=Math.max(s,85);if(cats.includes('BẢO VỆ/FAULT')) s=Math.max(s,78);if(cats.includes('NGUỒN AC/DC')) s=Math.max(s,70);if(cats.includes('INVALID/COMM')) s=Math.max(s,65);if(cats.includes('PICKUP/KHỞI ĐỘNG')) s=Math.max(s,55);if(cats.includes('STATUS OPEN/CLOSE')) s=Math.max(s,50);if(cats.includes('DSSE/TOPO/VIOLATION')) s=Math.max(s,20);if(/Ack/i.test(status)) s=Math.max(5,s-15);if(/Normal|Off|Stopped/i.test(value)) s=Math.max(5,s-10);return s;}
+function isActive(status,value,text){return /\bApp\b|Alarm/i.test(status)||/\bOn\b|Operated|Invalid|Intransit|Open|Close|Running/i.test(value)||/trip|pickup/i.test(text);}
+function isClear(status,value,text){return /\bDis\b/i.test(status)||/Normal|Off|Stopped/i.test(value);}
+function extractCodes(text){const out=new Set();String(text).match(/(?:RE|LBS)?_?E\d{1,2}\.\d+[_\/\-]?(\d{3})/gi)?.forEach(x=>{const m=x.match(/(\d{3})(?!.*\d{3})/);if(m)out.add(m[1]);});String(text).match(/\b(?:3\d{2}|4\d{2}|5\d{2}|C\d{2}(?:-\d)?|T\d)\b/gi)?.forEach(x=>out.add(x.toUpperCase()));return Array.from(out);}
+function eventKey(r){const ignoreInd=$('dedupeToggle').checked;const cols=headerInfo.headers.map((h,i)=>({h,i})).filter(o=>!(ignoreInd&&String(o.h).toLowerCase()==='ind')).map(o=>compact(r.row[o.i]));return cols.join('\u241f');}
 
-async function readXlsx(arrayBuffer){
-  if(typeof JSZip === 'undefined') throw new Error('Thiếu JSZip trong file HTML.');
-  const zip = await JSZip.loadAsync(arrayBuffer);
-  const text = async p => {
-    const f = zip.file(p); return f ? await f.async('text') : '';
-  };
-  const workbookXml = await text('xl/workbook.xml');
-  if(!workbookXml) throw new Error('Không đọc được xl/workbook.xml. File có thể không phải .xlsx chuẩn.');
-  const relsXml = await text('xl/_rels/workbook.xml.rels');
-  const sharedXml = await text('xl/sharedStrings.xml');
-  const sharedStrings = parseSharedStrings(sharedXml);
-  const relMap = parseRels(relsXml);
-  const wbDoc = new DOMParser().parseFromString(workbookXml, 'application/xml');
-  const sheets = Array.from(wbDoc.getElementsByTagName('sheet'));
-  const out = [];
-  for(const sh of sheets){
-    const name = sh.getAttribute('name') || ('Sheet'+(out.length+1));
-    const rid = sh.getAttribute('r:id') || sh.getAttribute('id');
-    let target = relMap[rid];
-    if(!target){
-      const id = sh.getAttribute('sheetId');
-      target = `worksheets/sheet${id}.xml`;
-    }
-    const path = normalizeXlPath(target);
-    const sheetXml = await text(path);
-    if(sheetXml){ out.push({name, rows:parseSheetXml(sheetXml, sharedStrings)}); }
-  }
-  return {sheets:out};
-}
-function normalizeXlPath(target){
-  if(!target) return '';
-  target = target.replace(/^\//,'');
-  if(target.startsWith('xl/')) return target;
-  return 'xl/' + target.replace(/^\.\//,'');
-}
-function parseRels(xml){
-  const map = {};
-  if(!xml) return map;
-  const doc = new DOMParser().parseFromString(xml, 'application/xml');
-  Array.from(doc.getElementsByTagName('Relationship')).forEach(r => {
-    map[r.getAttribute('Id')] = r.getAttribute('Target');
-  });
-  return map;
-}
-function parseSharedStrings(xml){
-  if(!xml) return [];
-  const doc = new DOMParser().parseFromString(xml, 'application/xml');
-  return Array.from(doc.getElementsByTagName('si')).map(si => {
-    const ts = Array.from(si.getElementsByTagName('t')).map(t=>t.textContent);
-    return ts.join('');
-  });
-}
-function parseSheetXml(xml, sharedStrings){
-  const doc = new DOMParser().parseFromString(xml, 'application/xml');
-  const rows = [];
-  Array.from(doc.getElementsByTagName('row')).forEach(row => {
-    const arr = [];
-    Array.from(row.getElementsByTagName('c')).forEach(c => {
-      const ref = c.getAttribute('r') || '';
-      const idx = colIndex(ref.replace(/[0-9]/g,''));
-      const t = c.getAttribute('t');
-      let val = '';
-      if(t === 'inlineStr'){
-        const is = c.getElementsByTagName('is')[0];
-        val = is ? Array.from(is.getElementsByTagName('t')).map(x=>x.textContent).join('') : '';
-      } else {
-        const v = c.getElementsByTagName('v')[0];
-        val = v ? v.textContent : '';
-        if(t === 's') val = sharedStrings[Number(val)] ?? '';
-        else if(t === 'b') val = val === '1' ? 'TRUE' : 'FALSE';
-        else if(t === 'str') val = String(val);
-        else if(val !== '' && !isNaN(Number(val))) val = Number(val);
-      }
-      arr[idx] = val;
-    });
-    rows.push(arr.map(x => x === undefined ? '' : x));
-  });
-  return trimRows(rows);
-}
-function colIndex(letters){
-  if(!letters) return 0;
-  let n = 0; for(const ch of letters.toUpperCase()){ n = n*26 + (ch.charCodeAt(0)-64); } return Math.max(0,n-1);
-}
-function trimRows(rows){
-  let max = 0; rows.forEach(r => { while(r.length && String(r[r.length-1]??'').trim()==='') r.pop(); max = Math.max(max, r.length); });
-  return rows.filter(r => r.some(x => String(x??'').trim() !== '')).map(r => { while(r.length<max) r.push(''); return r; });
-}
-function parseCsv(text){
-  text = text.replace(/^\uFEFF/, '');
-  const sample = text.slice(0, 4000);
-  const counts = [',',';','\t','|'].map(d => [d, (sample.match(new RegExp('\\'+(d==='\t'?'t':d),'g'))||[]).length]);
-  const delim = counts.sort((a,b)=>b[1]-a[1])[0][0];
-  const rows=[]; let row=[]; let cur=''; let q=false;
-  for(let i=0;i<text.length;i++){
-    const ch=text[i], next=text[i+1];
-    if(q){
-      if(ch==='"' && next==='"'){ cur+='"'; i++; }
-      else if(ch==='"') q=false;
-      else cur+=ch;
-    } else {
-      if(ch==='"') q=true;
-      else if(ch===delim){ row.push(cur); cur=''; }
-      else if(ch==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
-      else if(ch==='\r'){}
-      else cur+=ch;
-    }
-  }
-  row.push(cur); rows.push(row);
-  return trimRows(rows);
-}
+function analyzeCurrent(){if(!rawRows.length) return;const m=getMapping();const start=(headerInfo?.headerRow??0)+1;records=[];for(let i=start;i<rawRows.length;i++){const row=rawRows[i];if(!row||!row.some(x=>String(x??'').trim())) continue;records.push(makeRecord(row,i+1,m));}const seen=new Map();uniqueRecords=[];for(const r of records){const k=eventKey(r);if(!seen.has(k)){r.dupCount=1;r.dupRows=[r.rowNum];r.dupInd=[r.ind].filter(Boolean);seen.set(k,r);uniqueRecords.push(r);}else{const first=seen.get(k);first.dupCount++;first.dupRows.push(r.rowNum);if(r.ind&&!first.dupInd.includes(r.ind)) first.dupInd.push(r.ind);}}stats=buildStats();filtered=uniqueRecords.slice();renderAll();setStatus(`Đã đọc <b>${esc(sourceName)}</b> / sheet <b>${esc(currentSheet?.name||'')}</b>: ${fmt(records.length)} dòng, còn ${fmt(uniqueRecords.length)} sự kiện sau khử trùng.`, 'notice good');$('exportCsvBtn').disabled=false;$('exportReportBtn').disabled=false;}
+function buildStats(){const data=uniqueRecords;const raw=records;const count=(arr,fn)=>arr.filter(fn).length;const top=(arr,keyFn)=>{const m=new Map();arr.forEach(r=>{const k=keyFn(r)||'(trống)';m.set(k,(m.get(k)||0)+1);});return Array.from(m.entries()).sort((a,b)=>b[1]-a[1]);};const times=data.map(r=>r.timeDate).filter(Boolean).sort((a,b)=>a-b);const categories=new Map();data.forEach(r=>r.categories.length?r.categories.forEach(c=>categories.set(c,(categories.get(c)||0)+1)):categories.set('KHÁC',(categories.get('KHÁC')||0)+1));const hour=new Map();data.forEach(r=>{if(r.timeDate){const k=pad(r.timeDate.getHours())+':00';hour.set(k,(hour.get(k)||0)+1);}});const minute=new Map();data.forEach(r=>{if(r.timeDate){const k=`${pad(r.timeDate.getHours())}:${pad(r.timeDate.getMinutes())}`;minute.set(k,(minute.get(k)||0)+1);}});const codes=new Map();data.forEach(r=>r.codes.forEach(c=>codes.set(c,(codes.get(c)||0)+1)));const dupGroups=uniqueRecords.filter(r=>r.dupCount>1).sort((a,b)=>b.dupCount-a.dupCount);return {rawCount:raw.length,uniqueCount:data.length,dupRows:raw.length-data.length,dupGroups,active:count(data,r=>r.active),clear:count(data,r=>r.clear),ack:count(data,r=>/ack/i.test(r.status)||/ack/i.test(r.ind)),trip:count(data,r=>r.categories.includes('TRIP/CẮT')),pickup:count(data,r=>r.categories.includes('PICKUP/KHỞI ĐỘNG')),openclose:count(data,r=>r.categories.includes('STATUS OPEN/CLOSE')),comm:count(data,r=>r.categories.includes('INVALID/COMM')),dsse:count(data,r=>r.categories.includes('DSSE/TOPO/VIOLATION')),timeStart:times[0],timeEnd:times[times.length-1],topDevice:top(data,r=>r.device),topStation:top(data,r=>r.station),topPoint:top(data,r=>r.point),categories:Array.from(categories.entries()).sort((a,b)=>b[1]-a[1]),hours:Array.from(hour.entries()).sort(),minutes:Array.from(minute.entries()).sort((a,b)=>b[1]-a[1]),codes:Array.from(codes.entries()).sort((a,b)=>b[1]-a[1]),chats:detectChattering(data)};}
+function renderAll(){renderKpis();renderOverview();renderQuality();renderSequence(uniqueRecords);renderRaw();renderChattering();fillCategoryFilter();}
+function renderKpis(){const span=stats.timeStart&&stats.timeEnd?((stats.timeEnd-stats.timeStart)/3600000).toFixed(2)+' giờ':'--';$('kpiBox').innerHTML=`<div class="kpis"><div class="kpi"><div class="v">${fmt(stats.rawCount)}</div><div class="t">Dòng gốc</div></div><div class="kpi good"><div class="v">${fmt(stats.uniqueCount)}</div><div class="t">Sự kiện sau khử trùng</div></div><div class="kpi warn"><div class="v">${fmt(stats.dupRows)}</div><div class="t">Dòng trùng do Ind</div></div><div class="kpi bad"><div class="v">${fmt(stats.trip)}</div><div class="t">Trip/Cắt</div></div><div class="kpi warn"><div class="v">${fmt(stats.pickup)}</div><div class="t">Pickup</div></div><div class="kpi good"><div class="v">${fmt(stats.openclose)}</div><div class="t">Open/Close/Intransit</div></div><div class="kpi violet"><div class="v">${fmt(stats.comm)}</div><div class="t">Invalid/Comm</div></div><div class="kpi cyan"><div class="v">${span}</div><div class="t">Khoảng thời gian</div></div></div>`;}
+function barChart(id, rows, cls=''){const max=Math.max(1,...rows.map(r=>r[1]));$(id).innerHTML=rows.slice(0,15).map(([k,v])=>`<div class="barrow"><div class="barlabel" title="${esc(k)}">${esc(k)}</div><div class="barbg"><div class="bar ${cls}" style="width:${Math.max(2,v/max*100)}%"></div></div><div class="mono">${fmt(v)}</div></div>`).join('')||'<div class="muted">Chưa có dữ liệu.</div>';}
+function renderOverview(){barChart('chartDevice',stats.topDevice);barChart('chartMessage',stats.topPoint,'warn');barChart('chartHour',stats.hours,'good');barChart('chartCategory',stats.categories,'bad');const findings=[];if(stats.dupRows>0)findings.push(`<div class="callout warn"><b>Trùng lặp do Ind:</b> ${fmt(stats.dupRows)} dòng có khả năng là bản sao của cùng sự kiện, thường do cặp Spont/Alarm. Nên dùng số ${fmt(stats.uniqueCount)} sự kiện sau khử trùng để thống kê.</div>`);if(stats.dsse>stats.uniqueCount*.25)findings.push(`<div class="callout warn"><b>Nhiều DSSE/Topo/Violation:</b> ${fmt(stats.dsse)} sự kiện thuộc nhóm tính toán/vi phạm lưới, không nên coi tất cả là sự cố bảo vệ.</div>`);if(stats.chats[0])findings.push(`<div class="callout bad"><b>Chattering nổi bật:</b> ${esc(stats.chats[0].device)} / ${esc(stats.chats[0].point)} lặp ${fmt(stats.chats[0].count)} dòng trong ${fmtSpan(stats.chats[0].span)}. Cần kiểm tra tín hiệu chập chờn, chất lượng đo hoặc mapping.</div>`);if(stats.trip>0)findings.push(`<div class="callout bad"><b>Có bản ghi Trip:</b> ${fmt(stats.trip)} sự kiện chứa từ khóa Trip/Cắt. Vào tab Phân tích thiết bị để kiểm tra từng mã có phản hồi Open/Close hay không.</div>`);$('quickFindings').innerHTML=findings.join('')||'<div class="notice good">Không phát hiện bất thường nổi bật theo quy tắc mặc định.</div>';}
+function renderQuality(){const map=getMapping();$('structureBox').innerHTML=`<table><tbody><tr><th>File</th><td>${esc(sourceName)}</td></tr><tr><th>Sheet</th><td>${esc(currentSheet?.name||'')}</td></tr><tr><th>Dòng header</th><td>${(headerInfo.headerRow+1)}</td></tr><tr><th>Số cột</th><td>${fmt(headerInfo.headers.length)}</td></tr><tr><th>Thời gian</th><td>${stats.timeStart?formatDate(stats.timeStart):'Không nhận được'} → ${stats.timeEnd?formatDate(stats.timeEnd):'Không nhận được'}</td></tr>${Object.keys(fieldLabels).map(f=>`<tr><th>${fieldLabels[f]}</th><td>${map[f]===COL_NONE?'<span class="dangerText">Không dùng</span>':esc(colLetters(Number(map[f]))+' - '+headerInfo.headers[Number(map[f])])}</td></tr>`).join('')}</tbody></table>`;const dupRows=stats.dupGroups.slice(0,12).map(r=>`<tr><td>${fmt(r.dupCount)}</td><td>${esc(r.time)}</td><td>${esc(r.device)}</td><td class="wrap">${esc(r.point)}</td><td>${esc(r.status)}</td><td>${esc(r.value)}</td><td>${esc(r.dupInd.join(', '))}</td><td>${esc(r.dupRows.join(', '))}</td></tr>`).join('');$('duplicateBox').innerHTML=`<div class="notice ${stats.dupRows?'warn':'good'}">Dữ liệu gốc ${fmt(stats.rawCount)} dòng; sau khử trùng còn ${fmt(stats.uniqueCount)} sự kiện; loại ${fmt(stats.dupRows)} dòng trùng (${pct(stats.dupRows,stats.rawCount)}).</div><div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Số dòng trùng</th><th>Thời gian</th><th>Thiết bị</th><th class="wrap">Alarm</th><th>Status</th><th>Value</th><th>Ind gom được</th><th>Row Excel</th></tr></thead><tbody>${dupRows||'<tr><td colspan="8">Không có nhóm trùng.</td></tr>'}</tbody></table></div>`;$('codeBox').innerHTML=tableFromPairs(stats.codes.slice(0,40),['Mã','Số sự kiện']);}
+function tableFromPairs(rows,heads){return `<div class="tablewrap"><table><thead><tr>${heads.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td class="mono">${fmt(r[1])}</td></tr>`).join('')}</tbody></table></div>`;}
+function fillCategoryFilter(){const sel=$('fCategory');const old=sel.value;sel.innerHTML='<option value="">Tất cả</option>'+stats.categories.map(([c])=>`<option>${esc(c)}</option>`).join('');sel.value=old;}
+function applyFilter(){let arr=uniqueRecords.slice();const txt=norm($('fText').value), dev=norm($('fDevice').value), st=norm($('fStatus').value), cat=$('fCategory').value, from=parseInputDT($('fFrom').value), to=parseInputDT($('fTo').value);if(txt)arr=arr.filter(r=>norm(r.fullText).includes(txt));if(dev)arr=arr.filter(r=>norm(r.device).includes(dev));if(st)arr=arr.filter(r=>norm(r.status).includes(st));if(cat)arr=arr.filter(r=>r.categories.includes(cat));if(from)arr=arr.filter(r=>r.timeDate&&r.timeDate>=from);if(to)arr=arr.filter(r=>r.timeDate&&r.timeDate<=to);filtered=arr;renderSequence(arr);}
+function parseInputDT(v){return v?new Date(v):null;}
+function renderSequence(arr){const limit=Number($('fLimit')?.value||300);const shown=arr.slice().sort((a,b)=>(a.timeDate||0)-(b.timeDate||0)).slice(0,limit);$('sequenceInfo').innerHTML=`Đang hiển thị ${fmt(shown.length)} / ${fmt(arr.length)} sự kiện sau lọc. ${arr.length>limit?'Tăng giới hạn nếu cần xem thêm.':''}`;$('sequenceTable').innerHTML=renderTable(shown);}
+function renderRaw(){const lim=Number($('rowLimit').value||500);$('rawInfo').innerHTML=`Hiển thị ${fmt(Math.min(uniqueRecords.length,lim))} / ${fmt(uniqueRecords.length)} sự kiện đã chuẩn hoá. Bật/tắt khử trùng ở phần đầu và bấm phân tích lại để so sánh.`;$('rawTable').innerHTML=renderTable(uniqueRecords.slice(0,lim));}
+function renderTable(arr){return `<div class="tablewrap"><table><thead><tr><th>Row</th><th>Thời gian</th><th>Trạm/Nhóm</th><th>Thiết bị</th><th class="wrap">Alarm/Point</th><th>Status</th><th>Value</th><th>Ind</th><th>Loại</th><th>Điểm nặng</th><th class="wrap">Comment</th></tr></thead><tbody>${arr.map(r=>`<tr><td class="mono">${r.rowNum}</td><td>${esc(r.time)}</td><td>${esc(r.station)}</td><td>${esc(r.device)}</td><td class="wrap">${esc(r.point)}</td><td>${pill(r.status,statusClass(r.status))}</td><td>${esc(r.value)}</td><td>${esc(r.ind)}</td><td>${r.categories.map(c=>pill(c,catClass(c))).join(' ')}</td><td class="mono">${r.severity}</td><td class="wrap">${esc(r.comment)}</td></tr>`).join('')}</tbody></table></div>`;}
+function pill(t,cls='gray'){return t?`<span class="pill ${cls}">${esc(t)}</span>`:'';}
+function statusClass(s){return /App/i.test(s)?'bad':/Dis/i.test(s)?'good':/Ack/i.test(s)?'gray':'gray';}
+function detectChattering(data){const minCount=Number($('chatThreshold')?.value||6);const groups=new Map();data.forEach(r=>{const key=norm(r.device)+'|'+norm(r.point)+'|'+norm(r.comment);if(!groups.has(key))groups.set(key,{device:r.device,point:r.point,comment:r.comment,rows:[]});groups.get(key).rows.push(r);});const out=[];groups.forEach(g=>{g.rows.sort((a,b)=>(a.timeDate||0)-(b.timeDate||0));const times=g.rows.map(r=>r.timeDate).filter(Boolean);const span=times.length>=2?(times[times.length-1]-times[0])/1000:0;const active=g.rows.filter(r=>r.active).length, clear=g.rows.filter(r=>r.clear).length;const toggles=countToggles(g.rows);if(g.rows.length>=minCount&&(toggles>=2||span<=3600)){out.push({device:g.device,point:g.point,comment:g.comment,count:g.rows.length,span,active,clear,toggles,first:g.rows[0],last:g.rows[g.rows.length-1]});}});return out.sort((a,b)=>b.count-a.count||b.toggles-a.toggles);}
+function countToggles(rows){let last='',n=0;rows.forEach(r=>{const cur=r.active?'A':r.clear?'C':'';if(cur&&last&&cur!==last)n++;if(cur)last=cur;});return n;}
+function fmtSpan(sec){if(!isFinite(sec))return '--';if(sec<1)return (sec*1000).toFixed(0)+' ms';if(sec<60)return sec.toFixed(3).replace(/\.000$/,'')+' s';const m=Math.floor(sec/60),s=Math.round(sec%60);if(m<60)return `${m} phút ${s}s`;const h=Math.floor(m/60),mm=m%60;return `${h} giờ ${mm} phút`;}
+function renderChattering(){stats.chats=detectChattering(uniqueRecords);const chatRows=stats.chats.slice(0,30).map(g=>`<tr><td>${fmt(g.count)}</td><td>${fmt(g.toggles)}</td><td>${fmtSpan(g.span)}</td><td>${esc(g.device)}</td><td class="wrap">${esc(g.point)}</td><td>${esc(g.first.time)}</td><td>${esc(g.last.time)}</td></tr>`).join('');$('chatBox').innerHTML=`<div class="tablewrap"><table><thead><tr><th>Số dòng</th><th>Đảo trạng thái</th><th>Khoảng</th><th>Thiết bị</th><th class="wrap">Alarm</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${chatRows||'<tr><td colspan="7">Không phát hiện nhóm lặp theo ngưỡng hiện tại.</td></tr>'}</tbody></table></div>`;$('burstBox').innerHTML=tableFromPairs(stats.minutes.slice(0,30),['Phút','Số sự kiện']);const f=[];if(stats.minutes[0]) f.push(`<div class="callout warn"><b>Phút dồn alarm cao nhất:</b> ${esc(stats.minutes[0][0])} có ${fmt(stats.minutes[0][1])} sự kiện. Cần so sánh với sự kiện thao tác hoặc sự cố cùng thời điểm.</div>`);if(stats.chats[0]) f.push(`<div class="callout bad"><b>Nhóm lặp cao nhất:</b> ${esc(stats.chats[0].device)} / ${esc(stats.chats[0].point)} lặp ${fmt(stats.chats[0].count)} dòng trong ${fmtSpan(stats.chats[0].span)}.</div>`);$('chatFindings').innerHTML=f.join('')||'<div class="notice good">Không có nhận xét chattering/burst nổi bật.</div>';}
+function analyzeBreaker(){const target=compact($('targetDevice').value);if(!target){$('breakerResult').className='notice warn';$('breakerResult').innerHTML='Hãy nhập mã thiết bị, ví dụ 374 hoặc RE_E22.1_372_QUAN BA.';return;}const nt=norm(target);const arr=uniqueRecords.filter(r=>norm(r.fullText).includes(nt)||norm(r.device).includes(nt)||r.codes.some(c=>norm(c)===nt)).sort((a,b)=>(a.timeDate||0)-(b.timeDate||0));if(!arr.length){$('breakerResult').className='notice bad';$('breakerResult').innerHTML=`Không tìm thấy bản ghi chứa <b>${esc(target)}</b>. Hãy thử mã rộng hơn, ví dụ chỉ nhập 372 hoặc 374.`;$('breakerStats').innerHTML='';$('breakerTimeline').innerHTML='';return;}const trip=arr.filter(isTrip), pickup=arr.filter(isPickup), opens=arr.filter(isOpen), closes=arr.filter(isClose), blocks=arr.filter(isBlockLike), invalid=arr.filter(r=>r.categories.includes('INVALID/COMM'));const tripWindow=Number($('tripWindow').value||2);const tripPairs=[];trip.forEach(t=>{const nextOpen=arr.find(r=>r.timeDate&&t.timeDate&&r.timeDate>=t.timeDate&&((r.timeDate-t.timeDate)/1000)<=tripWindow&&isOpen(r));if(nextOpen) tripPairs.push({trip:t,open:nextOpen,dt:(nextOpen.timeDate-t.timeDate)/1000});});let html='';let cls='notice';if(trip.length&&tripPairs.length){cls='notice good';html+=`<div class="callout good"><b>Có Trip và có phản hồi OPEN:</b> tìm thấy ${fmt(tripPairs.length)} chuỗi Trip → Open trong cửa sổ ${tripWindow}s. Nhanh nhất: ${fmtSpan(Math.min(...tripPairs.map(p=>p.dt)))}.</div>`;}else if(trip.length&&!tripPairs.length){cls='notice bad';html+=`<div class="callout bad"><b>Có Trip nhưng chưa thấy phản hồi OPEN trong file:</b> có ${fmt(trip.length)} bản ghi Trip, nhưng không tìm được Status/Open trong ${tripWindow}s sau Trip. Cần kiểm tra mạch cắt, cuộn cắt, nguồn DC, tiếp điểm 52a/52b, Local/Remote, khóa liên động, mapping tín hiệu trạng thái và SOE rơ-le.</div>`;}else if(pickup.length){cls='notice warn';html+=`<div class="callout warn"><b>Chỉ thấy Pickup/khởi động, chưa thấy Trip:</b> có ${fmt(pickup.length)} bản ghi Pickup. Có thể bảo vệ khởi động thoáng qua rồi trở về Normal, chưa đủ điều kiện/thời gian cắt, hoặc bản ghi Trip không được đưa về SCADA.</div>`;}else{html+=`<div class="callout warn"><b>Không thấy Pickup/Trip rõ ràng:</b> chủ yếu là trạng thái/analog/comment. Cần lọc rộng hơn hoặc kiểm tra SOE rơ-le.</div>`;}if(opens.length) html+=`<div class="callout good"><b>Có trạng thái OPEN:</b> ${fmt(opens.length)} dòng. Dòng đầu: ${esc(opens[0].time)} - ${esc(opens[0].point)} / ${esc(opens[0].value)}.</div>`;else html+=`<div class="callout warn"><b>Không thấy trạng thái OPEN:</b> nếu thiết bị thực tế đã mở, có thể tín hiệu trạng thái không nằm trong file, mất mapping, hoặc điểm 52a/52b không ghi vào Alarm Summary.</div>`;if(blocks.length) html+=`<div class="callout bad"><b>Có tín hiệu nghi ngờ khóa/liên động/nguồn:</b> ${fmt(blocks.length)} dòng chứa nguồn AC/DC, battery, invalid, intransit, relay fault, lock/block/interlock... cần soi kỹ.</div>`;if(invalid.length) html+=`<div class="callout warn"><b>Có Invalid/Communication:</b> ${fmt(invalid.length)} dòng. Nếu trùng thời điểm sự cố, có thể làm thiếu phản hồi trạng thái trên SCADA.</div>`;$('breakerResult').className=cls;$('breakerResult').innerHTML=html;const catMap=new Map();arr.forEach(r=>(r.categories.length?r.categories:['KHÁC']).forEach(c=>catMap.set(c,(catMap.get(c)||0)+1)));$('breakerStats').innerHTML=`<div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi"><div class="v">${fmt(arr.length)}</div><div class="t">Sự kiện liên quan</div></div><div class="kpi bad"><div class="v">${fmt(trip.length)}</div><div class="t">Trip</div></div><div class="kpi warn"><div class="v">${fmt(pickup.length)}</div><div class="t">Pickup</div></div><div class="kpi good"><div class="v">${fmt(opens.length)}</div><div class="t">Open</div></div><div class="kpi"><div class="v">${fmt(closes.length)}</div><div class="t">Close</div></div><div class="kpi violet"><div class="v">${fmt(blocks.length)}</div><div class="t">Nghi ngờ block/nguồn/comm</div></div></div><h4>Loại sự kiện</h4>${tableFromPairs(Array.from(catMap.entries()).sort((a,b)=>b[1]-a[1]),['Loại','Số dòng'])}`;$('breakerTimeline').innerHTML=timeline(arr.slice(0,300),target);}
+function isTrip(r){return /\btrip\b|\bcắt\b|\bcat\b/i.test(r.fullText+' '+r.point);}
+function isPickup(r){return /pickup|khởi động|khoi dong/i.test(r.fullText+' '+r.point);}
+function isOpen(r){return /\bopen\b/i.test(r.value)||(/status/i.test(r.point)&&/\bopen\b/i.test(r.fullText));}
+function isClose(r){return /\bclose\b/i.test(r.value)||(/status/i.test(r.point)&&/\bclose\b/i.test(r.fullText));}
+function isBlockLike(r){return /block|lock|interlock|local|remote|sf6|spring|trip circuit|tcs|dc|battery|auxiliary supply|ac power|power loss|relay fault|invalid|intransit|fail/i.test(r.fullText);}
+function timeline(arr,target){return `<div class="timeline">${arr.map(r=>{let cls=isTrip(r)?'trip':isOpen(r)?'open':isBlockLike(r)?'block':isPickup(r)?'pickup':r.categories.includes('INVALID/COMM')?'comm':'';return `<div class="event ${cls}"><div><b>${esc(r.time)}</b> <span class="muted">row ${r.rowNum}</span> ${r.categories.map(c=>pill(c,catClass(c))).join(' ')}</div><div><b>${highlight(r.device,target)}</b> — ${highlight(r.point,target)}</div><div>Status: ${esc(r.status)} • Value: <b>${esc(r.value)}</b> • Ind: ${esc(r.ind)} ${r.comment?'• Comment: '+highlight(r.comment,target):''}</div></div>`;}).join('')}</div>`;}
+function highlight(s,q){s=esc(s);const n=compact(q);if(!n)return s;try{return s.replace(new RegExp('('+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<span class="hl">$1</span>');}catch{return s;}}
+function exportCsv(){const arr=filtered.length?filtered:uniqueRecords;const head=['row','time','station','device','point','status','value','ind','unit','comment','categories','severity','source_file'];const csv=[head,...arr.map(r=>[r.rowNum,r.time,r.station,r.device,r.point,r.status,r.value,r.ind,r.unit,r.comment,r.categories.join('|'),r.severity,sourceName])].map(row=>row.map(csvCell).join(',')).join('\r\n');downloadText(safeBase(sourceName)+'_SCADA_alarm_analyzed.csv','\uFEFF'+csv,'text/csv;charset=utf-8');}
+function csvCell(v){v=String(v??'');return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportReport(){const css=document.querySelector('style').textContent;const body=`<main><h1>Báo cáo phân tích Alarm Summary SCADA</h1><div class="notice">File: <b>${esc(sourceName)}</b> • Sheet: <b>${esc(currentSheet?.name||'')}</b> • Xuất: <b>${esc(formatDate(new Date()))}</b></div>${$('overview').innerHTML}${$('quality').innerHTML}${$('chattering').innerHTML}${$('breakerResult').outerHTML}${$('breakerTimeline').innerHTML?'<h2>Timeline thiết bị đang chọn</h2>'+$('breakerTimeline').innerHTML:''}</main>`;downloadText(safeBase(sourceName)+'_SCADA_alarm_report.html',`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo ${esc(sourceName)}</title><style>${css}</style></head><body>${body}</body></html>`,'text/html;charset=utf-8');}
+function showSample(){const rows=rawRows.slice(0,20);const html=`<div class="tablewrap"><table>${rows.map((r,i)=>`<tr><th>${i+1}</th>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;const w=window.open('','_blank');if(w){w.document.write(`<!doctype html><meta charset="utf-8"><title>Sample</title><style>${document.querySelector('style').textContent}</style><body><main><h2>20 dòng đầu - ${esc(currentSheet?.name||'')}</h2>${html}</main></body>`);w.document.close();}}
 
-function fillSheetSelect(){
-  const sel = $('sheetSelect'); sel.innerHTML='';
-  workbook.sheets.forEach((s,i)=>{
-    const opt=document.createElement('option'); opt.value=i; opt.textContent=`${s.name} (${fmtNumber(s.rows.length)} dòng)`; sel.appendChild(opt);
-  });
-  sel.disabled=false;
-}
-function loadSheet(idx){
-  currentSheet = workbook.sheets[idx];
-  rawRows = currentSheet.rows || [];
-  headerInfo = detectHeader(rawRows);
-  fillMapping(headerInfo.headers, headerInfo.mapping);
-  analyzeCurrent();
-}
-function detectHeader(rows){
-  let best = {idx:0, score:-1, headers:[]};
-  const maxScan = Math.min(rows.length, 30);
-  for(let i=0;i<maxScan;i++){
-    const row = rows[i] || [];
-    let score = 0;
-    const texts = row.map(x=>norm(x));
-    texts.forEach(h=>{
-      Object.values(keywordGroups).flat().forEach(k => { if(h.includes(norm(k))) score += 2; });
-      if(h.length > 2 && h.length < 45) score += .2;
-    });
-    const nonEmpty = row.filter(x=>String(x??'').trim()!=='').length;
-    score += Math.min(nonEmpty, 12) * .15;
-    if(score > best.score) best = {idx:i, score, headers:row.map((h,j)=>compact(h)||`Cột ${j+1}`)};
-  }
-  const headers = best.headers;
-  const mapping = {};
-  Object.keys(keywordGroups).forEach(field=>{
-    let bestCol = COL_NONE, bestScore = 0;
-    headers.forEach((h, idx)=>{
-      const nh = norm(h); let sc = 0;
-      keywordGroups[field].forEach(k => { const nk = norm(k); if(nh === nk) sc += 12; else if(nh.includes(nk)) sc += 6; });
-      if(field==='time' && /\b(time|date|gio|ngay|thoi gian)\b/.test(nh)) sc += 5;
-      if(sc > bestScore){ bestScore=sc; bestCol=String(idx); }
-    });
-    mapping[field] = bestCol;
-  });
-  // fallback for message: choose longest text column in first rows if none
-  if(mapping.message===COL_NONE){
-    const sample = rows.slice(best.idx+1, best.idx+31);
-    let bestLen=0, col=COL_NONE;
-    headers.forEach((h,j)=>{
-      const avg = sample.reduce((a,r)=>a+String(r[j]??'').length,0)/Math.max(1,sample.length);
-      if(avg>bestLen){bestLen=avg; col=String(j);}
-    }); mapping.message=col;
-  }
-  return {headerRow:best.idx, headers, mapping};
-}
-function fillMapping(headers, mapping){
-  mapIds.forEach(id=>{
-    const sel=$(id); sel.innerHTML='';
-    const none=document.createElement('option'); none.value=COL_NONE; none.textContent='-- Không dùng --'; sel.appendChild(none);
-    headers.forEach((h,i)=>{ const opt=document.createElement('option'); opt.value=String(i); opt.textContent=`${colLetters(i)} - ${h}`; sel.appendChild(opt); });
-    const field = fieldMap[id]; sel.value = mapping[field] ?? COL_NONE;
-  });
-}
-function colLetters(i){ let s='', n=i+1; while(n>0){ let r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26); } return s; }
-function getMapping(){
-  const out={}; mapIds.forEach(id=>out[fieldMap[id]]=$(id).value); return out;
-}
-function cell(row, idx){ if(idx===COL_NONE || idx==='' || idx==null) return ''; return row[Number(idx)] ?? ''; }
-
-function analyzeCurrent(){
-  if(!rawRows.length) return;
-  const mapping = getMapping();
-  const start = (headerInfo?.headerRow ?? 0) + 1;
-  records = [];
-  for(let i=start;i<rawRows.length;i++){
-    const r = rawRows[i];
-    if(!r || !r.some(x=>String(x??'').trim()!=='')) continue;
-    const rec = makeRecord(r, i+1, mapping);
-    records.push(rec);
-  }
-  records.sort((a,b)=>(a.timeObj?.getTime()??0)-(b.timeObj?.getTime()??0) || a.rowNum-b.rowNum);
-  filtered = [...records];
-  setStatus(`Đã đọc <b>${escapeHtml(sourceName)}</b> / sheet <b>${escapeHtml(currentSheet.name)}</b>. Tìm thấy <b>${fmtNumber(records.length)}</b> dòng dữ liệu sau dòng tiêu đề ${headerInfo.headerRow+1}.`, 'notice good');
-  renderAll();
-}
-function makeRecord(row, rowNum, m){
-  const message = compact(cell(row,m.message));
-  const deviceRaw = compact(cell(row,m.device));
-  const station = compact(cell(row,m.station));
-  const bay = compact(cell(row,m.bay));
-  const state = compact(cell(row,m.state));
-  const severity = compact(cell(row,m.severity));
-  const ack = compact(cell(row,m.ack));
-  const rawText = row.map(x=>compact(x)).filter(Boolean).join(' | ');
-  const combined = [station,bay,deviceRaw,message,state,severity,ack,rawText].filter(Boolean).join(' | ');
-  const timeVal = cell(row,m.time);
-  const timeObj = parseAnyDate(timeVal, combined);
-  const device = deviceRaw || extractDevice(combined) || bay || station || '(không rõ)';
-  const category = classifyAlarm(combined, state, severity);
-  return {rowNum, timeRaw:compact(timeVal), timeObj, time:formatDate(timeObj)||compact(timeVal), station, bay, device, message, state, severity, ack, rawText, combined, category, row};
-}
-function parseAnyDate(v, fallbackText=''){
-  if(v instanceof Date && !isNaN(v)) return v;
-  if(typeof v === 'number' && isFinite(v)) return excelDate(v);
-  let s = compact(v);
-  if(!s){
-    const m = fallbackText.match(/\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s+(\d{1,2}:\d{2}(?::\d{2})?)\b/);
-    if(m) s = m[0]; else return null;
-  }
-  if(/^\d+(\.\d+)?$/.test(s)){ const n=Number(s); if(n>20000 && n<80000) return excelDate(n); }
-  const isoTry = new Date(s);
-  if(!isNaN(isoTry) && /\d{4}/.test(s)) return isoTry;
-  let m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})(?:\s+|T)?(\d{1,2})?:?(\d{2})?:?(\d{2})?/);
-  if(m){
-    let d=Number(m[1]), mo=Number(m[2]), y=Number(m[3]); if(y<100) y+=2000;
-    let hh=Number(m[4]||0), mi=Number(m[5]||0), ss=Number(m[6]||0);
-    const dt = new Date(y,mo-1,d,hh,mi,ss); if(!isNaN(dt)) return dt;
-  }
-  m = s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:\s+|T)?(\d{1,2})?:?(\d{2})?:?(\d{2})?/);
-  if(m){
-    const dt = new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0)); if(!isNaN(dt)) return dt;
-  }
-  return null;
-}
-function excelDate(n){
-  const utc = Math.round((n - 25569) * 86400 * 1000);
-  return new Date(utc);
-}
-function extractDevice(text){
-  const t = compact(text);
-  let m = t.match(/\b(?:MC|MÁY CẮT|MAY CAT|CB|BREAKER)[\s_:\-]*(\d{2,5}[A-Z]?)\b/i);
-  if(m) return 'MC ' + m[1];
-  m = t.match(/\b(\d{3,5})\b/);
-  if(m) return m[1];
-  m = t.match(/\b(F\d{1,3}|E\d{1,3}|T\d{1,3}|MBA\s*\d+|XT\s*\d+)\b/i);
-  if(m) return m[1].toUpperCase();
-  return '';
-}
-function classifyAlarm(text, state='', severity=''){
-  const n = norm([text,state,severity].join(' '));
-  const flags=[];
-  const has = arr => arr.some(k=>n.includes(norm(k)));
-  if(has(['trip','tripped','protect','protection','bao ve','bao dong cat','tac dong','relay','role','f86','lockout','lock out','cat may cat','lenh cat'])) flags.push('trip');
-  if(has(['open','opened','mo may cat','may cat mo','breaker open','mc mo','cat'])) flags.push('open');
-  if(has(['close','closed','dong may cat','may cat dong','breaker close','mc dong'])) flags.push('close');
-  if(has(['block','blocked','khoa','interlock','lien dong','not ready','spring','lo xo','sf6','low gas','pressure','ap luc','local','remote','control fail','dc fail','trip circuit','tcs','coil','cuon cat','fuse','mcb','52a','52b'])) flags.push('block');
-  if(has(['comm','communication','mat ket noi','fail','failure','invalid','bad quality','quality','mat tin hieu','mat thong tin','rtu','ied'])) flags.push('quality');
-  if(has(['ack','acknowledge','xac nhan'])) flags.push('ack');
-  if(!flags.length && has(['alarm','canh bao','warning'])) flags.push('alarm');
-  return flags;
-}
-
-function renderAll(){
-  updateFilters();
-  renderOverview();
-  renderSequence(records.slice(0, Number($('fLimit').value)||500));
-  renderRaw(records.slice(0,1000));
-  $('exportCsvBtn').disabled = false;
-  $('exportReportBtn').disabled = false;
-}
-function updateFilters(){
-  const devices = [...new Set(records.map(r=>r.device).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
-  const states = [...new Set(records.map(r=>r.state).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
-  fillFilterSelect($('fDevice'), devices, 'Tất cả'); fillFilterSelect($('fState'), states, 'Tất cả');
-  const times = records.map(r=>r.timeObj).filter(Boolean);
-  if(times.length){ $('fFrom').value = toInputDT(times[0]); $('fTo').value = toInputDT(times[times.length-1]); }
-}
-function fillFilterSelect(sel, items, first){ const cur=sel.value; sel.innerHTML=`<option value="">${first}</option>` + items.slice(0,1000).map(x=>`<option>${escapeHtml(x)}</option>`).join(''); if([...sel.options].some(o=>o.value===cur)) sel.value=cur; }
-function renderOverview(){
-  const total = records.length;
-  const times = records.map(r=>r.timeObj).filter(Boolean);
-  const devices = new Set(records.map(r=>r.device).filter(Boolean));
-  const stations = new Set(records.map(r=>r.station).filter(Boolean));
-  const tripCount = records.filter(r=>r.category.includes('trip')).length;
-  const blockCount = records.filter(r=>r.category.includes('block')).length;
-  const qualityCount = records.filter(r=>r.category.includes('quality')).length;
-  const ackMissing = records.filter(r=>r.ack && /^(no|false|0|unack|not|chưa|chua)/i.test(stripDiacritics(r.ack))).length;
-  $('kpiBox').innerHTML = `<div class="card"><div class="kpis">
-    ${kpi('Tổng dòng Alarm', total, '')}
-    ${kpi('Thiết bị khác nhau', devices.size, 'violet')}
-    ${kpi('Trạm khác nhau', stations.size, '')}
-    ${kpi('Trip/Bảo vệ/Lệnh cắt', tripCount, 'bad')}
-    ${kpi('Khóa/liên động/mạch trip', blockCount, 'warn')}
-    ${kpi('Mất tín hiệu/Quality', qualityCount, 'warn')}
-  </div><div class="small muted" style="margin-top:8px">Khoảng thời gian: <b>${escapeHtml(formatDate(times[0])||'')}</b> → <b>${escapeHtml(formatDate(times[times.length-1])||'')}</b>${ackMissing?` • Chưa ACK: <b>${fmtNumber(ackMissing)}</b>`:''}</div></div>`;
-  renderChart('chartDevice', topCounts(records.map(r=>r.device||'(không rõ)'), 12), 'bad');
-  renderChart('chartMessage', topCounts(records.map(r=>shortMsg(r.message||r.rawText)), 12), 'warn');
-  renderChart('chartHour', hourCounts(records), 'good');
-  renderChattering();
-  renderQuickFindings();
-}
-function kpi(title, val, cls){ return `<div class="kpi ${cls||''}"><div class="v">${fmtNumber(val)}</div><div class="t">${escapeHtml(title)}</div></div>`; }
-function shortMsg(s){ s=compact(s); if(!s) return '(trống)'; return s.length>100?s.slice(0,100)+'…':s; }
-function topCounts(arr, n=10){ const m=new Map(); arr.forEach(x=>m.set(x,(m.get(x)||0)+1)); return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n); }
-function hourCounts(recs){
-  const m = new Map();
-  recs.forEach(r=>{ if(r.timeObj){ const k=`${pad2(r.timeObj.getHours())}:00`; m.set(k,(m.get(k)||0)+1); }});
-  return [...m.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
-}
-function renderChart(id, data, mode=''){
-  const el=$(id); if(!data.length){ el.innerHTML='<div class="muted">Không có dữ liệu</div>'; return; }
-  const max=Math.max(...data.map(x=>x[1]),1);
-  el.innerHTML = data.map(([label,val])=>`<div class="barrow" title="${escapeHtml(label)}">
-    <div class="barlabel">${escapeHtml(label)}</div><div class="barbg"><div class="bar ${mode}" style="width:${Math.max(2,val/max*100)}%"></div></div><div class="mono">${fmtNumber(val)}</div></div>`).join('');
-}
-function renderChattering(){
-  const groups = new Map();
-  records.forEach(r=>{
-    const key = `${r.device}||${shortMsg(r.message)}`;
-    if(!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(r);
-  });
-  const hits=[];
-  groups.forEach((list,key)=>{
-    list = list.filter(r=>r.timeObj).sort((a,b)=>a.timeObj-b.timeObj);
-    let maxBurst=0, burstStart=null, burstEnd=null;
-    for(let i=0;i<list.length;i++){
-      let j=i; while(j<list.length && (list[j].timeObj-list[i].timeObj)<=10*60*1000) j++;
-      const c=j-i; if(c>maxBurst){ maxBurst=c; burstStart=list[i].timeObj; burstEnd=list[j-1].timeObj; }
-    }
-    if(maxBurst>=3){ const [dev,msg]=key.split('||'); hits.push({dev,msg,count:list.length,maxBurst,burstStart,burstEnd}); }
-  });
-  hits.sort((a,b)=>b.maxBurst-a.maxBurst || b.count-a.count);
-  if(!hits.length){ $('chatBox').innerHTML='<div class="notice good">Chưa phát hiện alarm lặp dày đặc theo ngưỡng 3 lần/10 phút.</div>'; return; }
-  $('chatBox').innerHTML = `<div class="tablewrap"><table><thead><tr><th>Thiết bị</th><th class="wrap">Alarm</th><th>Tổng</th><th>Max/10 phút</th><th>Khoảng</th></tr></thead><tbody>${hits.slice(0,30).map(h=>`<tr><td>${escapeHtml(h.dev)}</td><td class="wrap">${escapeHtml(h.msg)}</td><td>${fmtNumber(h.count)}</td><td><span class="pill bad">${fmtNumber(h.maxBurst)}</span></td><td>${escapeHtml(formatDate(h.burstStart))} → ${escapeHtml(formatDate(h.burstEnd))}</td></tr>`).join('')}</tbody></table></div>`;
-}
-function renderQuickFindings(){
-  const lines=[];
-  const topDev=topCounts(records.map(r=>r.device||'(không rõ)'),3);
-  if(topDev.length) lines.push(`Thiết bị phát alarm nhiều nhất: ${topDev.map(x=>`<b>${escapeHtml(x[0])}</b> (${fmtNumber(x[1])})`).join(', ')}.`);
-  const trip = records.filter(r=>r.category.includes('trip'));
-  if(trip.length) lines.push(`Có <b class="dangerText">${fmtNumber(trip.length)}</b> dòng liên quan TRIP/bảo vệ/lệnh cắt. Nên mở tab Trình tự hoặc nhập mã MC ở tab phân tích thiết bị.`);
-  const block = records.filter(r=>r.category.includes('block'));
-  if(block.length) lines.push(`Có <b class="warnText">${fmtNumber(block.length)}</b> dòng có dấu hiệu khóa/liên động/mạch trip/SF6/DC/Local-Remote. Đây là nhóm cần kiểm tra khi nghi ngờ máy cắt không tác động.`);
-  const quality = records.filter(r=>r.category.includes('quality'));
-  if(quality.length) lines.push(`Có <b class="warnText">${fmtNumber(quality.length)}</b> dòng mất tín hiệu/quality/communication. Cần phân biệt sự cố thật với lỗi truyền tin SCADA/RTU/IED.`);
-  if(!lines.length) lines.push('Chưa có nhận xét nổi bật. Hãy kiểm tra lại cột nhận diện hoặc dùng bộ lọc từ khóa.');
-  $('quickFindings').innerHTML = `<ul>${lines.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-}
-function applyFilter(){
-  const text=norm($('fText').value); const dev=$('fDevice').value; const state=$('fState').value;
-  const from=$('fFrom').value ? new Date($('fFrom').value) : null;
-  const to=$('fTo').value ? new Date($('fTo').value) : null;
-  filtered = records.filter(r=>{
-    if(text && !norm(r.combined).includes(text)) return false;
-    if(dev && r.device!==dev) return false;
-    if(state && r.state!==state) return false;
-    if(from && r.timeObj && r.timeObj < from) return false;
-    if(to && r.timeObj && r.timeObj > to) return false;
-    return true;
-  });
-  renderSequence(filtered.slice(0, Number($('fLimit').value)||500), text);
-}
-function renderSequence(list, highlight=''){
-  $('sequenceTable').innerHTML = tableHtml(list, {highlight, limit:Number($('fLimit').value)||500});
-}
-function renderRaw(list){ $('rawTable').innerHTML = tableHtml(list, {limit:1000}); }
-function tableHtml(list, opts={}){
-  if(!list.length) return '<div class="notice warn">Không có dòng phù hợp.</div>';
-  const rows=list.slice(0, opts.limit||1000).map(r=>`<tr>
-    <td class="mono">${r.rowNum}</td><td>${escapeHtml(r.time)}</td><td>${escapeHtml(r.station)}</td><td>${escapeHtml(r.bay)}</td><td>${escapeHtml(r.device)}</td>
-    <td class="wrap">${mark(r.message||r.rawText, opts.highlight)}</td><td>${escapeHtml(r.state)}</td><td>${escapeHtml(r.severity)}</td><td>${categoryPills(r.category)}</td>
-  </tr>`).join('');
-  return `<table><thead><tr><th>Dòng</th><th>Thời gian</th><th>Trạm</th><th>Ngăn</th><th>Thiết bị</th><th class="wrap">Message</th><th>Trạng thái</th><th>Mức độ</th><th>Nhóm</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-function mark(s, hi){
-  s=escapeHtml(s); if(!hi) return s;
-  const raw = $('fText')?.value || $('targetDevice')?.value || ''; if(!raw) return s;
-  const parts = raw.split(/\s+/).filter(Boolean).slice(0,5).map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
-  if(!parts.length) return s;
-  return s.replace(new RegExp('('+parts.join('|')+')','gi'), '<span class="hl">$1</span>');
-}
-function categoryPills(cats){ if(!cats||!cats.length) return '<span class="pill gray">other</span>'; return cats.map(c=>`<span class="pill ${c==='trip'?'bad':c==='block'||c==='quality'?'warn':c==='open'?'good':'gray'}">${escapeHtml(c)}</span>`).join(''); }
-
-function analyzeBreaker(){
-  const target = compact($('targetDevice').value);
-  if(!target){ $('breakerResult').className='notice warn'; $('breakerResult').innerHTML='Hãy nhập mã thiết bị/máy cắt, ví dụ 374.'; return; }
-  const targetN = norm(target).replace(/^mc\s*/, '');
-  const openWin = Math.max(1, Number($('openWindow').value)||5)*1000;
-  const aroundMs = Math.max(1, Number($('aroundMin').value)||10)*60*1000;
-  const matched = records.filter(r => isTargetMatch(r, targetN));
-  if(!matched.length){
-    $('breakerResult').className='notice warn';
-    $('breakerResult').innerHTML = `Không tìm thấy dòng nào chứa <b>${escapeHtml(target)}</b>. Hãy thử mã khác, ví dụ chỉ nhập số, hoặc kiểm tra cột Thiết bị/Message đã nhận đúng chưa.`;
-    $('breakerTimeline').innerHTML=''; $('breakerTable').innerHTML=''; return;
-  }
-  const keyEvents = matched.filter(r => isTripCommand(r) || isOpenFeedback(r) || isCloseFeedback(r) || isBlockAlarm(r) || isProtection(r));
-  let anchors = keyEvents.filter(r=>isTripCommand(r) || isProtection(r));
-  if(!anchors.length) anchors = matched.slice(0,1);
-  const windows=[];
-  anchors.forEach(a=>{
-    if(!a.timeObj) return;
-    records.forEach(r=>{ if(r.timeObj && Math.abs(r.timeObj-a.timeObj)<=aroundMs && (isTargetMatch(r,targetN) || relatedElectricalText(r))) windows.push(r); });
-  });
-  let related = uniqueRecords([...matched, ...windows]).sort((a,b)=>(a.timeObj?.getTime()??0)-(b.timeObj?.getTime()??0) || a.rowNum-b.rowNum);
-  const tripCmds = related.filter(isTripCommand);
-  const protections = related.filter(isProtection);
-  const opens = related.filter(isOpenFeedback);
-  const closes = related.filter(isCloseFeedback);
-  const blocks = related.filter(isBlockAlarm);
-  const quality = related.filter(r=>r.category.includes('quality'));
-  const conclusions=[];
-  let overallClass='notice';
-  if(tripCmds.length){
-    const miss=[]; const ok=[]; const late=[];
-    tripCmds.forEach(tc=>{
-      const nextOpen = opens.find(o=>o.timeObj && tc.timeObj && o.timeObj>=tc.timeObj && (o.timeObj-tc.timeObj)<=Math.max(openWin, 60000));
-      if(nextOpen){
-        const dt = nextOpen.timeObj - tc.timeObj;
-        if(dt <= openWin) ok.push({tc,nextOpen,dt}); else late.push({tc,nextOpen,dt});
-      } else miss.push(tc);
-    });
-    if(ok.length){ conclusions.push(`<b class="okText">Có phản hồi MC mở</b> sau lệnh TRIP/CẮT trong cửa sổ đặt (${openWin/1000}s): ${ok.length} lần. Ví dụ: ${escapeHtml(formatDate(ok[0].tc.timeObj))} → ${escapeHtml(formatDate(ok[0].nextOpen.timeObj))} (${(ok[0].dt/1000).toFixed(1)}s).`); }
-    if(late.length){ overallClass='notice warn'; conclusions.push(`<b class="warnText">Có phản hồi mở nhưng chậm</b> so với cửa sổ ${openWin/1000}s: ${late.length} lần. Cần kiểm tra timestamp SCADA/SOE, thời gian truyền tin, mạch điều khiển và cơ cấu MC.`); }
-    if(miss.length){ overallClass='notice bad'; conclusions.push(`<b class="dangerText">Có lệnh TRIP/CẮT nhưng chưa thấy phản hồi MC mở</b> trong dữ liệu liên quan: ${miss.length} lần. Đây là dấu hiệu cần kiểm tra sâu nguyên nhân MC không tác động hoặc tín hiệu phản hồi không về SCADA.`); }
-  } else if(protections.length){
-    overallClass='notice warn'; conclusions.push(`<b class="warnText">Có tín hiệu bảo vệ/rơle tác động</b> (${protections.length} dòng) nhưng chưa thấy rõ dòng lệnh TRIP/CẮT trong Alarm Summary. Cần kiểm tra mapping tín hiệu trip, SOE rơle và logic phát lệnh cắt.`);
-  } else {
-    overallClass='notice warn'; conclusions.push(`Chưa thấy dòng thể hiện lệnh TRIP/CẮT hoặc bảo vệ tác động cho <b>${escapeHtml(target)}</b>. Nếu thực tế có sự cố, cần kiểm tra lại khoảng thời gian, sheet, từ khóa, hoặc xuất thêm SOE/Record rơle.`);
-  }
-  if(blocks.length){ conclusions.push(`<b class="warnText">Có ${blocks.length} alarm thuộc nhóm khóa/liên động/mạch trip/nguồn DC/SF6/Local-Remote/52a-52b</b>. Nhóm này có thể giải thích vì sao MC không nhận lệnh, không đủ điều kiện thao tác, hoặc phản hồi trạng thái không đúng.`); }
-  if(quality.length){ conclusions.push(`<b class="warnText">Có ${quality.length} dòng mất tín hiệu/quality/communication</b>. Trường hợp này cần phân biệt “MC không tác động thật” với “MC tác động nhưng tín hiệu trạng thái không truyền về SCADA”.`); }
-  if(!opens.length && tripCmds.length){ conclusions.push(`<b>Hướng kiểm tra đề nghị:</b> nguồn DC điều khiển, MCB/cầu chì mạch trip, cuộn cắt, tiếp điểm 52a/52b, TCS/trip circuit supervision, SF6/áp lực/lò xo tích năng, khóa Local/Remote, interlock, tín hiệu rơle đầu ra và dây nhị thứ từ rơle đến cuộn cắt.`); }
-  conclusions.push(`<span class="muted small">Cơ sở phân tích: ${fmtNumber(matched.length)} dòng khớp trực tiếp thiết bị, ${fmtNumber(related.length)} dòng trong timeline liên quan, cửa sổ phản hồi mở ${openWin/1000}s.</span>`);
-  $('breakerResult').className = overallClass;
-  $('breakerResult').innerHTML = '<ul>'+conclusions.map(x=>`<li>${x}</li>`).join('')+'</ul>';
-  renderBreakerTimeline(related, target);
-  $('breakerTable').innerHTML = tableHtml(related, {limit:2000, highlight:target});
-}
-function isTargetMatch(r, targetN){
-  const t = norm(r.combined).replace(/\bmc\s*/g,'');
-  const q = norm(targetN).replace(/^mc\s*/, '');
-  if(!q) return false;
-  if(t.includes(q)) return true;
-  const digits = q.match(/\d{2,5}/)?.[0];
-  return digits ? new RegExp(`\\b${digits}\\b`).test(t) : false;
-}
-function isTripCommand(r){ const n=norm(r.combined); return /(trip|lenh cat|cat may cat|dua .*trip|open command|remote trip|scada trip|cat mc|f86|lockout)/.test(n) || (n.includes('trip') && !n.includes('circuit supervision')); }
-function isProtection(r){ const n=norm(r.combined); return /(bao ve|protection|relay|role|tac dong|overcurrent|earth fault|distance|differential|f87|f50|f51|f21|f67|f59|f27)/.test(n); }
-function isOpenFeedback(r){ const n=norm(r.combined); if(isTripCommand(r) && !/(opened|open status|status open|mc mo|may cat mo|breaker open|52a|52b)/.test(n)) return false; return /(opened|open status|status open|breaker open|mc mo|may cat mo|vi tri mo|52a.*off|52b.*on| trang thai.*mo)/.test(n) || (/(\bopen\b|\bmo\b)/.test(n) && /(status|position|feedback|vi tri|trang thai|breaker|mc|may cat)/.test(n)); }
-function isCloseFeedback(r){ const n=norm(r.combined); return /(closed|close status|status close|breaker close|mc dong|may cat dong|vi tri dong|trang thai.*dong)/.test(n); }
-function isBlockAlarm(r){ const n=norm(r.combined); return /(block|blocked|khoa|interlock|lien dong|not ready|spring|lo xo|sf6|gas|pressure|ap luc|local|remote|control fail|dc fail|dc loss|trip circuit|tcs|coil|cuon cat|fuse|mcb|52a|52b|auxiliary|aux contact)/.test(n); }
-function relatedElectricalText(r){ const n=norm(r.combined); return /(trip|bao ve|protection|relay|role|sf6|dc|tcs|coil|cuon cat|52a|52b|interlock|lien dong|lockout|f86|local|remote|breaker|may cat|mc)/.test(n); }
-function uniqueRecords(list){ const m=new Map(); list.forEach(r=>m.set(r.rowNum, r)); return [...m.values()]; }
-function renderBreakerTimeline(list, target){
-  if(!list.length){ $('breakerTimeline').innerHTML='<div class="muted">Không có timeline.</div>'; return; }
-  $('breakerTimeline').innerHTML = `<div class="timeline">${list.slice(0,300).map(r=>{
-    const cls = isTripCommand(r)||isProtection(r)?'trip':isOpenFeedback(r)?'open':isBlockAlarm(r)?'block':'';
-    return `<div class="event ${cls}"><b>${escapeHtml(r.time)}</b> ${categoryPills(r.category)}<br><span class="muted">${escapeHtml(r.device)} ${r.station? ' • '+escapeHtml(r.station):''}</span><br>${mark(r.message||r.rawText,target)}</div>`;
-  }).join('')}</div>`;
-}
-
-function exportCsv(){
-  const rows = filtered.length ? filtered : records;
-  const head=['row','time','station','bay','device','message','state','severity','ack','category'];
-  const csv = [head, ...rows.map(r=>[r.rowNum,r.time,r.station,r.bay,r.device,r.message,r.state,r.severity,r.ack,(r.category||[]).join('|')])].map(row=>row.map(csvCell).join(',')).join('\r\n');
-  downloadText(safeBase(sourceName)+'_SCADA_alarm_filtered.csv', '\uFEFF'+csv, 'text/csv;charset=utf-8');
-}
-function csvCell(v){ v=String(v??''); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
-function safeBase(n){ return (n||'alarm').replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_\-À-ỹ]+/g,'_').slice(0,80); }
-function exportReport(){
-  const report = `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo ${escapeHtml(sourceName)}</title><style>${document.querySelector('style').textContent}</style></head><body><main><h1>Báo cáo phân tích Alarm Summary SCADA</h1><div class="notice">File: <b>${escapeHtml(sourceName)}</b> • Sheet: <b>${escapeHtml(currentSheet?.name||'')}</b> • Xuất lúc: <b>${escapeHtml(formatDate(new Date()))}</b></div>${$('overview').innerHTML}${$('breakerResult').outerHTML}${$('breakerTimeline').innerHTML ? '<h2>Timeline thiết bị đang chọn</h2>'+$('breakerTimeline').innerHTML : ''}</main>
-<script>
-(function(){
-  const $pwa = id => document.getElementById(id);
-  const statusEl = $pwa('pwaStatus');
-  const installBtn = $pwa('pwaInstallBtn');
-  const updateBtn = $pwa('pwaUpdateBtn');
-  const clearBtn = $pwa('pwaClearCacheBtn');
-  let deferredPrompt = null;
-  let swReg = null;
-  function setPwaStatus(msg){ if(statusEl) statusEl.textContent = msg; }
-
-  window.addEventListener('beforeinstallprompt', (ev)=>{
-    ev.preventDefault();
-    deferredPrompt = ev;
-    if(installBtn) installBtn.disabled = false;
-    setPwaStatus('PWA: có thể cài đặt vào máy này');
-  });
-  window.addEventListener('appinstalled', ()=>{
-    deferredPrompt = null;
-    if(installBtn) installBtn.disabled = true;
-    setPwaStatus('PWA: đã cài đặt, dùng được offline');
-  });
-
-  if(installBtn){
-    installBtn.addEventListener('click', async ()=>{
-      if(!deferredPrompt){
-        setPwaStatus('PWA: mở bằng START_PWA_SERVER.bat, rồi dùng nút cài đặt/menu trình duyệt');
-        return;
-      }
-      deferredPrompt.prompt();
-      try{ await deferredPrompt.userChoice; }catch(e){}
-      deferredPrompt = null;
-      installBtn.disabled = true;
-    });
-  }
-
-  async function registerSW(){
-    if(!('serviceWorker' in navigator)){
-      setPwaStatus('PWA: trình duyệt không hỗ trợ Service Worker; HTML vẫn chạy offline');
-      if(installBtn) installBtn.disabled = true;
-      return;
-    }
-    if(location.protocol === 'file:'){
-      setPwaStatus('PWA: đang mở dạng file://, muốn cài PWA hãy chạy START_PWA_SERVER.bat');
-      if(installBtn) installBtn.disabled = true;
-      return;
-    }
-    try{
-      swReg = await navigator.serviceWorker.register('./sw.js', {scope:'./'});
-      setPwaStatus(navigator.onLine ? 'PWA: đã đăng ký cache offline' : 'PWA: đang chạy offline từ cache');
-      swReg.addEventListener('updatefound', ()=>{
-        const nw = swReg.installing;
-        if(!nw) return;
-        nw.addEventListener('statechange', ()=>{
-          if(nw.state === 'installed' && navigator.serviceWorker.controller){
-            setPwaStatus('PWA: có bản mới, bấm KIỂM TRA BẢN CẬP NHẬT để nạp');
-          }
-        });
-      });
-    }catch(err){
-      setPwaStatus('PWA: lỗi đăng ký Service Worker - ' + (err && err.message ? err.message : err));
-    }
-  }
-
-  if(updateBtn){
-    updateBtn.addEventListener('click', async ()=>{
-      if(!('serviceWorker' in navigator) || location.protocol === 'file:'){
-        setPwaStatus('PWA: cần mở qua http://127.0.0.1 hoặc HTTPS để cập nhật cache');
-        return;
-      }
-      try{
-        setPwaStatus('PWA: đang kiểm tra bản cập nhật...');
-        if(!swReg){ swReg = await navigator.serviceWorker.getRegistration('./'); }
-        if(swReg){ await swReg.update(); }
-        const reg = swReg || await navigator.serviceWorker.ready;
-        if(reg.waiting){
-          reg.waiting.postMessage({type:'SKIP_WAITING'});
-          setPwaStatus('PWA: đang kích hoạt bản mới...');
-        }else{
-          setPwaStatus('PWA: đã kiểm tra. Nếu vừa thay file, tải lại trang sau vài giây.');
-        }
-      }catch(err){
-        setPwaStatus('PWA: lỗi cập nhật - ' + (err && err.message ? err.message : err));
-      }
-    });
-  }
-
-  if(clearBtn){
-    clearBtn.addEventListener('click', async ()=>{
-      if(!confirm('Xóa toàn bộ cache PWA của công cụ này và tải lại trang?')) return;
-      try{
-        if('caches' in window){
-          const keys = await caches.keys();
-          await Promise.all(keys.filter(k=>k.indexOf('scada-alarm-analyzer')>=0).map(k=>caches.delete(k)));
-        }
-        if('serviceWorker' in navigator){
-          const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map(r=>r.unregister()));
-        }
-      }catch(e){}
-      location.reload();
-    });
-  }
-
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.addEventListener('controllerchange', ()=>{ location.reload(); });
-  }
-  registerSW();
+$('fileInput').addEventListener('change',e=>{const f=e.target.files[0];if(f)parseFile(f).catch(err=>setStatus('Lỗi: '+esc(err.message),'notice bad'));});$('sheetSelect').addEventListener('change',e=>loadSheet(Number(e.target.value)));$('analyzeBtn').addEventListener('click',analyzeCurrent);$('dedupeToggle').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('dateMode').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('chatThreshold').addEventListener('change',()=>{if(rawRows.length){stats=buildStats();renderChattering();renderOverview();}});$('rowLimit').addEventListener('change',renderRaw);$('applyFilterBtn').addEventListener('click',applyFilter);$('fText').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});$('analyzeBreakerBtn').addEventListener('click',analyzeBreaker);$('targetDevice').addEventListener('keydown',e=>{if(e.key==='Enter')analyzeBreaker();});$('exportCsvBtn').addEventListener('click',exportCsv);$('exportReportBtn').addEventListener('click',exportReport);$('sampleBtn').addEventListener('click',showSample);document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(btn.dataset.view).classList.add('active');}));const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)parseFile(f).catch(err=>setStatus('Lỗi: '+esc(err.message),'notice bad'));});
 })();
 </script>
-
-</body></html>`;
-  downloadText(safeBase(sourceName)+'_SCADA_alarm_report.html', report, 'text/html;charset=utf-8');
-}
-function showSample(){
-  const rows = rawRows.slice(0, 20);
-  const html = `<div class="tablewrap"><table>${rows.map((r,i)=>`<tr><th>${i+1}</th>${r.map(c=>`<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
-  const w = window.open('', '_blank'); if(w){ w.document.write(`<!doctype html><meta charset="utf-8"><title>Sample</title><style>${document.querySelector('style').textContent}</style><body><main><h2>20 dòng đầu - ${escapeHtml(currentSheet?.name||'')}</h2>${html}</main></body>`); w.document.close(); }
-}
-
-$('fileInput').addEventListener('change', e=>{ const f=e.target.files[0]; if(f) parseFile(f).catch(err=>setStatus('Lỗi: '+escapeHtml(err.message), 'notice bad')); });
-$('sheetSelect').addEventListener('change', e=>loadSheet(Number(e.target.value)));
-$('analyzeBtn').addEventListener('click', analyzeCurrent);
-$('applyFilterBtn').addEventListener('click', applyFilter);
-$('fText').addEventListener('keydown', e=>{ if(e.key==='Enter') applyFilter(); });
-$('analyzeBreakerBtn').addEventListener('click', analyzeBreaker);
-$('targetDevice').addEventListener('keydown', e=>{ if(e.key==='Enter') analyzeBreaker(); });
-$('exportCsvBtn').addEventListener('click', exportCsv);
-$('exportReportBtn').addEventListener('click', exportReport);
-$('sampleBtn').addEventListener('click', showSample);
-document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $(btn.dataset.view).classList.add('active');
-}));
-const dz=$('dropZone'); ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')})); ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')})); dz.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) parseFile(f).catch(err=>setStatus('Lỗi: '+escapeHtml(err.message),'notice bad')); });
-})();
-</script>
+<script src="pwa.js"></script>
 </body>
 </html>
