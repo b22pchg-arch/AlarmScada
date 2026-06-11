@@ -20,9 +20,13 @@ body.focusCompact #sequenceInfo.notice{max-height:none!important;overflow:visibl
 body.focusCompact #v7Executive .callout,
 body.focusCompact #v8Executive .callout,
 body.focusCompact #deepFindings .callout,
-body.focusCompact #breakerResult .callout{max-height:none!important;overflow:visible!important}body.focusCompact .small.muted,body.focusCompact .hintLine{display:none!important}body.focusCompact main{padding:8px}body.focusCompact .card{margin-bottom:8px;padding:10px}body.focusCompact th,body.focusCompact td{padding:5px 7px}body.focusHidePwa #pwaCard{display:none!important}body.focusHideUpload main>section.card.noPrint:nth-of-type(2){display:none!important}body.focusHideMapping #mappingCard{display:none!important}body.focusHideAdvanced .tab[data-view="v7diag"],body.focusHideAdvanced .tab[data-view="v8diag"],body.focusHideAdvanced .tab[data-view="deep"],body.focusHideAdvanced .tab[data-view="quality"],body.focusHideAdvanced .tab[data-view="raw"],body.focusHideAdvanced .tab[data-view="guide"]{display:none!important}body.focusHideAdvanced #v7diag,body.focusHideAdvanced #v8diag,body.focusHideAdvanced #deep,body.focusHideAdvanced #quality,body.focusHideAdvanced #raw,body.focusHideAdvanced #guide{display:none!important}body.focusOnlyActive .view:not(.active){display:none!important}body.focusMinimal header .sub{display:none}body.focusMinimal header{padding:8px 12px}body.focusMinimal header h1{font-size:16px}.focusStatus{font-size:12px;color:#475467;margin-top:6px}.focusPresetNote{font-size:12px;color:#667085;margin-top:8px}@media(max-width:900px){.focusToolbar .focusGrid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.focusToolbar .focusGrid{grid-template-columns:1fr}.cardToggle{float:none;display:inline-block;margin-top:6px}}
+body.focusCompact #breakerResult .callout{max-height:none!important;overflow:visible!important}body.focusCompact .small.muted,body.focusCompact .hintLine{display:none!important}body.focusCompact main{padding:8px}body.focusCompact .card{margin-bottom:8px;padding:10px}body.focusCompact th,body.focusCompact td{padding:5px 7px}body.focusHidePwa #pwaCard{display:none!important}body.fileLoaded.focusHideUpload main>section.card.noPrint:nth-of-type(2){display:none!important}body.focusHideMapping #mappingCard{display:none!important}body.focusHideAdvanced .tab[data-view="v7diag"],body.focusHideAdvanced .tab[data-view="v8diag"],body.focusHideAdvanced .tab[data-view="deep"],body.focusHideAdvanced .tab[data-view="quality"],body.focusHideAdvanced .tab[data-view="raw"],body.focusHideAdvanced .tab[data-view="guide"]{display:none!important}body.focusHideAdvanced #v7diag,body.focusHideAdvanced #v8diag,body.focusHideAdvanced #deep,body.focusHideAdvanced #quality,body.focusHideAdvanced #raw,body.focusHideAdvanced #guide{display:none!important}body.focusOnlyActive .view:not(.active){display:none!important}body.focusMinimal header .sub{display:none}body.focusMinimal header{padding:8px 12px}body.focusMinimal header h1{font-size:16px}.focusStatus{font-size:12px;color:#475467;margin-top:6px}.focusPresetNote{font-size:12px;color:#667085;margin-top:8px}@media(max-width:900px){.focusToolbar .focusGrid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.focusToolbar .focusGrid{grid-template-columns:1fr}.cardToggle{float:none;display:inline-block;margin-top:6px}}
 
 @media print{header,.noPrint,.tabs,button,input,select,textarea{display:none!important}.view{display:block!important}.card{break-inside:avoid;box-shadow:none}.tablewrap{max-height:none;overflow:visible}body{background:#fff}}
+
+.focusEmergency{display:none;position:fixed;right:12px;bottom:12px;z-index:99999;border-radius:999px;box-shadow:0 10px 25px rgba(16,24,40,.22);padding:10px 14px;background:#12b76a;border-color:#12b76a;color:#fff;font-weight:900}
+body.focusHideUpload .focusEmergency,body.focusHidePwa .focusEmergency,body.focusHideMapping .focusEmergency,body.focusHideAdvanced .focusEmergency,body.focusCompact .focusEmergency{display:block}
+body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!important}
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -33,8 +37,9 @@ body.focusCompact #breakerResult .callout{max-height:none!important;overflow:vis
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
-<header><h1>SCADA Alarm Summary PWA Offline V17 - Focus View Fix</h1><div class="sub">Đọc Excel/CSV offline • Định danh lai + từ điển V14 • Smart Diagnosis V15 • V17 sửa từ V16: ẩn/hiện, thu gọn, preset tập trung; kết luận V7/V8/Phân tích sâu không bị thu hẹp</div></header>
+<header><h1>SCADA Alarm Summary PWA Offline V19 - Upload/Focus Fix</h1><div class="sub">Đọc Excel/CSV offline • Định danh lai + từ điển V14 • Smart Diagnosis V15 • V17 sửa từ V16: ẩn/hiện, thu gọn, preset tập trung; kết luận V7/V8/Phân tích sâu không bị thu hẹp</div></header>
 <main>
+<button id="focusEmergencyFull" class="focusEmergency noPrint" type="button">HIỆN ĐẦY ĐỦ / CHỌN FILE</button>
 <section class="card noPrint" id="pwaCard">
   <div class="row">
     <button id="installPwaBtn" class="good" type="button" style="display:none">CÀI ĐẶT PWA</button>
@@ -98,7 +103,7 @@ body.focusCompact #breakerResult .callout{max-height:none!important;overflow:vis
 </section>
 
 <section class="card noPrint focusToolbar" id="focusControlCard" style="display:none">
-  <h3>Chế độ tập trung / ẩn bớt thông tin V17</h3>
+  <h3>Chế độ tập trung / ẩn bớt thông tin V19</h3>
   <div class="row">
     <button type="button" class="secondary miniBtn" id="focusPresetSequence">Chỉ xem Trình tự</button>
     <button type="button" class="secondary miniBtn" id="focusPresetDevice">Chỉ xem Thiết bị</button>
@@ -118,7 +123,7 @@ body.focusCompact #breakerResult .callout{max-height:none!important;overflow:vis
     <label><input type="checkbox" id="focusOnlyActive" checked> Chỉ giữ tab đang xem</label>
     <label><input type="checkbox" id="focusRemember" checked> Ghi nhớ chế độ ẩn/hiện</label>
   </div>
-  <div class="focusPresetNote">Các nút này chỉ ẩn giao diện để dễ xem, không xóa dữ liệu và không thay đổi thuật toán phân tích. Có thể bấm nút “Thu gọn” trên từng thẻ để ẩn riêng một khối thông tin.</div>
+  <div class="focusPresetNote">Các nút này chỉ ẩn giao diện để dễ xem, không xóa dữ liệu và không thay đổi thuật toán phân tích. V19: khối chọn file chỉ được phép ẩn sau khi đã đọc file; khi chưa có dữ liệu luôn hiện để chọn Excel. Có thể bấm nút “Thu gọn” trên từng thẻ để ẩn riêng một khối thông tin.</div>
   <div id="focusStatus" class="focusStatus">Sẵn sàng.</div>
   <div class="small muted" style="margin-top:6px">V17: khung kết luận V7/V8/V10/Phân tích sâu luôn mở đủ chiều cao; nút Thu gọn trên tiêu đề chỉ ẩn/hiện toàn bộ khung này.</div>
 </section>
@@ -519,7 +524,7 @@ function identityDictCounts(){
 
 loadIdentityDictionary();
 
-async function parseFile(file){sourceName=file.name;setStatus('<span class="spinner"></span> Đang đọc file...', 'notice');const ext=file.name.split('.').pop().toLowerCase();if(ext==='xlsx'){workbook=await readXlsx(await file.arrayBuffer());}else if(ext==='csv'||ext==='txt'){workbook={sheets:[{name:file.name.replace(/\.[^.]+$/,''),rows:parseCsv(await file.text())}]};}else if(ext==='xls'){throw new Error('File .xls nhị phân cũ chưa hỗ trợ. Hãy mở bằng Excel và Save As thành .xlsx hoặc .csv.');}else{throw new Error('Định dạng chưa hỗ trợ.');}if(!workbook.sheets.length) throw new Error('Không tìm thấy sheet.');fillSheetSelect();$('mappingCard').style.display='';$('tabs').style.display='';loadSheet(0);}
+async function parseFile(file){document.body.classList.remove('fileLoaded');sourceName=file.name;setStatus('<span class="spinner"></span> Đang đọc file...', 'notice');const ext=file.name.split('.').pop().toLowerCase();if(ext==='xlsx'){workbook=await readXlsx(await file.arrayBuffer());}else if(ext==='csv'||ext==='txt'){workbook={sheets:[{name:file.name.replace(/\.[^.]+$/,''),rows:parseCsv(await file.text())}]};}else if(ext==='xls'){throw new Error('File .xls nhị phân cũ chưa hỗ trợ. Hãy mở bằng Excel và Save As thành .xlsx hoặc .csv.');}else{throw new Error('Định dạng chưa hỗ trợ.');}if(!workbook.sheets.length) throw new Error('Không tìm thấy sheet.');fillSheetSelect();$('mappingCard').style.display='';$('tabs').style.display='';document.body.classList.add('fileLoaded');loadSheet(0);}
 async function readXlsx(arrayBuffer){if(typeof JSZip==='undefined') throw new Error('Thiếu JSZip trong HTML.');const zip=await JSZip.loadAsync(arrayBuffer);const text=async p=>{const f=zip.file(p);return f?await f.async('text'):''};const wbXml=await text('xl/workbook.xml');if(!wbXml) throw new Error('Không đọc được xl/workbook.xml.');const rels=parseRels(await text('xl/_rels/workbook.xml.rels'));const shared=parseSharedStrings(await text('xl/sharedStrings.xml'));const wbDoc=new DOMParser().parseFromString(wbXml,'application/xml');const sheets=Array.from(wbDoc.getElementsByTagName('sheet'));const out=[];for(const sh of sheets){const name=sh.getAttribute('name')||('Sheet'+(out.length+1));const rid=sh.getAttribute('r:id')||sh.getAttribute('id');let target=rels[rid];if(!target) target=`worksheets/sheet${sh.getAttribute('sheetId')}.xml`;const path=normalizeXlPath(target);const xml=await text(path);if(xml) out.push({name,rows:parseSheetXml(xml,shared)});}return {sheets:out};}
 function normalizeXlPath(target){target=(target||'').replace(/^\//,'');if(target.startsWith('xl/')) return target;return 'xl/'+target.replace(/^\.\//,'');}
 function parseRels(xml){const map={};if(!xml) return map;const doc=new DOMParser().parseFromString(xml,'application/xml');Array.from(doc.getElementsByTagName('Relationship')).forEach(r=>map[r.getAttribute('Id')]=r.getAttribute('Target'));return map;}
@@ -885,12 +890,24 @@ function renderV15Relations(a){const nodeRows=a.graph.nodes.slice(0,20).map((n,i
 function v15SaveRuleText(){try{const arr=JSON.parse($('v15RulesText')?.value||'[]');if(!Array.isArray(arr))throw new Error('Nội dung phải là mảng JSON');v15SaveRules(arr);v15SetRuleStatus('Đã lưu bộ luật V15.','okText');renderV15Diagnosis();}catch(e){v15SetRuleStatus('Lỗi JSON: '+e.message,'dangerText');}}
 function v15DownloadRules(){downloadText('SCADA_V15_diagnostic_rules_'+new Date().toISOString().slice(0,10)+'.json',$('v15RulesText')?.value||JSON.stringify(v15LoadRules(),null,2),'application/json;charset=utf-8');}
 async function v15ShareRules(){const text=$('v15RulesText')?.value||JSON.stringify(v15LoadRules(),null,2);try{if(navigator.share&&navigator.canShare){const file=new File([text],'SCADA_V15_diagnostic_rules.json',{type:'application/json'});if(navigator.canShare({files:[file]})){await navigator.share({title:'SCADA V15 Diagnostic Rules',text:'Bộ luật chẩn đoán V15',files:[file]});return;}}if(navigator.clipboard){await navigator.clipboard.writeText(text);v15SetRuleStatus('Đã copy JSON bộ luật vào clipboard.','okText');}else v15DownloadRules();}catch(e){v15DownloadRules();}}
-function v15ExportSmartReport(){if(!uniqueRecords.length){alert('Chưa có dữ liệu để xuất báo cáo V15.');return;}const a=v15Analyze();renderV15Diagnosis();const css=document.querySelector('style').textContent;const body=`<main><h1>Báo cáo Smart Diagnosis V15</h1><div class="notice">File: <b>${esc(sourceName)}</b> • Sheet: <b>${esc(currentSheet?.name||'')}</b> • Xuất: <b>${esc(formatDate(new Date()))}</b></div>${$('v15diag')?.innerHTML||''}</main>`;downloadText(safeBase(sourceName)+'_SCADA_V15_smart_diagnosis_report.html',`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>V15 ${esc(sourceName)}</title><style>${css}</style></head><body>${body}</body></html>`,'text/html;charset=utf-8');}
+function v15ExportSmartReport(){if(!uniqueRecords.length){alert('Chưa có dữ liệu để xuất báo cáo V15.');return;}const a=v15Analyze();renderV15Diagnosis();const css=document.querySelector('style').textContent;const body=`<main><h1>Báo cáo Smart Diagnosis V15</h1><div class="notice">File: <b>${esc(sourceName)}</b> • Sheet: <b>${esc(currentSheet?.name||'')}</b> • Xuất: <b>${esc(formatDate(new Date()))}</b></div>${$('v15diag')?.innerHTML||''}</main>`;downloadText(safeBase(sourceName)+'_SCADA_V15_smart_diagnosis_report.html',`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>V15 ${esc(sourceName)}</title><style>${css}
+.focusEmergency{display:none;position:fixed;right:12px;bottom:12px;z-index:99999;border-radius:999px;box-shadow:0 10px 25px rgba(16,24,40,.22);padding:10px 14px;background:#12b76a;border-color:#12b76a;color:#fff;font-weight:900}
+body.focusHideUpload .focusEmergency,body.focusHidePwa .focusEmergency,body.focusHideMapping .focusEmergency,body.focusHideAdvanced .focusEmergency,body.focusCompact .focusEmergency{display:block}
+body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!important}
+</style></head><body>${body}</body></html>`,'text/html;charset=utf-8');}
 
 function exportCsv(){const arr=filtered.length?filtered:uniqueRecords;const head=['row','time','path1','path2','path3','device_path','original_device','device_code','station_key','identity_alias','identity_rule','identity_device','identity_excluded','point_path','point','status','value','ind','unit','comment','categories','severity','source_file'];const csv=[head,...arr.map(r=>[r.rowNum,r.time,r.path1||r.station,r.path2,r.path3,r.devicePath||r.device,r.originalDevice||'',r.deviceCode,r.stationKey,r.aliasKey,r.identityRuleId||'',r.identityDevice||'',r.identityExcluded?'YES':'',r.pointPath,r.point,r.status,r.value,r.ind,r.unit,r.comment,r.categories.join('|'),r.severity,sourceName])].map(row=>row.map(csvCell).join(',')).join('\r\n');downloadText(safeBase(sourceName)+'_SCADA_alarm_analyzed.csv','\uFEFF'+csv,'text/csv;charset=utf-8');}
 function csvCell(v){v=String(v??'');return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
-function exportReport(){const css=document.querySelector('style').textContent;const body=`<main><h1>Báo cáo phân tích Alarm Summary SCADA</h1><div class="notice">File: <b>${esc(sourceName)}</b> • Sheet: <b>${esc(currentSheet?.name||'')}</b> • Xuất: <b>${esc(formatDate(new Date()))}</b></div>${$('overview').innerHTML}${$('devices')?$('devices').innerHTML:''}${$('identity')?$('identity').innerHTML:''}${$('identityDict')?$('identityDict').innerHTML:''}${$('v15diag')?$('v15diag').innerHTML:''}${$('v7diag')?$('v7diag').innerHTML:''}${$('v8diag')?$('v8diag').innerHTML:''}${$('deep')?$('deep').innerHTML:''}${$('quality').innerHTML}${$('chattering').innerHTML}${$('breakerResult').outerHTML}${$('breakerTimeline').innerHTML?'<h2>Timeline thiết bị đang chọn</h2>'+$('breakerTimeline').innerHTML:''}</main>`;downloadText(safeBase(sourceName)+'_SCADA_alarm_report.html',`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo ${esc(sourceName)}</title><style>${css}</style></head><body>${body}</body></html>`,'text/html;charset=utf-8');}
-function showSample(){const rows=rawRows.slice(0,20);const html=`<div class="tablewrap"><table>${rows.map((r,i)=>`<tr><th>${i+1}</th>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;const w=window.open('','_blank');if(w){w.document.write(`<!doctype html><meta charset="utf-8"><title>Sample</title><style>${document.querySelector('style').textContent}</style><body><main><h2>20 dòng đầu - ${esc(currentSheet?.name||'')}</h2>${html}</main></body>`);w.document.close();}}
+function exportReport(){const css=document.querySelector('style').textContent;const body=`<main><h1>Báo cáo phân tích Alarm Summary SCADA</h1><div class="notice">File: <b>${esc(sourceName)}</b> • Sheet: <b>${esc(currentSheet?.name||'')}</b> • Xuất: <b>${esc(formatDate(new Date()))}</b></div>${$('overview').innerHTML}${$('devices')?$('devices').innerHTML:''}${$('identity')?$('identity').innerHTML:''}${$('identityDict')?$('identityDict').innerHTML:''}${$('v15diag')?$('v15diag').innerHTML:''}${$('v7diag')?$('v7diag').innerHTML:''}${$('v8diag')?$('v8diag').innerHTML:''}${$('deep')?$('deep').innerHTML:''}${$('quality').innerHTML}${$('chattering').innerHTML}${$('breakerResult').outerHTML}${$('breakerTimeline').innerHTML?'<h2>Timeline thiết bị đang chọn</h2>'+$('breakerTimeline').innerHTML:''}</main>`;downloadText(safeBase(sourceName)+'_SCADA_alarm_report.html',`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Báo cáo ${esc(sourceName)}</title><style>${css}
+.focusEmergency{display:none;position:fixed;right:12px;bottom:12px;z-index:99999;border-radius:999px;box-shadow:0 10px 25px rgba(16,24,40,.22);padding:10px 14px;background:#12b76a;border-color:#12b76a;color:#fff;font-weight:900}
+body.focusHideUpload .focusEmergency,body.focusHidePwa .focusEmergency,body.focusHideMapping .focusEmergency,body.focusHideAdvanced .focusEmergency,body.focusCompact .focusEmergency{display:block}
+body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!important}
+</style></head><body>${body}</body></html>`,'text/html;charset=utf-8');}
+function showSample(){const rows=rawRows.slice(0,20);const html=`<div class="tablewrap"><table>${rows.map((r,i)=>`<tr><th>${i+1}</th>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;const w=window.open('','_blank');if(w){w.document.write(`<!doctype html><meta charset="utf-8"><title>Sample</title><style>${document.querySelector('style').textContent}
+.focusEmergency{display:none;position:fixed;right:12px;bottom:12px;z-index:99999;border-radius:999px;box-shadow:0 10px 25px rgba(16,24,40,.22);padding:10px 14px;background:#12b76a;border-color:#12b76a;color:#fff;font-weight:900}
+body.focusHideUpload .focusEmergency,body.focusHidePwa .focusEmergency,body.focusHideMapping .focusEmergency,body.focusHideAdvanced .focusEmergency,body.focusCompact .focusEmergency{display:block}
+body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!important}
+</style><body><main><h2>20 dòng đầu - ${esc(currentSheet?.name||'')}</h2>${html}</main></body>`);w.document.close();}}
 function switchView(view){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===view));}
 
 const fileInput=$('fileInput');fileInput.addEventListener('click',()=>{fileInput.value='';});fileInput.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f){setStatus('Chưa chọn file.','notice warn');return;}try{setStatus('Đã chọn <b>'+esc(f.name)+'</b>, đang đọc dữ liệu Excel...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});$('sheetSelect').addEventListener('change',e=>loadSheet(Number(e.target.value)));$('analyzeBtn').addEventListener('click',analyzeCurrent);$('dedupeToggle').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('dateMode').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('chatThreshold').addEventListener('change',()=>{if(rawRows.length){stats=buildStats();renderChattering();renderOverview();renderDeviceGroups();renderDeviceSuggestions();renderIdentityV10();renderIdentityDictionary();renderV15Diagnosis();renderV7Diagnosis();renderV8Diagnosis();renderDeepAnalysis();}});$('rowLimit').addEventListener('change',renderRaw);$('deepRefreshBtn')?.addEventListener('click',renderDeepAnalysis);$('deepGapSec')?.addEventListener('change',renderDeepAnalysis);$('deepCorrSec')?.addEventListener('change',renderDeepAnalysis);$('deepTripWindow')?.addEventListener('change',renderDeepAnalysis);['v7TripOpenWindow','v7PickupTripWindow','v7CauseWindow','v7GraphWindow','v7NoiseMode','v7PreferSameDevice','v7UseCodeAlias','v7StrictStatus'].forEach(id=>$(id)?.addEventListener('change',renderV7Diagnosis));$('v7RefreshBtn')?.addEventListener('click',renderV7Diagnosis);['v8PrimaryWindow','v8ExtendedWindow','v8IncidentGap','v8CorrWindow','v8NoiseMode','v8UseAlias','v8StrictStatus','v8UseDataQuality'].forEach(id=>$(id)?.addEventListener('change',renderV8Diagnosis));$('v8RefreshBtn')?.addEventListener('click',renderV8Diagnosis);['v15PrimaryWindow','v15ExtendedWindow','v15IncidentGap','v15CorrWindow','v15HideTopo','v15OnlyOperational','v15HideCleared','v15UseDict'].forEach(id=>$(id)?.addEventListener('change',renderV15Diagnosis));$('v15TargetDevice')?.addEventListener('keydown',e=>{if(e.key==='Enter')renderV15Diagnosis();});$('v15TargetDevice')?.addEventListener('input',()=>{});$('v15RefreshBtn')?.addEventListener('click',renderV15Diagnosis);$('v15SaveRulesBtn')?.addEventListener('click',v15SaveRuleText);$('v15ResetRulesBtn')?.addEventListener('click',()=>{const arr=v15DefaultRules();if($('v15RulesText'))$('v15RulesText').value=JSON.stringify(arr,null,2);v15SaveRules(arr);v15SetRuleStatus('Đã khôi phục bộ luật mặc định.','okText');renderV15Diagnosis();});$('v15DownloadRulesBtn')?.addEventListener('click',v15DownloadRules);$('v15ShareRulesBtn')?.addEventListener('click',v15ShareRules);$('v15ExportReportBtn')?.addEventListener('click',v15ExportSmartReport);$('identityRefreshBtn')?.addEventListener('click',renderIdentityV10);$('identityOpenWindow')?.addEventListener('change',renderIdentityV10);$('dictSaveBtn')?.addEventListener('click',saveDictRule);$('dictNewBtn')?.addEventListener('click',()=>{fillDictForm({});setDictStatus('Form đã làm mới.','');});$('dictAddSelectedPathBtn')?.addEventListener('click',addCurrentSelectedPath);$('dictApplyBtn')?.addEventListener('click',()=>{applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã áp dụng lại từ điển vào phân tích.','okText');});$('dictSuggestBtn')?.addEventListener('click',suggestDictRules);$('dictExportBtn')?.addEventListener('click',()=>{if($('dictJsonBox'))$('dictJsonBox').value=exportIdentityConfigText();setDictStatus('Đã xuất JSON vào ô cấu hình.','okText');});$('dictDownloadBtn')?.addEventListener('click',downloadIdentityConfig);$('dictShareBtn')?.addEventListener('click',shareIdentityConfig);$('dictImportTextBtn')?.addEventListener('click',()=>importIdentityConfigText($('dictJsonBox')?.value||''));$('dictClearAllBtn')?.addEventListener('click',()=>{if(confirm('Xóa toàn bộ quy tắc định danh V14 đã lưu trên trình duyệt này?')){identityDictionary={version:14,updatedAt:'',rules:[]};saveIdentityDictionary();applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã xóa toàn bộ quy tắc.','warnText');}});$('dictPathSearch')?.addEventListener('input',renderDictDetectedPaths);$('dictRuleSearch')?.addEventListener('input',renderDictRulesBox);$('dictImportFile')?.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;importIdentityConfigText(await f.text());e.target.value='';});$('applyFilterBtn').addEventListener('click',applyFilter);document.querySelectorAll('[data-seq-col]').forEach(cb=>cb.addEventListener('change',()=>renderSequence(filtered&&filtered.length?filtered:uniqueRecords)));$('seqColsShowAll')?.addEventListener('click',()=>setSeqDetailColumns(true));$('seqColsHideDetail')?.addEventListener('click',()=>setSeqDetailColumns(false));$('fText').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});$('analyzeBreakerBtn').addEventListener('click',analyzeBreaker);$('targetDevice').addEventListener('keydown',e=>{if(e.key==='Enter')analyzeBreaker();});$('exportCsvBtn').addEventListener('click',exportCsv);$('exportReportBtn').addEventListener('click',exportReport);$('sampleBtn').addEventListener('click',showSample);document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));$('deviceGroupSearch')?.addEventListener('input',renderDeviceGroups);$('deviceGroupSort')?.addEventListener('change',renderDeviceGroups);$('deviceGroupClear')?.addEventListener('click',()=>{$('deviceGroupSearch').value='';renderDeviceGroups();});$('deviceGroupBox')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});$('deviceRiskTop')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',async e=>{const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;try{setStatus('Đã thả <b>'+esc(f.name)+'</b>, đang đọc dữ liệu Excel...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});
@@ -973,6 +990,7 @@ const fileInput=$('fileInput');fileInput.addEventListener('click',()=>{fileInput
   }
   function bind(){
     Object.keys(classMap).concat(['focusRemember']).forEach(id=>$(id)?.addEventListener('change',()=>applySettings()));
+    $('focusEmergencyFull')?.addEventListener('click',()=>setPreset('full'));
     $('focusPresetSequence')?.addEventListener('click',()=>setPreset('sequence'));
     $('focusPresetDevice')?.addEventListener('click',()=>setPreset('device'));
     $('focusPresetSmart')?.addEventListener('click',()=>setPreset('smart'));
@@ -989,6 +1007,76 @@ const fileInput=$('fileInput');fileInput.addEventListener('click',()=>{fileInput
 })();
 </script>
 
-<script src="pwa.js"></script>
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  const status = (msg, cls='') => {
+    const el = $('pwaStatus');
+    if(el){ el.textContent = msg; el.className = 'small grow ' + (cls || 'muted'); }
+  };
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = $('installPwaBtn');
+    if(btn) btn.style.display = '';
+    status('Có thể cài đặt PWA. Bấm CÀI ĐẶT PWA để tạo ứng dụng offline.');
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const btn = $('installPwaBtn');
+    if(btn) btn.style.display = 'none';
+    status('Đã cài đặt PWA. Có thể dùng offline sau khi cache xong.', 'okText');
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    const installBtn = $('installPwaBtn');
+    if(installBtn){
+      installBtn.addEventListener('click', async () => {
+        if(!deferredPrompt){ status('Trình duyệt chưa cấp quyền hiện nút cài đặt. Hãy dùng menu ⋮ → Install/Cài đặt ứng dụng.'); return; }
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice.catch(()=>null);
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      });
+    }
+    const updateBtn = $('updatePwaBtn');
+    if(updateBtn){
+      updateBtn.addEventListener('click', async () => {
+        if(!('serviceWorker' in navigator)){ status('Trình duyệt không hỗ trợ Service Worker hoặc đang mở bằng file://.'); return; }
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.update().catch(()=>null)));
+        status('Đã kiểm tra cập nhật. Nếu vừa thay file mới, hãy đóng/mở lại app hoặc bấm Ctrl+F5.');
+      });
+    }
+    const clearBtn = $('clearPwaBtn');
+    if(clearBtn){
+      clearBtn.addEventListener('click', async () => {
+        if('serviceWorker' in navigator){
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister().catch(()=>null)));
+        }
+        if(window.caches){
+          const names = await caches.keys();
+          await Promise.all(names.map(n => caches.delete(n)));
+        }
+        status('Đã xóa cache PWA. Tải lại trang để tạo cache mới.', 'warnText');
+      });
+    }
+  });
+  if('serviceWorker' in navigator && location.protocol !== 'file:'){
+    window.addEventListener('load', async () => {
+      try{
+        const reg = await navigator.serviceWorker.register('./sw.js', {scope:'./'});
+        status('PWA đã đăng ký Service Worker. Bản V19: không dùng pwa.js rời; sửa lỗi chế độ ẩn chọn file làm mất nút chọn Excel khi chưa tải dữ liệu.', 'okText');
+        if(reg.waiting){ status('Có bản mới đang chờ. Đóng/mở lại app để áp dụng.'); }
+      }catch(err){
+        status('Không đăng ký được Service Worker: ' + (err && err.message ? err.message : err));
+      }
+    });
+  }else if(location.protocol === 'file:'){
+    document.addEventListener('DOMContentLoaded', () => status('Đang mở trực tiếp file HTML: vẫn phân tích Excel được; muốn cài PWA hãy chạy START_PWA_SERVER.bat.'));
+  }
+})();
+</script>
 </body>
 </html>
