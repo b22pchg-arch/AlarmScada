@@ -1113,15 +1113,18 @@ function opIsCandidate(r){
 function opIsTap(r){const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' ');const rule=opRules();return /OLTC|TUC\d*|TAP|NAC|PHAN AP|PHÂN ÁP|\bTANG\b|\bGIAM\b|\bTG\b|RAISE|LOWER/.test(opUpper(t)) || opAnyText(t,rule.tap);}
 function opIsFan(r){const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' ');const rule=opRules();return /FAN|QUAT|QUẠT|COOLING|COOLER|LAM MAT|LÀM MÁT/.test(opUpper(t)) || opAnyText(t,rule.fan);}
 function opIsFanMode(r){
-  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' '), u=opUpper(t), rule=opRules();
-  return opIsFan(r) && (/\bMODE\b|AUTO|LOCAL|REMOTE|MANUAL|TU DONG|TỰ ĐỘNG|TAI CHO|TẠI CHỖ/.test(u) || opAnyText(t,rule.fanMode));
+  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.status,r.comment].join(' ');
+  const u=opUpper(t), rule=opRules();
+  return /(FAN|QUAT|QUẠT|COOLING|COOLER).*(MODE|AUTO|LOCAL|REMOTE|MANUAL|TU DONG|TỰ ĐỘNG|TAI CHO|TẠI CHỖ|BANG TAY|BẰNG TAY)|(?:MODE|AUTO|LOCAL|REMOTE|MANUAL|TU DONG|TỰ ĐỘNG|TAI CHO|TẠI CHỖ).*(FAN|QUAT|QUẠT|COOLING|COOLER)/.test(u) || opAnyText(t,rule.fanMode);
 }
 function opIsRelayMode(r){
-  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' '), u=opUpper(t), rule=opRules();
-  return /\bF\d{2,4}\s*(GROUP|MODE|TRIP|BLOCK|LOCK)\b|\bF79\s+GROUP\b|\bF25\s+MODE\b|\bF87L\s+MODE\b|\bF79\s+MODE\b|\bF861\s+TRIP\b|RELAY\s+MODE|PROTECTION\s+MODE/.test(u) || opAnyText(t,rule.relayMode);
+  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.status,r.comment].join(' ');
+  const u=opUpper(t), rule=opRules();
+  return /\bF\d{2,3}[A-Z]?\s+(GROUP|MODE|TRIP|BLOCK|LOCK)\b|\bF79\s+GROUP\b|\bF25\s+MODE\b|\bF87L\s+MODE\b|\bF79\s+MODE\b|\bF861\s+TRIP\b|RELAY\s+MODE|PROTECTION\s+MODE|LOCK\s+MODE|BLOCK\s+MODE|TRIP\s+MODE|MODE\s+(?:RL|RELAY|PROTECTION)/.test(u) || opAnyText(t,rule.relayMode);
 }
 function opIsSTPT(r){
-  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' '), u=opUpper(t), rule=opRules();
+  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.status,r.comment].join(' ');
+  const u=opUpper(t), rule=opRules();
   return /\bSTPT\b|LOAD\s*SHED|LOADSHEDDING|LOADSHEEDING|SA THAI PHU TAI|SA THẢI PHỤ TẢI/.test(u) || opAnyText(t,rule.stpt);
 }
 function opIsTbaStation(r){const s=r.path1||'';const u=opUpper(s);const rule=opRules();return /^110\b/.test(u) || /^E\d{1,2}\.\d+\b/.test(u) || /TBA|TRAM 110|TRẠM 110|SUBSTATION/.test(u) || opAnyText(s,rule.station110);}
@@ -1276,11 +1279,11 @@ function opGroupRow(g, extraCols){
 function opRenderGroupTable(arr, extraCols){
   const lim=Number($('opDetailLimit')?.value||500);
   const headerExtra=extraCols==='device'?'<th>Trạm/Path 1</th><th>Loại thiết bị</th>':'';
-  return `<div class="small muted">Hiển thị ${fmt(Math.min(arr.length,lim))}/${fmt(arr.length)} dòng. Dùng ô lọc nhanh nếu danh sách quá dài.</div><div class="tablewrap"><table><thead><tr>${headerExtra}<th class="wrap">Nhóm</th><th>Tổng</th><th>110kV TBA</th><th>35kV TBA</th><th>22kV TBA</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${arr.slice(0,lim).map(g=>opGroupRow(g,extraCols)).join('')||'<tr><td colspan="15">Chưa có dữ liệu thao tác.</td></tr>'}</tbody></table></div>`;
+  return `<div class="small muted">Hiển thị ${fmt(Math.min(arr.length,lim))}/${fmt(arr.length)} dòng. Dùng ô lọc nhanh nếu danh sách quá dài.</div><div class="tablewrap"><table><thead><tr>${headerExtra}<th class="wrap">Nhóm</th><th>Tổng</th><th>110kV TBA</th><th>35kV TBA</th><th>22kV TBA</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${arr.slice(0,lim).map(g=>opGroupRow(g,extraCols)).join('')||'<tr><td colspan="12">Chưa có dữ liệu thao tác.</td></tr>'}</tbody></table></div>`;
 }
 function opRenderPersonTable(arr, kind){
   const lim=Number($('opDetailLimit')?.value||500);
-  return `<div class="tablewrap"><table><thead><tr><th>${kind}</th><th>Tổng</th><th>110kV</th><th>35kV</th><th>22kV</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${arr.slice(0,lim).map(g=>`<tr><td class="wrap">${esc(g.label)}</td><td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${g.first?esc(g.first.time):'--'}</td><td>${g.last?esc(g.last.time):'--'}</td></tr>`).join('')||'<tr><td colspan="15">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>`;
+  return `<div class="tablewrap"><table><thead><tr><th>${kind}</th><th>Tổng</th><th>110kV</th><th>35kV</th><th>22kV</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${arr.slice(0,lim).map(g=>`<tr><td class="wrap">${esc(g.label)}</td><td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${g.first?esc(g.first.time):'--'}</td><td>${g.last?esc(g.last.time):'--'}</td></tr>`).join('')||'<tr><td colspan="12">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>`;
 }
 function renderOperationCountReport(){
   if(!$('opKpiBox')) return;
