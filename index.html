@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SCADA Alarm Summary PWA Offline - ESUM Auto Detect V20 Mobile Menu</title>
+<title>SCADA Alarm Summary PWA Offline - ESUM Auto Detect V22 Chunk Read</title>
 <style>
 :root{--bg:#f3f6fb;--panel:#fff;--ink:#101828;--muted:#667085;--line:#d0d5dd;--blue:#155eef;--blue2:#0b4fd5;--green:#039855;--orange:#dc6803;--red:#d92d20;--violet:#6938ef;--cyan:#088ab2;--shadow:0 8px 24px rgba(16,24,40,.08)}
 *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Segoe UI",Tahoma,sans-serif;font-size:14px;line-height:1.42} header{background:linear-gradient(135deg,#092b68,#155eef 55%,#2e90fa);color:#fff;padding:14px 16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20} header h1{margin:0 0 3px;font-size:20px} header .sub{font-size:13px;opacity:.94} main{max-width:1600px;margin:auto;padding:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}.card h2,.card h3{margin-top:0}.grid{display:grid;gap:12px}.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}.cols5{grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:1100px){.cols2,.cols3,.cols4,.cols5{grid-template-columns:1fr} header{position:static}}
 label{display:block;font-weight:800;color:#344054;margin-bottom:6px} input,select,textarea,button{font:inherit;border-radius:10px;border:1px solid var(--line);padding:9px 10px;background:#fff;color:var(--ink)}input[type=file]{width:100%;background:#f9fafb}button{background:var(--blue);color:white;border-color:var(--blue);font-weight:800;cursor:pointer}button:hover{background:var(--blue2)}button.secondary{background:#fff;color:#344054;border-color:var(--line)}button.good{background:var(--green);border-color:var(--green)}button.warn{background:var(--orange);border-color:var(--orange)}button.bad{background:var(--red);border-color:var(--red)}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.row>*{min-width:0}.grow{flex:1 1 220px}.w100{width:100px}.w140{width:140px}.w180{width:180px}.w260{width:260px}.small{font-size:12px}.muted{color:var(--muted)}.mono{font-family:Consolas,Menlo,monospace}.notice{border-left:5px solid var(--blue);background:#eff6ff;border-radius:10px;padding:10px 12px}.notice.good{border-left-color:var(--green);background:#edfcf2}.notice.warn{border-left-color:var(--orange);background:#fff8ee}.notice.bad{border-left-color:var(--red);background:#fff1f0}.drop{border:2px dashed #98a2b3;border-radius:14px;background:#f9fafb;text-align:center;padding:18px;color:#475467}.drop.drag{border-color:var(--blue);background:#eff6ff}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tab{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#344054;font-weight:800;cursor:pointer}.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}.view{display:none}
 
-/* V20 Mobile Menu + Desktop Mode */
+/* V21 Mobile Menu + Desktop Mode */
 .tabMenuHead{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 4px 14px rgba(16,24,40,.06)}
 .tabMenuTitle{font-weight:900;color:#344054;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.tabMenuTitle .activeName{color:var(--blue)}
 .tabMenuActions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.tabMenuToggle,.tabDesktopToggle{padding:7px 10px;border-radius:999px;font-size:12px;white-space:nowrap}
@@ -39,8 +39,13 @@ body.focusCompact #breakerResult .callout{max-height:none!important;overflow:vis
 .focusEmergency{display:none;position:fixed;right:12px;bottom:12px;z-index:99999;border-radius:999px;box-shadow:0 10px 25px rgba(16,24,40,.22);padding:10px 14px;background:#12b76a;border-color:#12b76a;color:#fff;font-weight:900}
 body.focusHideUpload .focusEmergency,body.focusHidePwa .focusEmergency,body.focusHideMapping .focusEmergency,body.focusHideAdvanced .focusEmergency,body.focusCompact .focusEmergency{display:block}
 body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!important}
-</style>
 
+
+/* V21 Large file loading overlay */
+.loadingOverlay{display:none;position:fixed;inset:0;z-index:999999;background:rgba(15,23,42,.62);backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:18px}
+.loadingOverlay.show{display:flex}.loadingBox{width:min(560px,94vw);background:#fff;border-radius:18px;box-shadow:0 22px 55px rgba(16,24,40,.28);padding:18px;border:1px solid #d0d5dd}.loadingHead{display:flex;align-items:center;gap:12px}.loadingSpinner{width:34px;height:34px;border:4px solid #d0d5dd;border-top-color:#155eef;border-radius:50%;animation:spin .8s linear infinite;flex:0 0 auto}.loadingTitle{font-weight:900;color:#101828;font-size:16px}.loadingMsg{margin-top:8px;color:#475467;white-space:pre-wrap}.loadingProgress{height:10px;border-radius:999px;background:#eaecf0;overflow:hidden;margin-top:12px}.loadingProgress>div{height:100%;width:28%;background:linear-gradient(90deg,#84caff,#155eef);border-radius:999px;animation:loadbar 1.1s ease-in-out infinite}@keyframes loadbar{0%{margin-left:-28%}50%{margin-left:52%}100%{margin-left:100%}}
+
+</style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#155eef">
 <meta name="application-name" content="SCADA Alarm Analyzer">
@@ -49,7 +54,22 @@ body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!imp
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
-<header><h1>SCADA Alarm Summary PWA Offline V20 - Mobile Menu/Desktop Mode</h1><div class="sub">Đọc Excel/CSV offline • Định danh lai + từ điển V14 • Smart Diagnosis V15 • V17 sửa từ V16: ẩn/hiện, thu gọn, preset tập trung; kết luận V7/V8/Phân tích sâu không bị thu hẹp</div></header>
+
+<div id="loadingOverlay" class="loadingOverlay noPrint" aria-live="polite">
+  <div class="loadingBox">
+    <div class="loadingHead">
+      <div class="loadingSpinner"></div>
+      <div>
+        <div id="loadingTitle" class="loadingTitle">Đang xử lý dữ liệu...</div>
+        <div class="small muted">File lớn có thể mất vài giây đến vài phút tùy dung lượng và số bản ghi.</div>
+      </div>
+    </div>
+    <div id="loadingMsg" class="loadingMsg">Đang chuẩn bị...</div>
+    <div class="loadingProgress"><div></div></div>
+  </div>
+</div>
+
+<header><h1>SCADA Alarm Summary PWA Offline V22 - Chunk Read cho file lớn</h1><div class="sub">Đọc Excel/CSV/TXT offline • V22 thêm đọc TXT/CSV lớn theo từng phân mảnh, vòng xoay và tiến độ; file nhỏ vẫn dùng luồng hiện tại</div></header>
 <main>
 <button id="focusEmergencyFull" class="focusEmergency noPrint" type="button">HIỆN ĐẦY ĐỦ / CHỌN FILE</button>
 <section class="card noPrint" id="pwaCard">
@@ -57,7 +77,7 @@ body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!imp
     <button id="installPwaBtn" class="good" type="button" style="display:none">CÀI ĐẶT PWA</button>
     <button id="updatePwaBtn" class="secondary" type="button">KIỂM TRA BẢN CẬP NHẬT MỚI</button>
     <button id="clearPwaBtn" class="warn" type="button">XÓA CACHE PWA</button>
-    <div id="pwaStatus" class="small muted grow">Bản V20: giữ đầy đủ chức năng cũ, gom tab thành menu mở rộng/thu gọn trên điện thoại và bổ sung chế độ ép giao diện máy tính.</div>
+    <div id="pwaStatus" class="small muted grow">Bản V21: giữ đầy đủ chức năng cũ, gom tab thành menu mở rộng/thu gọn trên điện thoại và bổ sung chế độ ép giao diện máy tính.</div>
   </div>
 </section>
 
@@ -99,7 +119,7 @@ body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!imp
 
 <section class="tabs noPrint tabMenuCollapsed" id="tabs" style="display:none">
   <div class="tabMenuHead">
-    <div class="tabMenuTitle">MENU CHỨC NĂNG: <span id="activeTabName" class="activeName">Tổng quan</span> <span class="tabMenuHint">V20</span></div>
+    <div class="tabMenuTitle">MENU CHỨC NĂNG: <span id="activeTabName" class="activeName">Tổng quan</span> <span class="tabMenuHint">V21</span></div>
     <div class="tabMenuActions">
       <button id="tabMenuToggle" class="secondary tabMenuToggle" type="button" aria-expanded="false">MỞ MENU TAB</button>
       <button id="forceDesktopBtn" class="secondary tabDesktopToggle" type="button">ÉP GIAO DIỆN MÁY TÍNH</button>
@@ -111,6 +131,7 @@ body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!imp
       <div class="tabButtons">
         <button class="tab active" data-view="overview">Tổng quan</button>
         <button class="tab" data-view="devices">Thống kê từng thiết bị</button>
+        <button class="tab" data-view="operationCount">Đếm thao tác</button>
         <button class="tab" data-view="sequence">Trình tự Alarm</button>
         <button class="tab" data-view="breaker">Phân tích thiết bị / MC</button>
         <button class="tab" data-view="chattering">Chattering & Burst</button>
@@ -164,8 +185,125 @@ body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!imp
   <div class="small muted" style="margin-top:6px">V17: khung kết luận V7/V8/V10/Phân tích sâu luôn mở đủ chiều cao; nút Thu gọn trên tiêu đề chỉ ẩn/hiện toàn bộ khung này.</div>
 </section>
 
-<section id="overview" class="view active"><div class="notice good"><b>V12:</b> <b>Đường dẫn thiết bị = Path 1/Path 2/Path 3</b> là tên chính xác để hiển thị và báo cáo. Thuật toán chẩn đoán dùng thêm <b>mã thiết bị + Path 1</b> để ghép mềm, tránh bỏ sót Trip/Open khi các tín hiệu nằm ở nhánh SCADA khác nhau.</div><div id="kpiBox"></div><div class="grid cols2"><div class="card"><h3>Top đường dẫn thiết bị</h3><div id="chartDevice" class="chart"></div></div><div class="card"><h3>Top alarm/điểm tín hiệu</h3><div id="chartMessage" class="chart"></div></div><div class="card"><h3>Phân bố theo giờ</h3><div id="chartHour" class="chart"></div></div><div class="card"><h3>Nhóm loại sự kiện</h3><div id="chartCategory" class="chart"></div></div></div><div class="card"><h3>Tóm tắt nhóm thiết bị có nguy cơ cao</h3><div class="small muted">Bảng này lấy từ danh sách đã tự gom nhóm theo cột đường dẫn thiết bị. Bấm tên thiết bị để chuyển sang phân tích chi tiết.</div><div id="deviceRiskTop" style="margin-top:10px"></div></div><div class="card"><h3>Nhận xét nhanh từ dữ liệu</h3><div id="quickFindings"></div></div></section>
+<section id="overview" class="view active"><div class="notice good"><b>V12:</b> <b>Đường dẫn thiết bị = Path 1/Path 2/Path 3</b> là tên chính xác để hiển thị và báo cáo. Thuật toán chẩn đoán dùng thêm <b>mã thiết bị + Path 1</b> để ghép mềm, tránh bỏ sót Trip/Open khi các tín hiệu nằm ở nhánh SCADA khác nhau.</div><div id="kpiBox"></div><div class="grid cols2"><div class="card"><h3>Top đường dẫn thiết bị</h3><div id="chartDevice" class="chart"></div></div><div class="card"><h3>Top alarm/điểm tín hiệu</h3><div id="chartMessage" class="chart"></div></div><div class="card"><h3>Phân bố theo giờ</h3><div id="chartHour" class="chart"></div></div><div class="card"><h3>Nhóm loại sự kiện</h3><div id="chartCategory" class="chart"></div></div></div><div class="card"><h3>Tóm tắt nhóm thiết bị có nguy cơ cao</h3><div class="small muted">Bảng này lấy từ danh sách đã tự gom nhóm theo cột đường dẫn thiết bị. Bấm tên thiết bị để chuyển sang phân tích chi tiết.</div><div id="deviceRiskTop" style="margin-top:10px"></div></div><div class="card"><h3>Nhận xét nhanh từ dữ liệu</h3><div id="quickFindings"></div></div>
+</section>
 
+<section id="operationCount" class="view">
+  <div class="card noPrint">
+    <h3>Báo cáo đếm số lần thao tác V28 - báo cáo đầy đủ V26 + báo cáo riêng Control</h3>
+    <div class="notice">
+      Chức năng này giữ lại <b>báo cáo thao tác đầy đủ kiểu V26</b> để dùng cho các mục đích phân tích rộng. Bên dưới có thêm một <b>báo cáo thao tác chỉ Control</b> chạy riêng, giúp xử lý nhanh khi chỉ cần đếm thao tác điều khiển trong cột Ind/Indicator.
+    </div>
+    <div class="grid cols4" style="margin-top:10px">
+      <div><label>Từ khóa lọc nhanh</label><input id="opSearchText" placeholder="Trạm, thiết bị, ngăn lộ, Operator, Console..."></div>
+      <div><label>Chế độ nhận diện thao tác</label><select id="opDetectMode"><option value="auto" selected>Tự động: User/Console/Ack/Control</option><option value="userconsole">Chỉ dòng có User/Console</option><option value="control">Control/Command hoặc User/Console</option><option value="customOnly">Chỉ theo tùy chỉnh bên dưới</option></select></div>
+      <div><label>Giới hạn bảng chi tiết</label><select id="opDetailLimit"><option value="200">200 dòng</option><option value="500" selected>500 dòng</option><option value="1000">1000 dòng</option><option value="3000">3000 dòng</option></select></div>
+      <div style="align-self:end"><button id="opRefreshBtn" class="good" type="button">Cập nhật báo cáo đầy đủ</button></div>
+    </div>
+
+    <div class="grid cols4" style="margin-top:10px">
+      <div><label>Danh sách gợi ý nhận diện</label><select id="opPresetSelect"><option value="auto">Tự động khuyến nghị</option><option value="strictUser">Chỉ Operator/Console</option><option value="ackOperate">ACK + Operated/Normal/On/Off</option><option value="controlCommand">Control/Command/Điều khiển</option><option value="tapFan">Chuyển nấc + quạt</option><option value="wide">Mở rộng cho HIS/ESUM</option></select></div>
+      <div style="align-self:end"><button id="opLoadPresetBtn" class="secondary" type="button">Áp dụng gợi ý</button></div>
+      <div style="align-self:end"><button id="opSavePrefsBtn" class="secondary" type="button">Lưu tùy chọn</button></div>
+      <div style="align-self:end"><button id="opResetPrefsBtn" class="warn" type="button">Khôi phục mặc định</button></div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <label><input type="checkbox" id="opPrefilterControl"> Tùy chọn tăng tốc báo cáo đầy đủ: chỉ xét dòng có Ind/Indicator chứa</label>
+      <input id="opPrefilterIndText" class="mono w180" value="Control" placeholder="Control, Command" title="Nhiều từ khóa phân tách bằng dấu phẩy. Bật tùy chọn này khi muốn báo cáo đầy đủ chỉ xét một nhóm Ind/Indicator nhất định.">
+      <label><input type="checkbox" id="opExcludeSystem" checked> Bỏ LOGON/LOGOFF, Alarm Configuration, bản ghi trống</label>
+      <label><input type="checkbox" id="opTapSeparate" checked> Tách thao tác chuyển nấc phân áp khỏi nhóm 35/22kV</label>
+      <label><input type="checkbox" id="opFanSeparate" checked> Tách thao tác quạt làm mát</label>
+      <button id="opExportCsvBtn" class="secondary" type="button">Xuất CSV báo cáo thao tác</button>
+    </div>
+    <div class="small muted" style="margin-top:6px">Báo cáo đầy đủ V26 mặc định quét rộng để không bỏ sót các thao tác không nằm trong nhóm Control. Với file rất lớn, có thể bật tùy chọn tăng tốc hoặc dùng báo cáo riêng <b>chỉ Control</b> ở bên dưới.</div>
+
+    <details class="inside" open style="margin-top:10px">
+      <summary>Tùy chỉnh nhận diện thao tác</summary>
+      <div class="notice warn small">Có thể gõ nhiều từ khóa, phân tách bằng dấu phẩy, dấu chấm phẩy hoặc xuống dòng. Từ khóa dạng <b>re:...</b> sẽ được hiểu là biểu thức chính quy JavaScript.</div>
+      <div class="row" style="margin-top:8px">
+        <label><input type="checkbox" id="opUseCustomRules"> Bật tùy chỉnh nhận diện</label>
+        <label><input type="checkbox" id="opRequireUserConsole"> Yêu cầu có Operator/User hoặc Console</label>
+        <label><input type="checkbox" id="opCustomWithBase" checked> Gộp tùy chỉnh với chế độ nhận diện đang chọn</label>
+        <button id="opApplyCustomBtn" class="good miniBtn" type="button">Áp dụng tùy chọn và cập nhật báo cáo</button>
+      </div>
+      <div class="notice warn small" style="margin-top:8px">
+        V28: báo cáo đầy đủ không ép lọc Control. Khi gõ từ khóa, chương trình không tự chạy lại từng ký tự; bấm <b>Áp dụng tùy chọn và cập nhật báo cáo</b> khi nhập xong. Dùng báo cáo riêng Control nếu cần tốc độ cao.
+      </div>
+      <div class="grid cols4" style="margin-top:10px">
+        <div><label>Từ khóa thao tác trong toàn dòng</label><textarea id="opCustomInclude" placeholder="Control, Command, Điều khiển, thao tác, Ack, Operated"></textarea></div>
+        <div><label>Status được tính là thao tác</label><textarea id="opCustomStatus" placeholder="Ack, App, Dis"></textarea></div>
+        <div><label>Value được tính là thao tác</label><textarea id="opCustomValue" placeholder="Operated, Normal, On, Off, TANG, GIAM, TG"></textarea></div>
+        <div><label>Ind được tính là thao tác</label><textarea id="opCustomInd" placeholder="Control, Command, AlarmTrueTime, SpontTrueTime"></textarea></div>
+      </div>
+      <div class="grid cols2" style="margin-top:10px">
+        <div><label>Từ khóa loại trừ khỏi thao tác</label><textarea id="opCustomExclude" placeholder="LOGON, LOGOFF, Alarm Configuration, Group Alarm Indicator"></textarea></div>
+        <div><label>Thêm nhanh từ danh sách</label><select id="opQuickToken"><option value="Ack">Ack</option><option value="Operated">Operated</option><option value="Normal">Normal</option><option value="On">On</option><option value="Off">Off</option><option value="Control">Control</option><option value="Command">Command</option><option value="TANG">TANG</option><option value="GIAM">GIAM</option><option value="TG">TG</option><option value="OLTC">OLTC</option><option value="TUC31">TUC31</option><option value="TUC32">TUC32</option><option value="Fan">Fan</option><option value="Quạt">Quạt</option><option value="F79 MODE">F79 MODE</option><option value="F79 GROUP">F79 GROUP</option><option value="F25 MODE">F25 MODE</option><option value="F87L MODE">F87L MODE</option><option value="F861 TRIP">F861 TRIP</option><option value="STPT">STPT</option><option value="LOADSHEDDING">LOADSHEDDING</option><option value="FAN MODE">FAN MODE</option></select><div class="row" style="margin-top:8px"><button id="opAddTokenIncludeBtn" class="secondary miniBtn" type="button">Thêm vào từ khóa thao tác</button><button id="opAddTokenValueBtn" class="secondary miniBtn" type="button">Thêm vào Value</button><button id="opAddTokenExcludeBtn" class="secondary miniBtn" type="button">Thêm vào loại trừ</button></div><div id="opCustomStatusBox" class="small muted" style="margin-top:8px">Chưa lưu tùy chọn.</div></div>
+      </div>
+    </details>
+
+    <details class="inside" style="margin-top:10px">
+      <summary>Tùy chỉnh phân nhóm thao tác</summary>
+      <div class="small muted">Các từ khóa này được <b>bổ sung</b> vào bộ nhận diện mặc định, không thay thế hoàn toàn. Dùng để hiệu chỉnh theo tên thiết bị/tín hiệu thực tế từng hệ thống SCADA.</div>
+      <div class="grid cols4" style="margin-top:10px">
+        <div><label>Từ khóa chuyển nấc phân áp</label><textarea id="opKwTap" placeholder="OLTC, TUC31, TUC32, TAP, TANG, GIAM, TG"></textarea></div>
+        <div><label>Từ khóa bật/tắt quạt</label><textarea id="opKwFan" placeholder="FAN, QUAT, COOLING, COOLER, LAM MAT"></textarea></div>
+        <div><label>Từ khóa chế độ quạt</label><textarea id="opKwFanMode" placeholder="FAN MODE, QUAT MODE, AUTO FAN, LOCAL FAN, REMOTE FAN"></textarea></div>
+        <div><label>Từ khóa chế độ/khóa rơ-le bảo vệ</label><textarea id="opKwRelayMode" placeholder="F79 GROUP, F25 MODE, F87L MODE, F79 MODE, F861 TRIP, RELAY MODE"></textarea></div>
+        <div><label>Từ khóa STPT / LoadShedding</label><textarea id="opKwSTPT" placeholder="STPT, LOADSHEDDING, LOAD SHEDDING, PAR 22, PAR 22 - 35"></textarea></div>
+        <div><label>Từ khóa nhận diện trạm 110kV</label><textarea id="opKwStation110" placeholder="110, E2., E22., TBA, TRAM 110"></textarea></div>
+        <div><label>Từ khóa đường dây trung áp</label><textarea id="opKwMvLine" placeholder="LINE, DUONG DAY, LBS_, RE_, RECLOSER, REC"></textarea></div>
+        <div><label>Từ khóa phía 110kV</label><textarea id="opKw110" placeholder="110/, /110, 110 kV, C11, C12"></textarea></div>
+        <div><label>Từ khóa phía 35kV</label><textarea id="opKw35" placeholder="35/, /35, 35 kV, C31, C32, C37"></textarea></div>
+        <div><label>Từ khóa phía 22kV</label><textarea id="opKw22" placeholder="22/, /22, 22 kV, C41, C42, C47"></textarea></div>
+        <div><label>Ghi chú cấu hình</label><textarea id="opRuleNote" placeholder="VD: thêm mã ngăn lộ đặc thù của đơn vị..."></textarea></div>
+      </div>
+    </details>
+
+    <div class="small muted" style="margin-top:8px">
+      Công thức tổng: Tổng thao tác = Chuyển nấc phân áp + Bật/tắt quạt + Thao tác khác + Thao tác phía 110kV TBA + Thao tác phía trung áp. Trong đó thao tác phía trung áp = 35kV TBA + 22kV TBA + đường dây trung áp.
+    </div>
+  </div>
+
+  <div id="opKpiBox"></div>
+
+  <div class="grid cols2">
+    <div class="card"><h3>Tổng hợp theo nhóm thao tác</h3><div id="opSummaryBox"></div></div>
+    <div class="card"><h3>Top trạm / nhóm thao tác nhiều nhất</h3><div id="opTopStationBox"></div></div>
+  </div>
+
+  <div class="card"><h3>Chi tiết từng trạm 110kV</h3><div id="opStation110Box"></div></div>
+  <div class="card"><h3>Chi tiết từng ngăn lộ / máy biến áp / thiết bị</h3><div id="opDeviceBox"></div></div>
+
+  <div class="grid cols2">
+    <div class="card"><h3>Từng người thực hiện thao tác / Operator</h3><div id="opOperatorBox"></div></div>
+    <div class="card"><h3>Từng thiết bị thực hiện thao tác / Console</h3><div id="opConsoleBox"></div></div>
+  </div>
+
+  <div class="card"><h3>Timeline thao tác gần nhất</h3><div id="opTimelineBox"></div></div>
+<div class="card noPrint">
+  <h3>Báo cáo thao tác chỉ Control</h3>
+  <div class="notice good">
+    Báo cáo này <b>không thay thế</b> báo cáo thao tác đầy đủ ở trên. Nó chỉ lấy các dòng có cột <b>Ind/Indicator</b> chứa từ khóa cấu hình, mặc định là <b>Control</b>, rồi áp dụng cùng bộ nhận diện/phân nhóm thao tác hiện hành để chạy nhanh hơn với dữ liệu lớn.
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div class="grow"><label>Ind/Indicator chứa</label><input id="opControlOnlyText" class="mono" value="Control" placeholder="Control, Command"></div>
+    <button id="opControlReportBtn" class="good" type="button">Cập nhật báo cáo chỉ Control</button>
+    <button id="opControlExportCsvBtn" class="secondary" type="button">Xuất CSV chỉ Control</button>
+  </div>
+  <div class="small muted" style="margin-top:6px">Có thể nhập nhiều từ khóa, phân tách bằng dấu phẩy, chấm phẩy hoặc xuống dòng. Báo cáo này vẫn dùng các tùy chọn phân nhóm chuyển nấc/quạt/110kV/35kV/22kV hiện đang cấu hình.</div>
+</div>
+<div id="opControlKpiBox"></div>
+<div class="card"><h3>Tổng hợp thao tác chỉ Control</h3><div id="opControlSummaryBox" class="notice warn">Chưa chạy báo cáo chỉ Control.</div></div>
+<div class="grid cols2">
+  <div class="card"><h3>Top trạm trong báo cáo Control</h3><div id="opControlTopStationBox"></div></div>
+  <div class="card"><h3>Chi tiết trạm 110kV - Control</h3><div id="opControlStation110Box"></div></div>
+  <div class="card"><h3>Chi tiết ngăn lộ / MBA / thiết bị - Control</h3><div id="opControlDeviceBox"></div></div>
+  <div class="card"><h3>Operator/User - Control</h3><div id="opControlOperatorBox"></div></div>
+  <div class="card"><h3>Console - Control</h3><div id="opControlConsoleBox"></div></div>
+  <div class="card"><h3>Timeline Control gần nhất</h3><div id="opControlTimelineBox"></div></div>
+</div>
+</section>
 
 <section id="devices" class="view"><div class="card noPrint"><h3>Thống kê tự gom nhóm theo đường dẫn thiết bị Path 1/Path 2/Path 3</h3><div class="grid cols3"><div><label>Tìm nhanh trong nhóm thiết bị</label><input id="deviceGroupSearch" list="deviceSuggestList" placeholder="Gõ 374, 372, LBS, RE, tên trạm, tên alarm..."></div><div><label>Sắp xếp</label><select id="deviceGroupSort"><option value="risk" selected>Ưu tiên Trip/Pickup/Chattering</option><option value="total">Số sự kiện nhiều nhất</option><option value="trip">Trip nhiều nhất</option><option value="pickup">Pickup nhiều nhất</option><option value="comm">Invalid/Comm nhiều nhất</option><option value="name">Tên thiết bị A-Z</option></select></div><div style="align-self:end"><button id="deviceGroupClear" class="secondary" type="button">Xóa lọc</button></div></div><div id="deviceGroupSummary" class="notice" style="margin-top:10px">Chưa có dữ liệu.</div></div><div class="card"><h3>Bảng thống kê từng thiết bị</h3><div class="small muted">Các cột Trip/Pickup/Open/Close được tính sau khử trùng. Cột “Nghi vấn” cộng các dấu hiệu Invalid/Comm, nguồn, khóa/liên động, intransit, relay fault, block...</div><div id="deviceGroupBox" style="margin-top:10px"></div></div></section>
 
@@ -472,6 +610,25 @@ function pad(n){return String(n).padStart(2,'0');}
 function formatDate(d){if(!d) return ''; return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${String(d.getMilliseconds()).padStart(3,'0')} ${VI_DAYS[d.getDay()]}`;}
 function inputDT(d){if(!d) return ''; return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;}
 function setStatus(html, cls='notice'){ $('status').className=cls; $('status').innerHTML=html; }
+
+function showLoadOverlay(title,msg){
+  const ov=$('loadingOverlay');
+  if(!ov) return;
+  const t=$('loadingTitle'), m=$('loadingMsg');
+  if(t) t.textContent=title||'Đang xử lý dữ liệu...';
+  if(m) m.textContent=msg||'Đang chuẩn bị...';
+  ov.classList.add('show');
+}
+function updateLoadOverlay(msg,title){
+  const ov=$('loadingOverlay');
+  if(!ov) return;
+  if(title&&$('loadingTitle')) $('loadingTitle').textContent=title;
+  if($('loadingMsg')) $('loadingMsg').textContent=msg||'';
+}
+function hideLoadOverlay(){const ov=$('loadingOverlay'); if(ov) ov.classList.remove('show');}
+function delayFrame(ms=35){return new Promise(resolve=>setTimeout(resolve,ms));}
+function bytesText(n){n=Number(n)||0;if(n>=1024*1024*1024)return (n/1024/1024/1024).toFixed(2)+' GB';if(n>=1024*1024)return (n/1024/1024).toFixed(1)+' MB';if(n>=1024)return (n/1024).toFixed(1)+' KB';return n+' B';}
+
 function downloadText(filename,text,mime='text/plain;charset=utf-8'){const blob=new Blob([text],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 function safeBase(n){return (n||'alarm').replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_\-À-ỹ]+/g,'_').slice(0,90);}
 
@@ -560,7 +717,167 @@ function identityDictCounts(){
 
 loadIdentityDictionary();
 
-async function parseFile(file){document.body.classList.remove('fileLoaded');sourceName=file.name;setStatus('<span class="spinner"></span> Đang đọc file...', 'notice');const ext=file.name.split('.').pop().toLowerCase();if(ext==='xlsx'){workbook=await readXlsx(await file.arrayBuffer());}else if(ext==='csv'||ext==='txt'){workbook={sheets:[{name:file.name.replace(/\.[^.]+$/,''),rows:parseCsv(await file.text())}]};}else if(ext==='xls'){throw new Error('File .xls nhị phân cũ chưa hỗ trợ. Hãy mở bằng Excel và Save As thành .xlsx hoặc .csv.');}else{throw new Error('Định dạng chưa hỗ trợ.');}if(!workbook.sheets.length) throw new Error('Không tìm thấy sheet.');fillSheetSelect();$('mappingCard').style.display='';$('tabs').style.display='';document.body.classList.add('fileLoaded');loadSheet(0);}
+
+const LARGE_TEXT_CHUNK_THRESHOLD = 50 * 1024 * 1024;      // >= 50 MB: đọc TXT/CSV theo phân mảnh
+const HUGE_TEXT_CHUNK_WARNING = 300 * 1024 * 1024;        // >= 300 MB: cảnh báo mạnh, gợi ý chia nhỏ/lọc SQL
+const TEXT_CHUNK_SIZE = 2 * 1024 * 1024;                  // 2 MB/lần đọc để UI còn cập nhật được
+const EMBEDDED_CHUNK_CHAR_SIZE = 1 * 1024 * 1024;         // dữ liệu nhúng: parse từng đoạn chuỗi
+const LARGE_INITIAL_ANALYZE_THRESHOLD = 80000;        // >= 80k dòng: chỉ dựng báo cáo nhanh ban đầu, hoãn chẩn đoán nặng
+const LARGE_DEVICE_GROUP_RENDER_LIMIT = 1000;          // tránh render hàng nghìn nhóm thiết bị cùng lúc
+let largeInitialMode = false;
+let lazyRenderedViews = {};
+
+function detectDelimiterFromText(text){
+  text = String(text || '').slice(0, 12000);
+  const delims=[',',';','\t','|'];
+  let best=';', bestCount=-1;
+  for(const d of delims){
+    const re = new RegExp(d==='\t' ? '\\t' : '\\' + d, 'g');
+    const count = (text.match(re)||[]).length;
+    if(count > bestCount){best=d; bestCount=count;}
+  }
+  return best || ';';
+}
+function parseDelimitedLine(line, delim){
+  const row=[]; let cur='', q=false;
+  line = String(line == null ? '' : line);
+  for(let i=0;i<line.length;i++){
+    const ch=line[i], next=line[i+1];
+    if(q){
+      if(ch==='"' && next==='"'){cur+='"'; i++;}
+      else if(ch==='"') q=false;
+      else cur+=ch;
+    }else{
+      if(ch==='"') q=true;
+      else if(ch===delim){row.push(cur); cur='';}
+      else cur+=ch;
+    }
+  }
+  row.push(cur);
+  return row;
+}
+function normalizeParsedRows(rows){
+  let max=0;
+  rows.forEach(r=>{while(r.length && String(r[r.length-1]??'').trim()==='') r.pop(); max=Math.max(max,r.length);});
+  return rows.filter(r=>r.some(x=>String(x??'').trim()!=='')).map(r=>{while(r.length<max) r.push(''); return r;});
+}
+function lineCountText(n){
+  n = Number(n)||0;
+  try{return n.toLocaleString('vi-VN');}catch(_){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+}
+async function parseDelimitedTextInChunks(text, opt){
+  opt = opt || {};
+  text = String(text || '').replace(/^\uFEFF/, '');
+  const total = text.length;
+  const chunkChars = Math.max(256*1024, Number(opt.chunkChars)||EMBEDDED_CHUNK_CHAR_SIZE);
+  const delim = opt.delim || detectDelimiterFromText(text.slice(0, 12000));
+  const rows=[]; let offset=0, carry='', chunkNo=0;
+  while(offset < total){
+    const end = Math.min(offset + chunkChars, total);
+    let part = carry + text.slice(offset, end);
+    const lines = part.split(/\r?\n/);
+    carry = lines.pop() || '';
+    for(let i=0;i<lines.length;i++){
+      const line = lines[i];
+      if(String(line).trim()!=='') rows.push(parseDelimitedLine(line, delim));
+    }
+    offset = end; chunkNo++;
+    if(opt.onProgress){
+      opt.onProgress({done:offset,total:total,percent:total?Math.floor(offset*100/total):100,rows:rows.length,chunk:chunkNo});
+    }
+    await delayFrame(0);
+  }
+  if(String(carry).trim()!=='') rows.push(parseDelimitedLine(carry, delim));
+  return normalizeParsedRows(rows);
+}
+async function parseLargeDelimitedFileInChunks(file){
+  const rows=[];
+  const total = file.size || 0;
+  let offset=0, carry='', chunkNo=0, delim=null;
+  const decoder = new TextDecoder('utf-8');
+  showLoadOverlay('Đọc file lớn theo phân mảnh', 'File '+file.name+' ('+bytesText(total)+') sẽ được đọc từng phần để tránh treo giao diện.');
+  while(offset < total){
+    const end = Math.min(offset + TEXT_CHUNK_SIZE, total);
+    const buffer = await file.slice(offset, end).arrayBuffer();
+    let text = decoder.decode(buffer, {stream:end < total});
+    if(offset === 0) text = text.replace(/^\uFEFF/, '');
+    if(delim == null) delim = detectDelimiterFromText(text);
+    text = carry + text;
+    const lines = text.split(/\r?\n/);
+    carry = lines.pop() || '';
+    for(let i=0;i<lines.length;i++){
+      const line = lines[i];
+      if(String(line).trim()!=='') rows.push(parseDelimitedLine(line, delim));
+    }
+    offset = end; chunkNo++;
+    const percent = total ? Math.floor(offset*100/total) : 100;
+    updateLoadOverlay('Đang đọc phân mảnh: '+percent+'% ('+bytesText(offset)+' / '+bytesText(total)+')\nĐã tách khoảng '+lineCountText(rows.length)+' dòng.\nKhông đóng trình duyệt trong khi đang xử lý.');
+    setStatus('<span class="spinner"></span> Đang đọc file lớn theo phân mảnh: '+percent+'% - '+lineCountText(rows.length)+' dòng...', 'notice');
+    await delayFrame(0);
+  }
+  if(String(carry).trim()!=='') rows.push(parseDelimitedLine(carry, delim || ';'));
+  updateLoadOverlay('Đã đọc xong '+lineCountText(rows.length)+' dòng. Đang chuẩn hóa bảng dữ liệu...');
+  await delayFrame(0);
+  return normalizeParsedRows(rows);
+}
+function shouldUseChunkReader(file, ext){
+  return (ext==='csv' || ext==='txt') && file && Number(file.size||0) >= LARGE_TEXT_CHUNK_THRESHOLD;
+}
+function largeFileAdvice(file){
+  const size = bytesText(file && file.size || 0);
+  return 'File '+(file&&file.name?file.name:'dữ liệu')+' có dung lượng '+size+'.\n\nHTML sẽ chuyển sang đọc phân mảnh trực tiếp để giảm treo giao diện. Nếu vẫn chậm, nên quay lại HTA để lọc SQL kỹ hơn hoặc tự chia nhỏ file theo ngày/trạm/thiết bị.';
+}
+
+async function parseFile(file){
+  document.body.classList.remove('fileLoaded');
+  sourceName=file.name;
+  const ext=file.name.split('.').pop().toLowerCase();
+  const size=bytesText(file.size||0);
+  showLoadOverlay('Đang nạp file dữ liệu', 'Đã chọn '+file.name+' ('+size+').\nBước 1/4: kiểm tra dung lượng và kiểu đọc...');
+  setStatus('<span class="spinner"></span> Đang đọc <b>'+esc(file.name)+'</b> ('+esc(size)+')...', 'notice');
+  try{
+    await delayFrame();
+    if(ext==='xlsx'){
+      updateLoadOverlay('Bước 2/4: giải nén và đọc workbook Excel...');
+      await delayFrame();
+      workbook=await readXlsx(await file.arrayBuffer());
+    }else if(ext==='csv'||ext==='txt'){
+      if(shouldUseChunkReader(file, ext)){
+        if((file.size||0) >= HUGE_TEXT_CHUNK_WARNING){
+          const ok = confirm(largeFileAdvice(file)+'\n\nDung lượng này rất lớn. Tiếp tục đọc phân mảnh ngay trong HTML?');
+          if(!ok) throw new Error('Người dùng đã hủy đọc file lớn. Khuyến nghị: lọc SQL thêm hoặc chia file nhỏ hơn.');
+        }
+        updateLoadOverlay('Bước 2/4: file lớn, chuyển sang đọc phân mảnh '+bytesText(TEXT_CHUNK_SIZE)+' mỗi lần...');
+        await delayFrame();
+        const rows = await parseLargeDelimitedFileInChunks(file);
+        workbook={sheets:[{name:file.name.replace(/\.[^.]+$/,''),rows:rows}]};
+      }else{
+        updateLoadOverlay('Bước 2/4: đọc nội dung text theo luồng thường...');
+        const text=await file.text();
+        updateLoadOverlay('Bước 3/4: tách dòng/cột dữ liệu. File lớn có thể mất thêm thời gian...');
+        await delayFrame();
+        workbook={sheets:[{name:file.name.replace(/\.[^.]+$/,''),rows:parseCsv(text)}]};
+      }
+    }else if(ext==='xls'){
+      throw new Error('File .xls nhị phân cũ chưa hỗ trợ. Hãy mở bằng Excel và Save As thành .xlsx hoặc .csv.');
+    }else{
+      throw new Error('Định dạng chưa hỗ trợ.');
+    }
+    if(!workbook.sheets.length) throw new Error('Không tìm thấy sheet.');
+    updateLoadOverlay('Bước 4/4: nhận diện cột và chạy phân tích ban đầu...');
+    await delayFrame();
+    fillSheetSelect();
+    $('mappingCard').style.display='';
+    $('tabs').style.display='';
+    document.body.classList.add('fileLoaded');
+    await loadSheet(0);
+    if((file.size||0) >= LARGE_TEXT_CHUNK_THRESHOLD && (ext==='csv'||ext==='txt')){
+      setStatus('Đã đọc file lớn bằng cơ chế phân mảnh: <b>'+esc(file.name)+'</b> ('+esc(size)+'). Nếu phân tích vẫn chậm, hãy lọc SQL hoặc chia file nhỏ hơn.', 'notice good');
+    }
+  }finally{
+    setTimeout(hideLoadOverlay,180);
+  }
+}
 async function readXlsx(arrayBuffer){if(typeof JSZip==='undefined') throw new Error('Thiếu JSZip trong HTML.');const zip=await JSZip.loadAsync(arrayBuffer);const text=async p=>{const f=zip.file(p);return f?await f.async('text'):''};const wbXml=await text('xl/workbook.xml');if(!wbXml) throw new Error('Không đọc được xl/workbook.xml.');const rels=parseRels(await text('xl/_rels/workbook.xml.rels'));const shared=parseSharedStrings(await text('xl/sharedStrings.xml'));const wbDoc=new DOMParser().parseFromString(wbXml,'application/xml');const sheets=Array.from(wbDoc.getElementsByTagName('sheet'));const out=[];for(const sh of sheets){const name=sh.getAttribute('name')||('Sheet'+(out.length+1));const rid=sh.getAttribute('r:id')||sh.getAttribute('id');let target=rels[rid];if(!target) target=`worksheets/sheet${sh.getAttribute('sheetId')}.xml`;const path=normalizeXlPath(target);const xml=await text(path);if(xml) out.push({name,rows:parseSheetXml(xml,shared)});}return {sheets:out};}
 function normalizeXlPath(target){target=(target||'').replace(/^\//,'');if(target.startsWith('xl/')) return target;return 'xl/'+target.replace(/^\.\//,'');}
 function parseRels(xml){const map={};if(!xml) return map;const doc=new DOMParser().parseFromString(xml,'application/xml');Array.from(doc.getElementsByTagName('Relationship')).forEach(r=>map[r.getAttribute('Id')]=r.getAttribute('Target'));return map;}
@@ -571,12 +888,13 @@ function trimRows(rows){let max=0;rows.forEach(r=>{while(r.length&&String(r[r.le
 function parseCsv(text){text=text.replace(/^\uFEFF/,'');const sample=text.slice(0,4000);const delims=[',',';','\t','|'];const delim=delims.map(d=>[d,(sample.match(new RegExp(d==='\t'?'\\t':'\\'+d,'g'))||[]).length]).sort((a,b)=>b[1]-a[1])[0][0];const rows=[];let row=[],cur='',q=false;for(let i=0;i<text.length;i++){const ch=text[i],next=text[i+1];if(q){if(ch==='"'&&next==='"'){cur+='"';i++;}else if(ch==='"')q=false;else cur+=ch;}else{if(ch==='"')q=true;else if(ch===delim){row.push(cur);cur='';}else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else if(ch==='\r'){}else cur+=ch;}}row.push(cur);rows.push(row);return trimRows(rows);}
 
 function fillSheetSelect(){const sel=$('sheetSelect');sel.innerHTML='';workbook.sheets.forEach((s,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=`${s.name} (${fmt(s.rows.length)} dòng)`;sel.appendChild(opt);});sel.disabled=false;}
-function loadSheet(idx){currentSheet=workbook.sheets[idx];rawRows=currentSheet.rows||[];headerInfo=detectHeader(rawRows);fillMapping(headerInfo.headers,headerInfo.mapping);analyzeCurrent();}
+async function loadSheet(idx){currentSheet=workbook.sheets[idx];rawRows=currentSheet.rows||[];headerInfo=detectHeader(rawRows);fillMapping(headerInfo.headers,headerInfo.mapping);return analyzeCurrent();}
 function detectHeader(rows){let best={idx:0,score:-1,headers:[]};for(let i=0;i<Math.min(rows.length,40);i++){const row=rows[i]||[];let score=0;const texts=row.map(x=>norm(x));texts.forEach(h=>{Object.values(keywordGroups).flat().forEach(k=>{const nk=norm(k);if(h===nk) score+=9; else if(h.includes(nk)) score+=4;});if(/^path\s*[1-5]$/.test(h)) score+=12;if(h.length>1&&h.length<60) score+=.1;});score+=Math.min(row.filter(x=>String(x??'').trim()).length,16)*.2;if(score>best.score) best={idx:i,score,headers:row.map((h,j)=>compact(h)||`Cột ${j+1}`)};}const headers=best.headers;const mapping={};Object.keys(keywordGroups).forEach(field=>{let bc=COL_NONE,bs=0;headers.forEach((h,idx)=>{const nh=norm(h);let sc=0;keywordGroups[field].forEach(k=>{const nk=norm(k);if(nh===nk) sc+=15; else if(nh.includes(nk)) sc+=7;});if(field==='station'&&nh==='path 1') sc+=20;if(field==='device'&&nh==='path 2') sc+=20;if(field==='path3'&&nh==='path 3') sc+=25;if(field==='message'&&nh==='path 4') sc+=20;if(field==='time'&&nh==='time stamp') sc+=20;if(sc>bs){bs=sc;bc=String(idx);}});mapping[field]=bc;});return {headerRow:best.idx,headers,mapping};}
 function fillMapping(headers,mapping){Object.keys(fields).forEach(id=>{const sel=$(id);sel.innerHTML='';const none=document.createElement('option');none.value=COL_NONE;none.textContent='-- Không dùng --';sel.appendChild(none);headers.forEach((h,i)=>{const opt=document.createElement('option');opt.value=String(i);opt.textContent=`${colLetters(i)} - ${h}`;sel.appendChild(opt);});sel.value=mapping[fields[id]]??COL_NONE;});}
 function colLetters(i){let s='',n=i+1;while(n>0){let r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26);}return s;}
 function getMapping(){const out={};Object.keys(fields).forEach(id=>out[fields[id]]=$(id).value);return out;}
 function cell(row,idx){if(idx===COL_NONE||idx===''||idx==null) return '';return row[Number(idx)]??'';}
+function rawLookup(raw,names){const want=(names||[]).map(norm);for(const k in (raw||{})){if(want.includes(norm(k))) return compact(raw[k]);}return '';}
 function joinDevicePath(){return Array.from(arguments).map(compact).filter(Boolean).join('/').replace(/\/+/g,'/').replace(/^\/|\/$/g,'');}
 
 function pointPathOf(path1,path2,path3,point){return joinDevicePath(path1,path2,path3,point);}
@@ -608,6 +926,8 @@ function makeRecord(row,rowNum,m){
   const unit=compact(cell(row,m.unit));
   const comment=compact(cell(row,m.comment));
   const limit=compact(cell(row,m.limit));
+  const operator=rawLookup(raw,['user','operator','người thao tác','nguoi thao tac','user/operator','operator/user']);
+  const consoleName=rawLookup(raw,['console','workstation','hmi','client','thiết bị thao tác','thiet bi thao tac']);
   const allCells=row.map(compact).filter(Boolean);
   const fullText=allCells.join(' | ');
   const point2=point||comment||'(không rõ nội dung)';
@@ -623,7 +943,7 @@ function makeRecord(row,rowNum,m){
   const stationKey=norm(path1);
   const deviceKey=norm(devicePath||device2);
   const aliasKey=deviceCode?(stationKey+'|'+deviceCode):'';
-  return {rowNum,raw,row,timeRaw:time,timeDate:dt,time:dt?formatDate(dt):compact(time),station:path1,path1,path2,path3,devicePath,pointPath,device:device2,deviceShort:path2,deviceCode,stationKey,deviceKey,aliasKey,point:point2,status,value,ind,unit,comment,limit,fullText,categories:cats,active,clear,severity:scoreSeverity(cats,status,value,fullText),codes};
+  return {rowNum,raw,row,timeRaw:time,timeDate:dt,time:dt?formatDate(dt):compact(time),station:path1,path1,path2,path3,devicePath,pointPath,device:device2,deviceShort:path2,deviceCode,stationKey,deviceKey,aliasKey,point:point2,status,value,ind,unit,comment,limit,operator,user:operator,console:consoleName,fullText,categories:cats,active,clear,severity:scoreSeverity(cats,status,value,fullText),codes};
 }
 function classify(text){return categoryDefs.filter(d=>d[1].test(text)).map(d=>d[0]);}
 function catClass(cat){const d=categoryDefs.find(x=>x[0]===cat);return d?d[2]:'gray';}
@@ -633,19 +953,520 @@ function isClear(status,value,text){return /\bDis\b/i.test(status)||/Normal|Off|
 function extractCodes(text){const out=new Set();String(text).match(/(?:RE|LBS)?_?E\d{1,2}\.\d+[_\/\-]?(\d{3})/gi)?.forEach(x=>{const m=x.match(/(\d{3})(?!.*\d{3})/);if(m)out.add(m[1]);});String(text).match(/\b(?:3\d{2}|4\d{2}|5\d{2}|C\d{2}(?:-\d)?|T\d)\b/gi)?.forEach(x=>out.add(x.toUpperCase()));return Array.from(out);}
 function eventKey(r){const ignoreInd=$('dedupeToggle').checked;const cols=headerInfo.headers.map((h,i)=>({h,i})).filter(o=>!(ignoreInd&&String(o.h).toLowerCase()==='ind')).map(o=>compact(r.row[o.i]));return cols.join('\u241f');}
 
-function analyzeCurrent(){if(!rawRows.length) return;const m=getMapping();const start=(headerInfo?.headerRow??0)+1;records=[];for(let i=start;i<rawRows.length;i++){const row=rawRows[i];if(!row||!row.some(x=>String(x??'').trim())) continue;records.push(makeRecord(row,i+1,m));}const seen=new Map();uniqueRecords=[];for(const r of records){const k=eventKey(r);if(!seen.has(k)){r.dupCount=1;r.dupRows=[r.rowNum];r.dupInd=[r.ind].filter(Boolean);seen.set(k,r);uniqueRecords.push(r);}else{const first=seen.get(k);first.dupCount++;first.dupRows.push(r.rowNum);if(r.ind&&!first.dupInd.includes(r.ind)) first.dupInd.push(r.ind);}}applyIdentityDictionaryToRecords();stats=buildStats();filtered=uniqueRecords.slice();renderAll();setStatus(`Đã đọc <b>${esc(sourceName)}</b> / sheet <b>${esc(currentSheet?.name||'')}</b>: ${fmt(records.length)} dòng, còn ${fmt(uniqueRecords.length)} sự kiện sau khử trùng.`, 'notice good');$('exportCsvBtn').disabled=false;$('exportReportBtn').disabled=false;}
+async function analyzeCurrent(){
+  if(!rawRows.length) return;
+  const m=getMapping();
+  const start=(headerInfo?.headerRow??0)+1;
+  const total=Math.max(0,rawRows.length-start);
+  const chunk=total>=250000?6000:total>=80000?4000:2000;
+  largeInitialMode = total >= LARGE_INITIAL_ANALYZE_THRESHOLD;
+  lazyRenderedViews = {};
+  showLoadOverlay('Bước 4/4: nhận diện cột và phân tích ban đầu', 'Đang chuẩn hóa '+fmt(total)+' dòng dữ liệu. File lớn sẽ chỉ dựng báo cáo nhanh trước, các chẩn đoán nặng sẽ chạy khi mở tab tương ứng.');
+  await delayFrame(0);
+
+  records=[];
+  for(let i=start;i<rawRows.length;i++){
+    const row=rawRows[i];
+    if(row&&row.some(x=>String(x??'').trim())) records.push(makeRecord(row,i+1,m));
+    if(((i-start+1)%chunk)===0){
+      const p=Math.floor((i-start+1)*100/Math.max(1,total));
+      updateLoadOverlay('Bước 4/4: chuẩn hóa bản ghi '+p+'%\nĐã chuẩn hóa '+fmt(records.length)+' dòng có dữ liệu.');
+      await delayFrame(0);
+    }
+  }
+
+  updateLoadOverlay('Bước 4/4: đang khử trùng bản ghi giống nhau...');
+  await delayFrame(0);
+  const seen=new Map(); uniqueRecords=[];
+  for(let j=0;j<records.length;j++){
+    const r=records[j]; const k=eventKey(r);
+    if(!seen.has(k)){r.dupCount=1;r.dupRows=[r.rowNum];r.dupInd=[r.ind].filter(Boolean);seen.set(k,r);uniqueRecords.push(r);}else{const first=seen.get(k);first.dupCount++;first.dupRows.push(r.rowNum);if(r.ind&&!first.dupInd.includes(r.ind)) first.dupInd.push(r.ind);}
+    if((j+1)%chunk===0){
+      const p=Math.floor((j+1)*100/Math.max(1,records.length));
+      updateLoadOverlay('Bước 4/4: khử trùng '+p+'%\nCòn '+fmt(uniqueRecords.length)+' sự kiện duy nhất.');
+      await delayFrame(0);
+    }
+  }
+
+  updateLoadOverlay('Bước 4/4: áp dụng từ điển định danh và tạo thống kê lõi...');
+  await delayFrame(0);
+  applyIdentityDictionaryToRecords();
+  await delayFrame(0);
+  stats=buildStats();
+  filtered=uniqueRecords;
+
+  updateLoadOverlay(largeInitialMode
+    ? 'Bước 4/4: dựng kết quả nhanh. Các tab V15/V7/V8/Phân tích sâu sẽ được hoãn để tránh treo.'
+    : 'Bước 4/4: dựng đầy đủ các tab phân tích...');
+  await delayFrame(0);
+  if(largeInitialMode) renderInitialFast(); else renderAll();
+  setStatus(`Đã đọc <b>${esc(sourceName)}</b> / sheet <b>${esc(currentSheet?.name||'')}</b>: ${fmt(records.length)} dòng, còn ${fmt(uniqueRecords.length)} sự kiện sau khử trùng.${largeInitialMode?' <b>Đang dùng chế độ file lớn:</b> các tab chẩn đoán nặng sẽ chạy khi anh mở tab đó.':''}`, 'notice good');
+  $('exportCsvBtn').disabled=false;$('exportReportBtn').disabled=false;
+}
 function buildStats(){const data=uniqueRecords;const raw=records;const count=(arr,fn)=>arr.filter(fn).length;const top=(arr,keyFn)=>{const m=new Map();arr.forEach(r=>{const k=keyFn(r)||'(trống)';m.set(k,(m.get(k)||0)+1);});return Array.from(m.entries()).sort((a,b)=>b[1]-a[1]);};const times=data.map(r=>r.timeDate).filter(Boolean).sort((a,b)=>a-b);const categories=new Map();data.forEach(r=>r.categories.length?r.categories.forEach(c=>categories.set(c,(categories.get(c)||0)+1)):categories.set('KHÁC',(categories.get('KHÁC')||0)+1));const hour=new Map();data.forEach(r=>{if(r.timeDate){const k=pad(r.timeDate.getHours())+':00';hour.set(k,(hour.get(k)||0)+1);}});const minute=new Map();data.forEach(r=>{if(r.timeDate){const k=`${pad(r.timeDate.getHours())}:${pad(r.timeDate.getMinutes())}`;minute.set(k,(minute.get(k)||0)+1);}});const codes=new Map();data.forEach(r=>r.codes.forEach(c=>codes.set(c,(codes.get(c)||0)+1)));const dupGroups=uniqueRecords.filter(r=>r.dupCount>1).sort((a,b)=>b.dupCount-a.dupCount);const chats=detectChattering(data);const deviceGroups=buildDeviceGroups(data,chats);const identity=buildIdentityModel(data);return {rawCount:raw.length,uniqueCount:data.length,dupRows:raw.length-data.length,dupGroups,identity,active:count(data,r=>r.active),clear:count(data,r=>r.clear),ack:count(data,r=>/ack/i.test(r.status)||/ack/i.test(r.ind)),trip:count(data,r=>r.categories.includes('TRIP/CẮT')),pickup:count(data,r=>r.categories.includes('PICKUP/KHỞI ĐỘNG')),openclose:count(data,r=>r.categories.includes('STATUS OPEN/CLOSE')),comm:count(data,r=>r.categories.includes('INVALID/COMM')),dsse:count(data,r=>r.categories.includes('DSSE/TOPO/VIOLATION')),timeStart:times[0],timeEnd:times[times.length-1],topDevice:top(data,r=>displayDeviceOf(r)),topStation:top(data,r=>r.station),topPoint:top(data,r=>r.point),categories:Array.from(categories.entries()).sort((a,b)=>b[1]-a[1]),hours:Array.from(hour.entries()).sort(),minutes:Array.from(minute.entries()).sort((a,b)=>b[1]-a[1]),codes:Array.from(codes.entries()).sort((a,b)=>b[1]-a[1]),chats,deviceGroups};}
 function buildDeviceGroups(data,chats){const groups=new Map();data.forEach(r=>{const name=compact(r.identityDevice||r.device)||'(trống)';let g=groups.get(name);if(!g){g={device:name,rows:[],stationMap:new Map(),path2Map:new Map(),path3Map:new Map(),pointMap:new Map(),catMap:new Map(),codeMap:new Map(),active:0,clear:0,trip:0,pickup:0,open:0,close:0,comm:0,dsse:0,block:0,source:0,severity:0};groups.set(name,g);}g.rows.push(r);if(r.station)g.stationMap.set(r.station,(g.stationMap.get(r.station)||0)+1);if(r.path2)g.path2Map.set(r.path2,(g.path2Map.get(r.path2)||0)+1);if(r.path3)g.path3Map.set(r.path3,(g.path3Map.get(r.path3)||0)+1);if(r.point)g.pointMap.set(r.point,(g.pointMap.get(r.point)||0)+1);r.codes.forEach(c=>g.codeMap.set(c,(g.codeMap.get(c)||0)+1));(r.categories.length?r.categories:['KHÁC']).forEach(c=>g.catMap.set(c,(g.catMap.get(c)||0)+1));if(r.active)g.active++;if(r.clear)g.clear++;if(isTrip(r))g.trip++;if(isPickup(r))g.pickup++;if(isOpen(r))g.open++;if(isClose(r))g.close++;if(r.categories.includes('INVALID/COMM'))g.comm++;if(r.categories.includes('DSSE/TOPO/VIOLATION'))g.dsse++;if(isBlockLike(r))g.block++;if(r.categories.includes('NGUỒN AC/DC'))g.source++;g.severity=Math.max(g.severity,r.severity||0);});const chatMap=new Map();(chats||[]).forEach(c=>{const k=c.device||'(trống)';const old=chatMap.get(k)||{count:0,max:0,groups:0};old.count+=c.count;old.max=Math.max(old.max,c.count);old.groups++;chatMap.set(k,old);});return Array.from(groups.values()).map(g=>{g.rows.sort((a,b)=>(a.timeDate||0)-(b.timeDate||0));g.total=g.rows.length;g.first=g.rows[0];g.last=g.rows[g.rows.length-1];g.station=topMapEntry(g.stationMap)[0]||'';g.path2=topMapEntry(g.path2Map)[0]||'';g.path3=topMapEntry(g.path3Map)[0]||'';g.topPoint=topMapEntry(g.pointMap)[0]||'';g.topPointCount=topMapEntry(g.pointMap)[1]||0;g.topCategory=topMapEntry(g.catMap)[0]||'KHÁC';g.codes=Array.from(g.codeMap.entries()).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);const ch=chatMap.get(g.device)||{count:0,max:0,groups:0};g.chatCount=ch.count;g.chatMax=ch.max;g.chatGroups=ch.groups;g.riskScore=g.trip*100+g.pickup*20+g.block*18+g.comm*15+g.chatMax*5+g.open*3+g.severity;g.type=inferDeviceType(g.device+' '+(g.path2||'')+' '+(g.path3||''));return g;}).sort((a,b)=>b.riskScore-a.riskScore||b.total-a.total||a.device.localeCompare(b.device,'vi'));}
 function topMapEntry(m){return Array.from(m.entries()).sort((a,b)=>b[1]-a[1])[0]||['',0];}
 function inferDeviceType(name){const n=String(name||'');if(/\bLBS[_\-]/i.test(n))return 'LBS';if(/\bRE[_\-]|RECLOSER|\bREC\b/i.test(n))return 'Recloser/REC';if(/\bCB\b|\bMC\b|52A|52B|CIRCUIT BREAKER/i.test(n))return 'Máy cắt/CB';if(/^T\d+\b|MBA|TRANSFORMER/i.test(n))return 'MBA';if(/^\d+\s*\/\s*C\d+/i.test(n))return 'Ngăn lộ';if(/DSSE|TOPO|VIOLATION/i.test(n))return 'DSSE/Topo';return 'Thiết bị/điểm';}
 function deviceRiskClass(g){if(g.trip||g.block||g.chatMax>=20)return 'riskHigh';if(g.pickup||g.comm||g.chatMax>=6)return 'riskMid';return 'riskLow';}
-function renderAll(){renderKpis();renderOverview();renderDeviceGroups();renderDeviceSuggestions();renderIdentityV10();renderIdentityDictionary();renderV15Diagnosis();renderV7Diagnosis();renderV8Diagnosis();renderDeepAnalysis();renderQuality();renderSequence(uniqueRecords);renderRaw();renderChattering();fillCategoryFilter();}
+
+function opUpper(s){return String(s||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+
+function opTokenList(s){
+  const out=[]; String(s||'').split(/[\n,;|]+/).forEach(x=>{x=x.trim(); if(x&&!out.includes(x)) out.push(x);}); return out;
+}
+function opRead(id){return ($(id)?.value||'');}
+function opChecked(id, def){const el=$(id); return el?!!el.checked:!!def;}
+function opSet(id,val){const el=$(id); if(el) el.value=val||'';}
+function opSetChecked(id,val){const el=$(id); if(el) el.checked=!!val;}
+function opAnyText(text, tokens){
+  const u=opUpper(text);
+  for(const raw of (tokens||[])){
+    if(!raw) continue;
+    if(/^re:/i.test(raw)){
+      try{ if(new RegExp(raw.replace(/^re:/i,''),'i').test(text)) return true; }catch(e){}
+    }else if(u.indexOf(opUpper(raw))>=0) return true;
+  }
+  return false;
+}
+function opRules(){
+  return {useCustom:opChecked('opUseCustomRules',false),requireUserConsole:opChecked('opRequireUserConsole',false),customWithBase:opChecked('opCustomWithBase',true),include:opTokenList(opRead('opCustomInclude')),status:opTokenList(opRead('opCustomStatus')),value:opTokenList(opRead('opCustomValue')),ind:opTokenList(opRead('opCustomInd')),exclude:opTokenList(opRead('opCustomExclude')),tap:opTokenList(opRead('opKwTap')),fan:opTokenList(opRead('opKwFan')),fanMode:opTokenList(opRead('opKwFanMode')),relayMode:opTokenList(opRead('opKwRelayMode')),stpt:opTokenList(opRead('opKwSTPT')),station110:opTokenList(opRead('opKwStation110')),mvLine:opTokenList(opRead('opKwMvLine')),v110:opTokenList(opRead('opKw110')),v35:opTokenList(opRead('opKw35')),v22:opTokenList(opRead('opKw22')),note:opRead('opRuleNote')};
+}
+function opRuleHasCustomHit(r, rule){
+  const full=[r.fullText,r.path1,r.path2,r.path3,r.point,r.status,r.value,r.ind,r.operator,r.console,r.comment].join(' ');
+  if(rule.exclude.length && opAnyText(full, rule.exclude)) return false;
+  if(rule.requireUserConsole && !opHasUserConsole(r)) return false;
+  let hit=false;
+  if(rule.include.length) hit = hit || opAnyText(full, rule.include);
+  if(rule.status.length) hit = hit || opAnyText(r.status, rule.status);
+  if(rule.value.length) hit = hit || opAnyText(r.value, rule.value);
+  if(rule.ind.length) hit = hit || opAnyText(r.ind, rule.ind);
+  if(!rule.include.length && !rule.status.length && !rule.value.length && !rule.ind.length) hit = opHasUserConsole(r);
+  return hit;
+}
+function opDefaultPreset(name){
+  const base={useCustom:true,requireUserConsole:false,customWithBase:true,include:'Control, Command, CMD, Điều khiển, Thao tác',status:'Ack',value:'Operated, Normal, On, Off, TANG, GIAM, TG',ind:'Control, Command',exclude:'LOGON, LOGOFF, Alarm Configuration, Group Alarm Indicator',tap:'OLTC, TUC31, TUC32, TAP, NAC, PHAN AP, TANG, GIAM, TG, RAISE, LOWER',fan:'FAN, QUAT, QUẠT, COOLING, COOLER, LAM MAT, LÀM MÁT',fanMode:'FAN MODE, QUAT MODE, QUẠT MODE, AUTO FAN, LOCAL FAN, REMOTE FAN, MANUAL FAN',relayMode:'F79 GROUP, F25 MODE, F87L MODE, F79 MODE, F861 TRIP, RELAY MODE, PROTECTION MODE, LOCK MODE, BLOCK MODE, TRIP MODE',stpt:'STPT, LOADSHEDDING, LOAD SHEDDING, LOADSHEEDING, LOAD SHED, PAR 22, PAR 22 - 35',station110:'110, TBA, TRAM 110, TRẠM 110, SUBSTATION, E2., E22.',mvLine:'LINE, DUONG DAY, ĐƯỜNG DÂY, LBS_, RE_, RECLOSER, REC, ILJIN, S&S',v110:'110/, /110, 110 KV, 110KV, C11, C12, C13, C14',v35:'35/, /35, 35 KV, 35KV, C31, C32, C33, C34, C35, C36, C37, 371, 372, 373, 374, 375, 376, 377',v22:'22/, /22, 22 KV, 22KV, C41, C42, C43, C44, C45, C46, C47, 471, 472, 473, 474, 475, 476, 477',note:''};
+  if(name==='strictUser') return {...base,requireUserConsole:true,include:'',status:'',value:'',ind:'',note:'Chỉ đếm các dòng có Operator/User hoặc Console.'};
+  if(name==='ackOperate') return {...base,include:'',status:'Ack',value:'Operated, Normal, On, Off, TANG, GIAM, TG',ind:'AlarmTrueTime, SpontTrueTime',note:'Đếm các thao tác xác nhận/đổi trạng thái vận hành.'};
+  if(name==='controlCommand') return {...base,include:'Control, Command, CMD, Điều khiển, Thao tác, Remote Control, Manual',status:'Ack',value:'Operated, On, Off, Open, Close',ind:'Control, Command',note:'Ưu tiên bản ghi Control/Command.'};
+  if(name==='tapFan') return {...base,include:'OLTC, TUC31, TUC32, FAN, QUAT, COOLING, COOLER',status:'Ack, App, Dis',value:'Operated, Normal, TANG, GIAM, TG, On, Off',ind:'AlarmTrueTime, SpontTrueTime',note:'Tập trung thao tác chuyển nấc và quạt làm mát.'};
+  if(name==='wide') return {...base,include:'Control, Command, CMD, Điều khiển, Thao tác, ACK, Operated, Normal, On, Off, Open, Close, TANG, GIAM, TG, OLTC, TUC, FAN, QUAT',status:'Ack, App, Dis',value:'Operated, Normal, On, Off, Open, Close, TANG, GIAM, TG',ind:'Control, Command, AlarmTrueTime, SpontTrueTime, Alarm, Spont',note:'Nhận diện rộng cho dữ liệu HIS/ESUM; cần kết hợp loại trừ nhiễu.'};
+  return base;
+}
+function opWriteRulesToUi(p){opSetChecked('opUseCustomRules',p.useCustom);opSetChecked('opRequireUserConsole',p.requireUserConsole);opSetChecked('opCustomWithBase',p.customWithBase!==false);opSet('opCustomInclude',p.include);opSet('opCustomStatus',p.status);opSet('opCustomValue',p.value);opSet('opCustomInd',p.ind);opSet('opCustomExclude',p.exclude);opSet('opKwTap',p.tap);opSet('opKwFan',p.fan);opSet('opKwFanMode',p.fanMode);opSet('opKwRelayMode',p.relayMode);opSet('opKwSTPT',p.stpt);opSet('opKwStation110',p.station110);opSet('opKwMvLine',p.mvLine);opSet('opKw110',p.v110);opSet('opKw35',p.v35);opSet('opKw22',p.v22);opSet('opRuleNote',p.note);}
+function opReadRulesFromUiForSave(){const r=opRules();return {useCustom:r.useCustom,requireUserConsole:r.requireUserConsole,customWithBase:r.customWithBase,include:opRead('opCustomInclude'),status:opRead('opCustomStatus'),value:opRead('opCustomValue'),ind:opRead('opCustomInd'),exclude:opRead('opCustomExclude'),tap:opRead('opKwTap'),fan:opRead('opKwFan'),fanMode:opRead('opKwFanMode'),relayMode:opRead('opKwRelayMode'),stpt:opRead('opKwSTPT'),station110:opRead('opKwStation110'),mvLine:opRead('opKwMvLine'),v110:opRead('opKw110'),v35:opRead('opKw35'),v22:opRead('opKw22'),note:opRead('opRuleNote')};}
+function opPrefsKey(){return 'SCADA_OPERATION_COUNT_RULES_V30';}
+function opSetStatus(msg, cls){const el=$('opCustomStatusBox'); if(el){el.className='small '+(cls||'muted'); el.innerHTML=msg;}}
+function opSavePrefs(){try{localStorage.setItem(opPrefsKey(),JSON.stringify(opReadRulesFromUiForSave()));opSetStatus('Đã lưu tùy chọn nhận diện thao tác trên trình duyệt này.','okText');}catch(e){opSetStatus('Không lưu được tùy chọn: '+esc(e.message||e),'dangerText');}}
+function opLoadPrefs(){try{const s=localStorage.getItem(opPrefsKey()); if(s){opWriteRulesToUi(JSON.parse(s));opSetStatus('Đã nạp tùy chọn đã lưu.','okText');return true;}}catch(e){} return false;}
+function opResetPrefs(){opWriteRulesToUi(opDefaultPreset('auto')); try{localStorage.removeItem(opPrefsKey());}catch(e){} opSetStatus('Đã khôi phục cấu hình mặc định. Đang cập nhật báo cáo...','warnText'); renderOperationCountReportSafe('Khôi phục tùy chọn mặc định');}
+function opApplyPreset(){const name=$('opPresetSelect')?.value||'auto';opWriteRulesToUi(opDefaultPreset(name));opMarkDirty('Đã nạp gợi ý: '+esc($('opPresetSelect')?.options[$('opPresetSelect')?.selectedIndex||0]?.text||name)+'. Bấm Áp dụng tùy chọn để chạy lại báo cáo.');}
+function opAppendToken(targetId){const tok=$('opQuickToken')?.value||''; const el=$(targetId); if(!tok||!el)return; const cur=el.value.trim(); el.value=cur ? (cur + ', ' + tok) : tok; opMarkDirty('Đã thêm từ khóa '+esc(tok)+'. Bấm Áp dụng tùy chọn để chạy lại báo cáo.');}
+function opIsSystemNoise(r){
+  const t=opUpper([r.path1,r.path2,r.path3,r.point,r.status,r.value,r.ind,r.operator,r.console,r.comment].join(' '));
+  if(!compact(r.path1+r.path2+r.path3+r.point+r.status+r.value+r.ind+r.operator+r.console)) return true;
+  if(/LOGON|LOGOFF|_MAIN CC\/MESSAGES|MAIN CC\/MESSAGES/.test(t)) return true;
+  if(/ALARM CONFIGURATION|SUMMARIES - ELECTRICITY|GROUP ALARM INDICATOR/.test(t)) return true;
+  return false;
+}
+function opHasUserConsole(r){return !!(compact(r.operator)||compact(r.console));}
+function opBaseCandidate(r){
+  const mode=$('opDetectMode')?.value||'auto';
+  const t=opUpper([r.fullText,r.operator,r.console].join(' '));
+  if(mode==='customOnly') return false;
+  if(mode==='userconsole') return opHasUserConsole(r);
+  if(mode==='control') return opHasUserConsole(r) || /CONTROL|COMMAND|CMD|DIEU KHIEN|ĐIEU KHIEN|THAO TAC|THAO TÁC/.test(t);
+  return opHasUserConsole(r) || /\bACK\b/.test(opUpper(r.status)) || /CONTROL|COMMAND|CMD|DIEU KHIEN|ĐIEU KHIEN|THAO TAC|THAO TÁC/.test(t);
+}
+
+function opPrefilterTokens(){
+  if(!$('opPrefilterControl') || !$('opPrefilterControl').checked) return [];
+  const txt=opRead('opPrefilterIndText') || 'Control';
+  return opTokenList(txt);
+}
+function opPassFastPrefilter(r, tokens){
+  if(!tokens || !tokens.length) return true;
+  return opAnyText(r.ind || '', tokens);
+}
+function opBaseCandidatePrepared(r, mode){
+  const t=opUpper([r.fullText,r.operator,r.console].join(' '));
+  if(mode==='customOnly') return false;
+  if(mode==='userconsole') return opHasUserConsole(r);
+  if(mode==='control') return opHasUserConsole(r) || /CONTROL|COMMAND|CMD|DIEU KHIEN|ĐIEU KHIEN|THAO TAC|THAO TÁC/.test(t);
+  return opHasUserConsole(r) || /\bACK\b/.test(opUpper(r.status)) || /CONTROL|COMMAND|CMD|DIEU KHIEN|ĐIEU KHIEN|THAO TAC|THAO TÁC/.test(t);
+}
+function opIsCandidatePrepared(r, rule, mode, excludeSystem, preTokens){
+  if(preTokens && preTokens.length && !opPassFastPrefilter(r, preTokens)) return false;
+  if(excludeSystem && opIsSystemNoise(r)) return false;
+  const base=opBaseCandidatePrepared(r, mode);
+  if(!rule.useCustom) return base;
+  const custom=opRuleHasCustomHit(r,rule);
+  return rule.customWithBase ? (base || custom) : custom;
+}
+function opIsCandidate(r){
+  const rule=opRules();
+  if($('opExcludeSystem')?.checked && opIsSystemNoise(r)) return false;
+  const base=opBaseCandidate(r);
+  if(!rule.useCustom) return base;
+  const custom=opRuleHasCustomHit(r,rule);
+  return rule.customWithBase ? (base || custom) : custom;
+}
+function opIsTap(r){const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' ');const rule=opRules();return /OLTC|TUC\d*|TAP|NAC|PHAN AP|PHÂN ÁP|\bTANG\b|\bGIAM\b|\bTG\b|RAISE|LOWER/.test(opUpper(t)) || opAnyText(t,rule.tap);}
+function opIsFan(r){const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' ');const rule=opRules();return /FAN|QUAT|QUẠT|COOLING|COOLER|LAM MAT|LÀM MÁT/.test(opUpper(t)) || opAnyText(t,rule.fan);}
+function opIsFanMode(r){
+  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' '), u=opUpper(t), rule=opRules();
+  return opIsFan(r) && (/\bMODE\b|AUTO|LOCAL|REMOTE|MANUAL|TU DONG|TỰ ĐỘNG|TAI CHO|TẠI CHỖ/.test(u) || opAnyText(t,rule.fanMode));
+}
+function opIsRelayMode(r){
+  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' '), u=opUpper(t), rule=opRules();
+  return /\bF\d{2,4}\s*(GROUP|MODE|TRIP|BLOCK|LOCK)\b|\bF79\s+GROUP\b|\bF25\s+MODE\b|\bF87L\s+MODE\b|\bF79\s+MODE\b|\bF861\s+TRIP\b|RELAY\s+MODE|PROTECTION\s+MODE/.test(u) || opAnyText(t,rule.relayMode);
+}
+function opIsSTPT(r){
+  const t=[r.path1,r.path2,r.path3,r.point,r.value,r.comment].join(' '), u=opUpper(t), rule=opRules();
+  return /\bSTPT\b|LOAD\s*SHED|LOADSHEDDING|LOADSHEEDING|SA THAI PHU TAI|SA THẢI PHỤ TẢI/.test(u) || opAnyText(t,rule.stpt);
+}
+function opIsTbaStation(r){const s=r.path1||'';const u=opUpper(s);const rule=opRules();return /^110\b/.test(u) || /^E\d{1,2}\.\d+\b/.test(u) || /TBA|TRAM 110|TRẠM 110|SUBSTATION/.test(u) || opAnyText(s,rule.station110);}
+function opIsMediumLine(r){const t=[r.path1,r.path2,r.path3,r.point].join(' ');if(opIsSTPT(r)||opIsTbaStation(r)) return false;const u=opUpper(t), rule=opRules();return /\bLINE\b|DUONG DAY|ĐƯỜNG DÂY|LBS_|RE_|RECLOSER|\bREC\b|\bS&S\b|ILJIN|SCH|E\d{1,2}\.\d+/.test(u) || opAnyText(t,rule.mvLine);}
+function opVoltageAfterStation(r){
+  // V29: ưu tiên quy tắc rõ ràng theo đường dẫn sau tên trạm 110kV.
+  // Ví dụ: Path 1 = "110 YenMinh", Path 2 = "22/C41" => phía 22kV của TBA 110 YenMinh.
+  // Tương tự: "110 YenMinh/35/..." => phía 35kV.
+  if(opIsSTPT(r)) return '';
+  const after=[r.path2,r.path3,r.point].filter(x=>compact(x)).join('/');
+  const full=[r.path1,r.path2,r.path3,r.point].filter(x=>compact(x)).join('/');
+  const a=opUpper(after), f=opUpper(full);
+  const hit=function(s,kv){
+    const re=new RegExp('(^|/)\\s*'+kv+'\\s*(/|KV|K V|$|\\b)','i');
+    return re.test(s);
+  };
+  if(hit(a,'110') || /^110[^/]*\/\s*110(\/|KV|K V|$|\b)/i.test(f)) return '110';
+  if(hit(a,'35')  || /^110[^/]*\/\s*35(\/|KV|K V|$|\b)/i.test(f)) return '35';
+  if(hit(a,'22')  || /^110[^/]*\/\s*22(\/|KV|K V|$|\b)/i.test(f)) return '22';
+  return '';
+}
+function opHas110(r){if(opIsSTPT(r)) return false; const v=opVoltageAfterStation(r); if(v==='110') return true; const t=[r.path2,r.path3,r.point].join(' '), u=opUpper(t), rule=opRules();return /\b110\s*(KV)?\b|110\/|\/110|\bC1\d(?:-\d)?\b/.test(u) || opAnyText(t,rule.v110);}
+function opHas35(r){if(opIsSTPT(r)) return false; const v=opVoltageAfterStation(r); if(v==='35') return true; if(v==='22'||v==='110') return false; const t=[r.path2,r.path3,r.point].join(' '), u=opUpper(t), rule=opRules();return /\b35\s*(KV)?\b|35\/|\/35|\bC3\d(?:-\d)?\b/.test(u) || opAnyText(t,rule.v35);}
+function opHas22(r){if(opIsSTPT(r)) return false; const v=opVoltageAfterStation(r); if(v==='22') return true; if(v==='35'||v==='110') return false; const t=[r.path2,r.path3,r.point].join(' '), u=opUpper(t), rule=opRules();return /\b22\s*(KV)?\b|22\/|\/22|\bC4\d(?:-\d)?\b/.test(u) || opAnyText(t,rule.v22);}
+function opClassify(r){
+  const v=opVoltageAfterStation(r);
+  if(opIsSTPT(r)) return 'stpt';
+  if($('opTapSeparate')?.checked && opIsTap(r)) return 'tap';
+  if($('opFanSeparate')?.checked && opIsFanMode(r)) return 'fanMode';
+  if($('opFanSeparate')?.checked && opIsFan(r)) return 'fan';
+  if(opIsRelayMode(r)) return 'relayMode';
+  if(opIsTbaStation(r) && v==='110') return 'tba110';
+  if(opIsTbaStation(r) && v==='35') return 'tba35';
+  if(opIsTbaStation(r) && v==='22') return 'tba22';
+  if(opIsTbaStation(r) && opHas110(r)) return 'tba110';
+  if(opIsTbaStation(r) && opHas35(r)) return 'tba35';
+  if(opIsTbaStation(r) && opHas22(r)) return 'tba22';
+  if(opIsMediumLine(r)) return 'mvline';
+  return 'other';
+}
+function opGroupKey(r){
+  return joinDevicePath(r.path1,r.path2,r.path3,r.point) || r.device || '(trống)';
+}
+function opStationLabel(r){
+  return compact(r.path1)||'(trống)';
+}
+function opDeviceTypeLabel(r){
+  const v=opVoltageAfterStation(r);
+  if(opIsSTPT(r)) return 'STPT / LoadShedding';
+  if(opIsTap(r)) return v ? ('Chuyển nấc phân áp phía '+v+'kV') : 'Chuyển nấc phân áp';
+  if(opIsFanMode(r)) return 'Chế độ tự động/tại chỗ của quạt';
+  if(opIsFan(r)) return 'Bật/tắt quạt';
+  if(opIsRelayMode(r)) return 'Hệ thống khóa/chế độ rơ-le bảo vệ';
+  if(v==='110') return 'Ngăn lộ 110kV tại TBA';
+  if(v==='35') return 'Ngăn lộ 35kV tại TBA';
+  if(v==='22') return 'Ngăn lộ 22kV tại TBA';
+  if(opHas110(r)) return 'Ngăn lộ 110kV';
+  if(opHas35(r)) return 'Ngăn lộ 35kV';
+  if(opHas22(r)) return 'Ngăn lộ 22kV';
+  if(opIsMediumLine(r)) return 'Đường dây trung áp';
+  return inferDeviceType(opGroupKey(r));
+}
+function opNewGroup(key, label){
+  return {key:key,label:label||key,total:0,tba110:0,tba35:0,tba22:0,mvline:0,mvTotal:0,tap:0,fan:0,fanMode:0,relayMode:0,stpt:0,other:0,first:null,last:null,operators:new Map(),consoles:new Map(),devices:new Map(),rows:[]};
+}
+function opAddToGroup(g,r,cls,keepRows){
+  g.total++; g[cls]=(g[cls]||0)+1;
+  if(cls==='tba35'||cls==='tba22'||cls==='mvline') g.mvTotal++;
+  if(!g.first || ((r.timeDate||0)<(g.first.timeDate||0))) g.first=r;
+  if(!g.last || ((r.timeDate||0)>(g.last.timeDate||0))) g.last=r;
+  const op=compact(r.operator)||'(trống)'; const co=compact(r.console)||'(trống)';
+  g.operators.set(op,(g.operators.get(op)||0)+1); g.consoles.set(co,(g.consoles.get(co)||0)+1);
+  const dev=opGroupKey(r); g.devices.set(dev,(g.devices.get(dev)||0)+1);
+  if(keepRows) g.rows.push(r);
+}
+function opCreateStatsContext(){
+  return {
+    search:norm($('opSearchText')?.value||''),
+    keepLimit:Number($('opDetailLimit')?.value||500),
+    rule:opRules(),
+    mode:$('opDetectMode')?.value||'auto',
+    excludeSystem:!!$('opExcludeSystem')?.checked,
+    preTokens:opPrefilterTokens(),
+    total:opNewGroup('total','Tổng'),
+    station:new Map(), station110:new Map(), device:new Map(), operator:new Map(), consoleMap:new Map(), timeline:[],
+    scanned:0, fastSkipped:0, candidate:0, searchSkipped:0
+  };
+}
+function opSearchMatchPrepared(r, search){
+  if(!search) return true;
+  return norm([r.path1,r.path2,r.path3,r.point,r.value,r.status,r.ind,r.operator,r.console].join(' ')).includes(search);
+}
+function opAddPreparedRecord(ctx,r){
+  ctx.scanned++;
+  if(ctx.preTokens && ctx.preTokens.length && !opPassFastPrefilter(r,ctx.preTokens)){ctx.fastSkipped++;return;}
+  if(!opIsCandidatePrepared(r,ctx.rule,ctx.mode,ctx.excludeSystem,[])) return;
+  if(!opSearchMatchPrepared(r,ctx.search)){ctx.searchSkipped++;return;}
+  ctx.candidate++;
+  const cls=opClassify(r);
+  opAddToGroup(ctx.total,r,cls,false);
+  const sk=opStationLabel(r), dk=opGroupKey(r), ok=compact(r.operator)||'(trống)', ck=compact(r.console)||'(trống)';
+  if(!ctx.station.has(sk)) ctx.station.set(sk,opNewGroup(sk,sk));
+  opAddToGroup(ctx.station.get(sk),r,cls,false);
+  if(opIsTbaStation(r)){
+    if(!ctx.station110.has(sk)) ctx.station110.set(sk,opNewGroup(sk,sk));
+    opAddToGroup(ctx.station110.get(sk),r,cls,false);
+  }
+  if(!ctx.device.has(dk)) ctx.device.set(dk,opNewGroup(dk,dk));
+  const dg=ctx.device.get(dk); dg.type=opDeviceTypeLabel(r); dg.station=sk; opAddToGroup(dg,r,cls,false);
+  if(!ctx.operator.has(ok)) ctx.operator.set(ok,opNewGroup(ok,ok));
+  opAddToGroup(ctx.operator.get(ok),r,cls,false);
+  if(!ctx.consoleMap.has(ck)) ctx.consoleMap.set(ck,opNewGroup(ck,ck));
+  opAddToGroup(ctx.consoleMap.get(ck),r,cls,false);
+  if(ctx.timeline.length<ctx.keepLimit) ctx.timeline.push(r);
+}
+function opFinalizeStats(ctx){
+  const total=ctx.total;
+  total.mvTotal=total.tba35+total.tba22+total.mvline;
+  total.grandTotal=total.tap+total.fan+total.fanMode+total.relayMode+total.stpt+total.other+total.tba110+total.mvTotal;
+  const finalize=arr=>arr.map(g=>{g.mvTotal=g.tba35+g.tba22+g.mvline;g.grandTotal=g.tap+g.fan+g.fanMode+g.relayMode+g.stpt+g.other+g.tba110+g.mvTotal;return g;}).sort((a,b)=>b.grandTotal-a.grandTotal||b.total-a.total||String(a.label).localeCompare(String(b.label),'vi'));
+  return {rows:null,total,station:finalize(Array.from(ctx.station.values())),station110:finalize(Array.from(ctx.station110.values())),device:finalize(Array.from(ctx.device.values())),operator:finalize(Array.from(ctx.operator.values())),console:finalize(Array.from(ctx.consoleMap.values())),timeline:ctx.timeline.sort((a,b)=>(b.timeDate||0)-(a.timeDate||0)),meta:{scanned:ctx.scanned,fastSkipped:ctx.fastSkipped,candidate:ctx.candidate,searchSkipped:ctx.searchSkipped,preTokens:ctx.preTokens}};
+}
+function opBuildStats(){
+  const ctx=opCreateStatsContext();
+  const source=uniqueRecords||[];
+  for(let i=0;i<source.length;i++) opAddPreparedRecord(ctx,source[i]);
+  return opFinalizeStats(ctx);
+}
+async function opBuildStatsAsync(reason){
+  const ctx=opCreateStatsContext();
+  const source=uniqueRecords||[];
+  const chunk=3000;
+  for(let i=0;i<source.length;i++){
+    opAddPreparedRecord(ctx,source[i]);
+    if(i>0 && i%chunk===0){
+      const pct=Math.round(i*100/Math.max(1,source.length));
+      const pf=ctx.preTokens&&ctx.preTokens.length ? (' | bỏ nhanh '+fmt(ctx.fastSkipped)+' dòng không chứa '+esc(ctx.preTokens.join(', '))) : '';
+      updateLoadOverlay((reason||'Đang cập nhật báo cáo thao tác...')+' '+pct+'% - đã quét '+fmt(i)+'/'+fmt(source.length)+' dòng'+pf, 'Đang đếm thao tác');
+      await delayFrame(0);
+    }
+  }
+  updateLoadOverlay('Hoàn tất quét '+fmt(source.length)+' dòng. Đang dựng bảng kết quả...', 'Đang đếm thao tác');
+  await delayFrame(0);
+  return opFinalizeStats(ctx);
+}
+function opGroupRow(g, extraCols){
+  const first=g.first?esc(g.first.time):'--', last=g.last?esc(g.last.time):'--';
+  let extra='';
+  if(extraCols==='device') extra=`<td>${esc(g.station||'')}</td><td>${esc(g.type||'')}</td>`;
+  return `<tr>${extra}<td class="wrap">${esc(g.label)}</td><td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${first}</td><td>${last}</td></tr>`;
+}
+function opRenderGroupTable(arr, extraCols){
+  const lim=Number($('opDetailLimit')?.value||500);
+  const headerExtra=extraCols==='device'?'<th>Trạm/Path 1</th><th>Loại thiết bị</th>':'';
+  return `<div class="small muted">Hiển thị ${fmt(Math.min(arr.length,lim))}/${fmt(arr.length)} dòng. Dùng ô lọc nhanh nếu danh sách quá dài.</div><div class="tablewrap"><table><thead><tr>${headerExtra}<th class="wrap">Nhóm</th><th>Tổng</th><th>110kV TBA</th><th>35kV TBA</th><th>22kV TBA</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${arr.slice(0,lim).map(g=>opGroupRow(g,extraCols)).join('')||'<tr><td colspan="15">Chưa có dữ liệu thao tác.</td></tr>'}</tbody></table></div>`;
+}
+function opRenderPersonTable(arr, kind){
+  const lim=Number($('opDetailLimit')?.value||500);
+  return `<div class="tablewrap"><table><thead><tr><th>${kind}</th><th>Tổng</th><th>110kV</th><th>35kV</th><th>22kV</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${arr.slice(0,lim).map(g=>`<tr><td class="wrap">${esc(g.label)}</td><td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${g.first?esc(g.first.time):'--'}</td><td>${g.last?esc(g.last.time):'--'}</td></tr>`).join('')||'<tr><td colspan="15">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>`;
+}
+function renderOperationCountReport(){
+  if(!$('opKpiBox')) return;
+  if(!uniqueRecords||!uniqueRecords.length){$('opKpiBox').innerHTML='<div class="notice warn">Chưa có dữ liệu để đếm thao tác.</div>';return;}
+  const op=arguments[0] || opBuildStats(), t=op.total;
+  $('opKpiBox').innerHTML=`<div class="kpis"><div class="kpi good"><div class="v">${fmt(t.grandTotal)}</div><div class="t">Tổng số lần thao tác</div></div><div class="kpi cyan"><div class="v">${fmt(t.tba110)}</div><div class="t">Phía 110kV của TBA</div></div><div class="kpi"><div class="v">${fmt(t.tba35)}</div><div class="t">Phía 35kV của TBA</div></div><div class="kpi"><div class="v">${fmt(t.tba22)}</div><div class="t">Phía 22kV của TBA</div></div><div class="kpi warn"><div class="v">${fmt(t.mvline)}</div><div class="t">Đường dây trung áp</div></div><div class="kpi warn"><div class="v">${fmt(t.mvTotal)}</div><div class="t">Tổng thao tác trung áp</div></div><div class="kpi violet"><div class="v">${fmt(t.tap)}</div><div class="t">Chuyển nấc phân áp</div></div><div class="kpi"><div class="v">${fmt(t.fan)}</div><div class="t">Bật/tắt quạt</div></div><div class="kpi cyan"><div class="v">${fmt(t.fanMode)}</div><div class="t">Chế độ quạt</div></div><div class="kpi violet"><div class="v">${fmt(t.relayMode)}</div><div class="t">Chế độ/khóa rơ-le</div></div><div class="kpi warn"><div class="v">${fmt(t.stpt)}</div><div class="t">STPT/LoadShedding</div></div></div>`;
+  const meta=op.meta||{};
+  const filterNote = meta.preTokens&&meta.preTokens.length ? `<div class="notice warn" style="margin-bottom:10px"><b>Tiền lọc tùy chọn:</b> đã quét ${fmt(meta.scanned)} dòng, bỏ nhanh ${fmt(meta.fastSkipped)} dòng không có Ind/Indicator chứa <b>${esc(meta.preTokens.join(', '))}</b>, còn ${fmt(meta.candidate)} dòng thao tác được tính.</div>` : `<div class="notice" style="margin-bottom:10px"><b>Tiền lọc tùy chọn:</b> đang tắt; báo cáo quét rộng ${fmt(meta.scanned||0)} dòng nên có thể chậm với file lớn.</div>`;
+  $('opSummaryBox').innerHTML=filterNote+`<div class="notice good"><b>Công thức kiểm tra:</b><br>Tổng trung áp = ${fmt(t.tba35)} + ${fmt(t.tba22)} + ${fmt(t.mvline)} = <b>${fmt(t.mvTotal)}</b><br>Tổng thao tác = ${fmt(t.tap)} + ${fmt(t.fan)} + ${fmt(t.fanMode)} + ${fmt(t.relayMode)} + ${fmt(t.stpt)} + ${fmt(t.other)} + ${fmt(t.tba110)} + ${fmt(t.mvTotal)} = <b>${fmt(t.grandTotal)}</b></div>`+
+    `<div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Chỉ tiêu</th><th>Số lần</th></tr></thead><tbody><tr><td>Tổng số lần thao tác phía 110kV của các TBA</td><td class="right">${fmt(t.tba110)}</td></tr><tr><td>Tổng số lần thao tác phía 35kV của các TBA</td><td class="right">${fmt(t.tba35)}</td></tr><tr><td>Tổng số lần thao tác phía 22kV của các TBA</td><td class="right">${fmt(t.tba22)}</td></tr><tr><td>Tổng số lần thao tác phía đường dây trung áp</td><td class="right">${fmt(t.mvline)}</td></tr><tr><td><b>Tổng số lần thao tác phía trung áp</b></td><td class="right"><b>${fmt(t.mvTotal)}</b></td></tr><tr><td>Tổng số lần thao tác chuyển nấc phân áp</td><td class="right">${fmt(t.tap)}</td></tr><tr><td>Tổng số lần thao tác bật/tắt quạt</td><td class="right">${fmt(t.fan)}</td></tr><tr><td>Tổng số lần thao tác chế độ tự động/tại chỗ của quạt</td><td class="right">${fmt(t.fanMode)}</td></tr><tr><td>Tổng số lần thao tác hệ thống khóa/chế độ rơ-le bảo vệ</td><td class="right">${fmt(t.relayMode)}</td></tr><tr><td>Tổng số lần thao tác STPT / LoadShedding</td><td class="right">${fmt(t.stpt)}</td></tr><tr><td>Tổng số lần thao tác khác</td><td class="right">${fmt(t.other)}</td></tr><tr><td><b>Tổng số lần thao tác</b></td><td class="right"><b>${fmt(t.grandTotal)}</b></td></tr></tbody></table></div>`;
+  $('opTopStationBox').innerHTML=barRowsForOperation(op.station.slice(0,15));
+  $('opStation110Box').innerHTML=opRenderGroupTable(op.station110);
+  $('opDeviceBox').innerHTML=opRenderGroupTable(op.device,'device');
+  $('opOperatorBox').innerHTML=opRenderPersonTable(op.operator,'Operator/User');
+  $('opConsoleBox').innerHTML=opRenderPersonTable(op.console,'Console');
+  $('opTimelineBox').innerHTML=`<div class="tablewrap"><table><thead><tr><th>Thời gian</th><th>Trạm</th><th class="wrap">Thiết bị/điểm</th><th>Status</th><th>Value</th><th>Operator</th><th>Console</th><th>Nhóm</th></tr></thead><tbody>${op.timeline.map(r=>`<tr><td>${esc(r.time)}</td><td>${esc(r.path1)}</td><td class="wrap">${esc(opGroupKey(r))}</td><td>${esc(r.status)}</td><td>${esc(r.value)}</td><td>${esc(r.operator||'')}</td><td>${esc(r.console||'')}</td><td>${esc(opClassifyLabel(opClassify(r)))}</td></tr>`).join('')||'<tr><td colspan="8">Không có timeline.</td></tr>'}</tbody></table></div>`;
+  window.__lastOperationStats=op;
+}
+
+let opCustomDirty=false;
+let opSearchDebounceTimer=null;
+let opRenderBusy=false;
+function opMarkDirty(msg){
+  opCustomDirty=true;
+  opSetStatus(msg || 'Đã thay đổi tùy chọn. Bấm Áp dụng tùy chọn và cập nhật báo cáo để chạy lại.', 'warnText');
+}
+async function renderOperationCountReportSafe(reason){
+  if(opRenderBusy){opSetStatus('Đang cập nhật báo cáo, vui lòng chờ...', 'warnText');return;}
+  opRenderBusy=true;
+  try{
+    showLoadOverlay('Đang cập nhật báo cáo đếm thao tác', reason || 'Đang áp dụng bộ nhận diện thao tác...');
+    await delayFrame(80);
+    const op=await opBuildStatsAsync(reason || 'Đang áp dụng bộ nhận diện thao tác...');
+    renderOperationCountReport(op);
+    opCustomDirty=false;
+    const meta=op.meta||{};
+    const fastMsg=(meta.preTokens&&meta.preTokens.length)?(' Đã bỏ nhanh '+fmt(meta.fastSkipped)+' dòng không có Ind chứa '+esc(meta.preTokens.join(', '))+'.'):'';
+    opSetStatus('Đã cập nhật báo cáo theo tùy chọn hiện tại.'+fastMsg, 'okText');
+  }catch(e){
+    opSetStatus('Lỗi khi cập nhật báo cáo thao tác: '+esc(e&&e.message?e.message:e), 'dangerText');
+    throw e;
+  }finally{
+    hideLoadOverlay();
+    opRenderBusy=false;
+  }
+}
+function opDebouncedSearchRender(){
+  clearTimeout(opSearchDebounceTimer);
+  opSearchDebounceTimer=setTimeout(function(){renderOperationCountReportSafe('Đang lọc nhanh báo cáo thao tác...');}, 700);
+}
+
+function opClassifyLabel(c){return {tap:'Chuyển nấc phân áp',fan:'Bật/tắt quạt',fanMode:'Chế độ quạt',relayMode:'Chế độ/khóa rơ-le bảo vệ',stpt:'STPT/LoadShedding',tba110:'110kV TBA',tba35:'35kV TBA',tba22:'22kV TBA',mvline:'Đường dây trung áp',other:'Khác'}[c]||c;}
+function barRowsForOperation(arr){const max=Math.max(1,...arr.map(g=>g.grandTotal));return `<div class="chart">${arr.map(g=>`<div class="barrow"><div class="barlabel" title="${esc(g.label)}">${esc(g.label)}</div><div class="barbg"><div class="bar good" style="width:${Math.max(2,g.grandTotal/max*100)}%"></div></div><div class="mono">${fmt(g.grandTotal)}</div></div>`).join('')||'<div class="muted">Chưa có dữ liệu.</div>'}</div>`;}
+function exportOperationCountCsv(){
+  const op=window.__lastOperationStats||opBuildStats();
+  const lines=['Loai;Ten;Tong;110kV_TBA;35kV_TBA;22kV_TBA;Duong_day_trung_ap;Tong_trung_ap;Chuyen_nac;Quat;Che_do_quat;Che_do_RL;STPT;Khac;Dau;Cuoi'];
+  const add=(type, arr)=>arr.forEach(g=>lines.push([type,g.label,g.grandTotal,g.tba110,g.tba35,g.tba22,g.mvline,g.mvTotal,g.tap,g.fan,g.fanMode,g.relayMode,g.stpt,g.other,g.first?g.first.time:'',g.last?g.last.time:''].map(x=>String(x).replace(/;/g,',')).join(';')));
+  add('TRAM_110KV',op.station110); add('THIET_BI',op.device); add('OPERATOR',op.operator); add('CONSOLE',op.console);
+  downloadText('bao_cao_dem_thao_tac.csv', lines.join('\n'), 'text/csv;charset=utf-8');
+}
+
+
+
+function opControlTokens(){
+  const txt=$('opControlOnlyText')?.value || 'Control';
+  return opTokenList(txt || 'Control');
+}
+function opCreateControlStatsContext(tokens){
+  const ctx=opCreateStatsContext();
+  ctx.preTokens=tokens&&tokens.length?tokens:['Control'];
+  return ctx;
+}
+async function opBuildControlStatsAsync(reason){
+  const tokens=opControlTokens();
+  const ctx=opCreateControlStatsContext(tokens);
+  const source=uniqueRecords||[];
+  const chunk=3000;
+  for(let i=0;i<source.length;i++){
+    opAddPreparedRecord(ctx,source[i]);
+    if(i>0 && i%chunk===0){
+      const pct=Math.round(i*100/Math.max(1,source.length));
+      updateLoadOverlay((reason||'Đang cập nhật báo cáo chỉ Control...')+' '+pct+'% - đã quét '+fmt(i)+'/'+fmt(source.length)+' dòng | bỏ nhanh '+fmt(ctx.fastSkipped)+' dòng không chứa '+esc(ctx.preTokens.join(', ')), 'Đang đếm thao tác Control');
+      await delayFrame(0);
+    }
+  }
+  updateLoadOverlay('Hoàn tất quét '+fmt(source.length)+' dòng. Đang dựng báo cáo Control...', 'Đang đếm thao tác Control');
+  await delayFrame(0);
+  return opFinalizeStats(ctx);
+}
+function opRenderSummaryTable(op, prefix, title){
+  const t=op.total, meta=op.meta||{};
+  const kpi=$(prefix+'KpiBox'), summary=$(prefix+'SummaryBox');
+  if(!kpi||!summary) return;
+  kpi.innerHTML=`<div class="kpis"><div class="kpi good"><div class="v">${fmt(t.grandTotal)}</div><div class="t">${esc(title||'Tổng thao tác')}</div></div><div class="kpi cyan"><div class="v">${fmt(t.tba110)}</div><div class="t">110kV TBA</div></div><div class="kpi"><div class="v">${fmt(t.tba35)}</div><div class="t">35kV TBA</div></div><div class="kpi"><div class="v">${fmt(t.tba22)}</div><div class="t">22kV TBA</div></div><div class="kpi warn"><div class="v">${fmt(t.mvline)}</div><div class="t">ĐD trung áp</div></div><div class="kpi warn"><div class="v">${fmt(t.mvTotal)}</div><div class="t">Tổng trung áp</div></div><div class="kpi violet"><div class="v">${fmt(t.tap)}</div><div class="t">Chuyển nấc</div></div><div class="kpi"><div class="v">${fmt(t.fan)}</div><div class="t">Quạt</div></div></div>`;
+  const filterNote = meta.preTokens&&meta.preTokens.length ? `<div class="notice warn" style="margin-bottom:10px"><b>Báo cáo Control:</b> đã quét ${fmt(meta.scanned)} dòng, bỏ nhanh ${fmt(meta.fastSkipped)} dòng không có Ind/Indicator chứa <b>${esc(meta.preTokens.join(', '))}</b>, còn ${fmt(meta.candidate)} dòng thao tác được tính.</div>` : '';
+  summary.innerHTML=filterNote+`<div class="notice good"><b>Công thức kiểm tra:</b><br>Tổng trung áp = ${fmt(t.tba35)} + ${fmt(t.tba22)} + ${fmt(t.mvline)} = <b>${fmt(t.mvTotal)}</b><br>Tổng thao tác = ${fmt(t.tap)} + ${fmt(t.fan)} + ${fmt(t.fanMode)} + ${fmt(t.relayMode)} + ${fmt(t.stpt)} + ${fmt(t.other)} + ${fmt(t.tba110)} + ${fmt(t.mvTotal)} = <b>${fmt(t.grandTotal)}</b></div>`+
+    `<div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Chỉ tiêu</th><th>Số lần</th></tr></thead><tbody><tr><td>Tổng số lần thao tác phía 110kV của các TBA</td><td class="right">${fmt(t.tba110)}</td></tr><tr><td>Tổng số lần thao tác phía 35kV của các TBA</td><td class="right">${fmt(t.tba35)}</td></tr><tr><td>Tổng số lần thao tác phía 22kV của các TBA</td><td class="right">${fmt(t.tba22)}</td></tr><tr><td>Tổng số lần thao tác phía đường dây trung áp</td><td class="right">${fmt(t.mvline)}</td></tr><tr><td><b>Tổng số lần thao tác phía trung áp</b></td><td class="right"><b>${fmt(t.mvTotal)}</b></td></tr><tr><td>Tổng số lần thao tác chuyển nấc phân áp</td><td class="right">${fmt(t.tap)}</td></tr><tr><td>Tổng số lần thao tác bật/tắt quạt</td><td class="right">${fmt(t.fan)}</td></tr><tr><td>Tổng số lần thao tác chế độ tự động/tại chỗ của quạt</td><td class="right">${fmt(t.fanMode)}</td></tr><tr><td>Tổng số lần thao tác hệ thống khóa/chế độ rơ-le bảo vệ</td><td class="right">${fmt(t.relayMode)}</td></tr><tr><td>Tổng số lần thao tác STPT / LoadShedding</td><td class="right">${fmt(t.stpt)}</td></tr><tr><td>Tổng số lần thao tác khác</td><td class="right">${fmt(t.other)}</td></tr><tr><td><b>Tổng số lần thao tác</b></td><td class="right"><b>${fmt(t.grandTotal)}</b></td></tr></tbody></table></div>`;
+}
+function renderOperationControlReport(op){
+  opRenderSummaryTable(op,'opControl','Tổng thao tác Control');
+  $('opControlTopStationBox').innerHTML=barRowsForOperation(op.station.slice(0,15));
+  $('opControlStation110Box').innerHTML=opRenderGroupTable(op.station110);
+  $('opControlDeviceBox').innerHTML=opRenderGroupTable(op.device,'device');
+  $('opControlOperatorBox').innerHTML=opRenderPersonTable(op.operator,'Operator/User');
+  $('opControlConsoleBox').innerHTML=opRenderPersonTable(op.console,'Console');
+  $('opControlTimelineBox').innerHTML=`<div class="tablewrap"><table><thead><tr><th>Thời gian</th><th>Trạm</th><th class="wrap">Thiết bị/điểm</th><th>Status</th><th>Value</th><th>Ind</th><th>Operator</th><th>Console</th><th>Nhóm</th></tr></thead><tbody>${op.timeline.map(r=>`<tr><td>${esc(r.time)}</td><td>${esc(r.path1)}</td><td class="wrap">${esc(opGroupKey(r))}</td><td>${esc(r.status)}</td><td>${esc(r.value)}</td><td>${esc(r.ind)}</td><td>${esc(r.operator||'')}</td><td>${esc(r.console||'')}</td><td>${esc(opClassifyLabel(opClassify(r)))}</td></tr>`).join('')||'<tr><td colspan="9">Không có timeline Control.</td></tr>'}</tbody></table></div>`;
+  window.__lastOperationControlStats=op;
+}
+let opControlBusy=false;
+async function renderOperationControlReportSafe(reason){
+  if(opControlBusy){opSetStatus('Báo cáo Control đang chạy, vui lòng chờ...', 'warnText');return;}
+  if(!uniqueRecords||!uniqueRecords.length){$('opControlSummaryBox').innerHTML='<div class="notice warn">Chưa có dữ liệu để đếm thao tác Control.</div>';return;}
+  opControlBusy=true;
+  try{
+    showLoadOverlay('Đang cập nhật báo cáo thao tác chỉ Control', reason || 'Đang quét cột Ind/Indicator...');
+    await delayFrame(80);
+    const op=await opBuildControlStatsAsync(reason || 'Đang quét cột Ind/Indicator...');
+    renderOperationControlReport(op);
+    const meta=op.meta||{};
+    opSetStatus('Đã cập nhật báo cáo chỉ Control. Đã bỏ nhanh '+fmt(meta.fastSkipped||0)+' dòng không thuộc nhóm Control.', 'okText');
+  }catch(e){
+    opSetStatus('Lỗi khi cập nhật báo cáo Control: '+esc(e&&e.message?e.message:e), 'dangerText');
+    throw e;
+  }finally{
+    hideLoadOverlay();
+    opControlBusy=false;
+  }
+}
+function exportOperationControlCsv(){
+  const op=window.__lastOperationControlStats;
+  if(!op){alert('Chưa có báo cáo Control để xuất. Hãy bấm Cập nhật báo cáo chỉ Control trước.');return;}
+  const lines=['Loai;Ten;Tong;110kV_TBA;35kV_TBA;22kV_TBA;Duong_day_trung_ap;Tong_trung_ap;Chuyen_nac;Quat;Che_do_quat;Che_do_RL;STPT;Khac;Dau;Cuoi'];
+  const add=(type, arr)=>arr.forEach(g=>lines.push([type,g.label,g.grandTotal,g.tba110,g.tba35,g.tba22,g.mvline,g.mvTotal,g.tap,g.fan,g.fanMode,g.relayMode,g.stpt,g.other,g.first?g.first.time:'',g.last?g.last.time:''].map(x=>String(x).replace(/;/g,',')).join(';')));
+  add('CONTROL_TRAM_110KV',op.station110); add('CONTROL_THIET_BI',op.device); add('CONTROL_OPERATOR',op.operator); add('CONTROL_CONSOLE',op.console);
+  downloadText('bao_cao_dem_thao_tac_chi_control.csv', lines.join('\n'), 'text/csv;charset=utf-8');
+}
+function setOperationCountPlaceholder(){
+  const msg='<div class="notice warn"><b>Báo cáo thao tác chưa chạy tự động</b> để tránh chậm với dữ liệu lớn. Bấm <b>Cập nhật báo cáo đầy đủ</b> để chạy báo cáo kiểu V26, hoặc bấm <b>Cập nhật báo cáo chỉ Control</b> nếu chỉ cần thao tác điều khiển.</div>';
+  ['opKpiBox','opSummaryBox','opTopStationBox','opStation110Box','opDeviceBox','opOperatorBox','opConsoleBox','opTimelineBox'].forEach(id=>{const el=$(id); if(el) el.innerHTML=msg;});
+  const cmsg='<div class="notice warn">Chưa chạy báo cáo chỉ Control.</div>';
+  ['opControlKpiBox','opControlSummaryBox','opControlTopStationBox','opControlStation110Box','opControlDeviceBox','opControlOperatorBox','opControlConsoleBox','opControlTimelineBox'].forEach(id=>{const el=$(id); if(el) el.innerHTML=cmsg;});
+}
+function renderAll(){renderKpis();renderOverview();setOperationCountPlaceholder();renderDeviceGroups();renderDeviceSuggestions();renderIdentityV10();renderIdentityDictionary();renderV15Diagnosis();renderV7Diagnosis();renderV8Diagnosis();renderDeepAnalysis();renderQuality();renderSequence(uniqueRecords);renderRaw();renderChattering();fillCategoryFilter();}
+function renderInitialFast(){
+  renderKpis();
+  renderOverview();
+  setOperationCountPlaceholder();
+  renderDeviceGroups();
+  renderDeviceSuggestions();
+  renderQuality();
+  renderSequence(uniqueRecords);
+  renderRaw();
+  renderChattering();
+  fillCategoryFilter();
+  setHeavyTabsPlaceholder();
+}
+function setHeavyTabsPlaceholder(){
+  const msg='<div class="notice warn"><b>Chế độ file lớn:</b> phần này chưa chạy để tránh treo trình duyệt khi nạp ban đầu. Bấm nút trong tab hoặc mở tab này, chương trình sẽ chạy riêng phần phân tích tương ứng. Nếu vẫn chậm, nên lọc SQL thêm hoặc chia nhỏ file.</div>';
+  const ids=['identityKpiBox','identityCollisionBox','identityAliasBox','identityTripBox','dictKpiBox','dictDetectedPaths','dictRulesBox','v15KpiBox','v15ConfidenceBox','v15TimelineBox','v15MultiWindowBox','v15LearningBox','v15CauseEffectBox','v15DeviceProfileBox','v15AutoReportBox','v15FilterBox','v15RelationBox','v7KpiBox','v7DeviceRankBox','v7TripMatrix','v7PickupMatrix','v7CauseBox','v7PatternBox','v7EventGraph','v7TimelineBox','v8KpiBox','v8DataQualityBox','v8ConfidenceBox','v8SensitivityBox','v8RootCauseBox','v8IncidentRoleBox','v8SequencePatterns','v8TimelineBox','deepKpiBox','deepRootBox','deepIncidentBox','deepChainBox','deepCorrBox','deepTimelineBox'];
+  ids.forEach(id=>{const el=$(id); if(el) el.innerHTML=msg;});
+  if($('v15RulesText')){try{$('v15RulesText').value=JSON.stringify(v15LoadRules(),null,2);}catch(_){}}
+  ['v7Executive','v8Executive','deepFindings'].forEach(id=>{const el=$(id); if(el){el.className='notice warn'; el.innerHTML=msg;}});
+}
+async function renderLazyView(view){
+  if(!largeInitialMode || !uniqueRecords || !uniqueRecords.length) return;
+  if(lazyRenderedViews[view]) return;
+  const run = async function(label, fn){
+    showLoadOverlay('Đang chạy phân tích theo yêu cầu', label+' trên '+fmt(uniqueRecords.length)+' sự kiện. Có thể mất vài giây đến vài phút với file rất lớn.');
+    await delayFrame(0);
+    try{fn(); lazyRenderedViews[view]=true;}
+    finally{setTimeout(hideLoadOverlay,220);}
+  };
+  if(view==='operationCount'){setOperationCountPlaceholder(); lazyRenderedViews[view]=true; return;}
+  if(view==='identity') return run('Định danh lai V10', ()=>renderIdentityV10());
+  if(view==='identityDict') return run('Từ điển định danh V14', ()=>renderIdentityDictionary());
+  if(view==='v15diag') return run('Smart Diagnosis V15', ()=>renderV15Diagnosis());
+  if(view==='v7diag') return run('Chẩn đoán chính xác V7', ()=>renderV7Diagnosis());
+  if(view==='v8diag') return run('Chẩn đoán nâng cao V8/V10', ()=>renderV8Diagnosis());
+  if(view==='deep') return run('Phân tích sâu', ()=>renderDeepAnalysis());
+}
 function renderKpis(){const span=stats.timeStart&&stats.timeEnd?((stats.timeEnd-stats.timeStart)/3600000).toFixed(2)+' giờ':'--';$('kpiBox').innerHTML=`<div class="kpis"><div class="kpi"><div class="v">${fmt(stats.rawCount)}</div><div class="t">Dòng gốc</div></div><div class="kpi good"><div class="v">${fmt(stats.uniqueCount)}</div><div class="t">Sự kiện sau khử trùng</div></div><div class="kpi warn"><div class="v">${fmt(stats.dupRows)}</div><div class="t">Dòng trùng do Ind</div></div><div class="kpi bad"><div class="v">${fmt(stats.trip)}</div><div class="t">Trip/Cắt</div></div><div class="kpi warn"><div class="v">${fmt(stats.pickup)}</div><div class="t">Pickup</div></div><div class="kpi good"><div class="v">${fmt(stats.openclose)}</div><div class="t">Open/Close/Intransit</div></div><div class="kpi violet"><div class="v">${fmt(stats.comm)}</div><div class="t">Invalid/Comm</div></div><div class="kpi cyan"><div class="v">${span}</div><div class="t">Khoảng thời gian</div></div></div>`;}
 function barChart(id, rows, cls=''){const max=Math.max(1,...rows.map(r=>r[1]));$(id).innerHTML=rows.slice(0,15).map(([k,v])=>`<div class="barrow"><div class="barlabel" title="${esc(k)}">${esc(k)}</div><div class="barbg"><div class="bar ${cls}" style="width:${Math.max(2,v/max*100)}%"></div></div><div class="mono">${fmt(v)}</div></div>`).join('')||'<div class="muted">Chưa có dữ liệu.</div>';}
 function renderOverview(){barChart('chartDevice',stats.topDevice);barChart('chartMessage',stats.topPoint,'warn');barChart('chartHour',stats.hours,'good');barChart('chartCategory',stats.categories,'bad');renderDeviceRiskTop();const findings=[];if(stats.dupRows>0)findings.push(`<div class="callout warn"><b>Trùng lặp do Ind:</b> ${fmt(stats.dupRows)} dòng có khả năng là bản sao của cùng sự kiện, thường do cặp Spont/Alarm. Nên dùng số ${fmt(stats.uniqueCount)} sự kiện sau khử trùng để thống kê.</div>`);if(stats.deviceGroups?.length)findings.push(`<div class="callout good"><b>Đã tự gom nhóm thiết bị:</b> nhận diện ${fmt(stats.deviceGroups.length)} đường dẫn thiết bị Path 1/Path 2/Path 3 khác nhau. Vào tab <b>Thống kê từng thiết bị</b> để xem Trip, Pickup, Open/Close, Invalid/Comm và chattering theo từng thiết bị.</div>`);if(stats.dsse>stats.uniqueCount*.25)findings.push(`<div class="callout warn"><b>Nhiều DSSE/Topo/Violation:</b> ${fmt(stats.dsse)} sự kiện thuộc nhóm tính toán/vi phạm lưới, không nên coi tất cả là sự cố bảo vệ.</div>`);if(stats.chats[0])findings.push(`<div class="callout bad"><b>Chattering nổi bật:</b> ${esc(stats.chats[0].device)} / ${esc(stats.chats[0].point)} lặp ${fmt(stats.chats[0].count)} dòng trong ${fmtSpan(stats.chats[0].span)}. Cần kiểm tra tín hiệu chập chờn, chất lượng đo hoặc mapping.</div>`);if(stats.trip>0)findings.push(`<div class="callout bad"><b>Có bản ghi Trip:</b> ${fmt(stats.trip)} sự kiện chứa từ khóa Trip/Cắt. Vào tab Phân tích thiết bị để kiểm tra từng mã có phản hồi Open/Close hay không.</div>`);$('quickFindings').innerHTML=findings.join('')||'<div class="notice good">Không phát hiện bất thường nổi bật theo quy tắc mặc định.</div>';}
 function renderDeviceRiskTop(){const box=$('deviceRiskTop');if(!box)return;const arr=(stats.deviceGroups||[]).filter(g=>g.trip||g.pickup||g.comm||g.block||g.chatMax).slice(0,12);box.innerHTML=renderDeviceGroupTable(arr,true)||'<div class="notice good">Chưa có nhóm thiết bị có Trip/Pickup/Invalid/Chattering nổi bật.</div>';}
 function renderDeviceSuggestions(){const dl=$('deviceSuggestList');if(!dl||!stats)return;const seen=new Set();const opts=[];(stats.deviceGroups||[]).forEach(g=>{const name=compact(g.device);if(name&&!seen.has(name)){seen.add(name);opts.push(`<option value="${esc(name)}" label="Đường dẫn • ${fmt(g.total)} sự kiện • ${esc(g.station||g.type)}"></option>`);} (g.codes||[]).slice(0,3).forEach(c=>{const key='code|'+(g.station||'')+'|'+c;if(!seen.has(key)){seen.add(key);opts.push(`<option value="${esc(c)}" label="Mã ${esc(c)} • ${esc(g.station||'không rõ Path 1')} • có trong ${esc(name)}"></option>`);}});});(stats.identity?.aliases||[]).filter(a=>a.pathCount>1).slice(0,80).forEach(a=>{const v=a.code;if(v&&!seen.has('alias|'+a.station+'|'+v)){seen.add('alias|'+a.station+'|'+v);opts.push(`<option value="${esc(v)}" label="Ghép mềm Path1+mã • ${esc(a.station)} • ${fmt(a.pathCount)} đường dẫn"></option>`);}});dl.innerHTML=opts.join('');}
-function renderDeviceGroups(){const box=$('deviceGroupBox'),sum=$('deviceGroupSummary');if(!box||!sum)return;if(!stats||!stats.deviceGroups){sum.innerHTML='Chưa có dữ liệu.';box.innerHTML='';return;}const q=norm($('deviceGroupSearch')?.value||'');const sort=$('deviceGroupSort')?.value||'risk';let arr=stats.deviceGroups.slice();if(q)arr=arr.filter(g=>norm([g.device,g.station,g.type,g.topPoint,g.topCategory,(g.codes||[]).join(' ')].join(' ')).includes(q));arr.sort((a,b)=>{if(sort==='name')return a.device.localeCompare(b.device,'vi');if(sort==='total')return b.total-a.total;if(sort==='trip')return b.trip-a.trip||b.riskScore-a.riskScore;if(sort==='pickup')return b.pickup-a.pickup||b.riskScore-a.riskScore;if(sort==='comm')return b.comm-a.comm||b.riskScore-a.riskScore;return b.riskScore-a.riskScore||b.total-a.total;});const high=stats.deviceGroups.filter(g=>g.trip||g.block||g.chatMax>=20).length;const mid=stats.deviceGroups.filter(g=>!g.trip&&!g.block&&g.chatMax<20&&(g.pickup||g.comm||g.chatMax>=6)).length;sum.innerHTML=`Đã tự gom <b>${fmt(stats.deviceGroups.length)}</b> nhóm đường dẫn thiết bị <b>Path 1/Path 2/Path 3</b> từ dữ liệu sau khử trùng. Đang hiển thị <b>${fmt(arr.length)}</b> nhóm${q?' theo bộ lọc':''}. Nhóm cần chú ý cao: <b class="riskHigh">${fmt(high)}</b>; nhóm cần theo dõi: <b class="riskMid">${fmt(mid)}</b>.`;box.innerHTML=renderDeviceGroupTable(arr,false);}
+function renderDeviceGroups(){const box=$('deviceGroupBox'),sum=$('deviceGroupSummary');if(!box||!sum)return;if(!stats||!stats.deviceGroups){sum.innerHTML='Chưa có dữ liệu.';box.innerHTML='';return;}const q=norm($('deviceGroupSearch')?.value||'');const sort=$('deviceGroupSort')?.value||'risk';let arr=stats.deviceGroups.slice();if(q)arr=arr.filter(g=>norm([g.device,g.station,g.type,g.topPoint,g.topCategory,(g.codes||[]).join(' ')].join(' ')).includes(q));arr.sort((a,b)=>{if(sort==='name')return a.device.localeCompare(b.device,'vi');if(sort==='total')return b.total-a.total;if(sort==='trip')return b.trip-a.trip||b.riskScore-a.riskScore;if(sort==='pickup')return b.pickup-a.pickup||b.riskScore-a.riskScore;if(sort==='comm')return b.comm-a.comm||b.riskScore-a.riskScore;return b.riskScore-a.riskScore||b.total-a.total;});const high=stats.deviceGroups.filter(g=>g.trip||g.block||g.chatMax>=20).length;const mid=stats.deviceGroups.filter(g=>!g.trip&&!g.block&&g.chatMax<20&&(g.pickup||g.comm||g.chatMax>=6)).length;const arrTotal=arr.length;const arrShow=arr.slice(0,LARGE_DEVICE_GROUP_RENDER_LIMIT);sum.innerHTML=`Đã tự gom <b>${fmt(stats.deviceGroups.length)}</b> nhóm đường dẫn thiết bị <b>Path 1/Path 2/Path 3</b> từ dữ liệu sau khử trùng. Đang hiển thị <b>${fmt(arrShow.length)}</b> / <b>${fmt(arrTotal)}</b> nhóm${q?' theo bộ lọc':''}. Nhóm cần chú ý cao: <b class="riskHigh">${fmt(high)}</b>; nhóm cần theo dõi: <b class="riskMid">${fmt(mid)}</b>. ${arrTotal>arrShow.length?'Đã giới hạn bảng để tránh treo, hãy dùng ô tìm kiếm để lọc hẹp hơn.':''}`;box.innerHTML=renderDeviceGroupTable(arrShow,false);}
 function renderDeviceGroupTable(arr,compactMode){if(!arr||!arr.length)return '';const rows=arr.map(g=>`<tr><td>${compactMode?`<button type="button" class="deviceNameBtn devicePick" data-device="${esc(g.device)}">${esc(g.device)}</button>`:`<button type="button" class="deviceNameBtn devicePick" data-device="${esc(g.device)}">${esc(g.device)}</button><div class="small muted">${esc(g.type)}${g.codes?.length?' • mã: '+esc(g.codes.slice(0,5).join(', ')):''}</div>`}</td><td>${esc(g.station)}</td>${compactMode?'':`<td>${esc(g.path2||'')}</td><td>${esc(g.path3||'')}</td>`}<td class="right"><b>${fmt(g.total)}</b></td><td class="right badText ${g.trip?'riskHigh':''}">${fmt(g.trip)}</td><td class="right ${g.pickup?'riskMid':''}">${fmt(g.pickup)}</td><td class="right">${fmt(g.open)}</td><td class="right">${fmt(g.close)}</td><td class="right ${g.comm?'riskMid':''}">${fmt(g.comm)}</td><td class="right ${g.block?'riskHigh':''}">${fmt(g.block)}</td><td class="right ${g.chatMax?'riskMid':''}">${g.chatGroups?fmt(g.chatGroups)+' nhóm / max '+fmt(g.chatMax):'0'}</td><td class="wrap">${esc(g.topPoint)}${g.topPointCount?` <span class="muted">(${fmt(g.topPointCount)})</span>`:''}<div class="statTiny">${Array.from(g.catMap.entries()).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>pill(x[0]+': '+fmt(x[1]),catClass(x[0]))).join('')}</div></td>${compactMode?'':`<td class="nowrap">${g.first?esc(g.first.time):''}<br><span class="muted">→ ${g.last?esc(g.last.time):''}</span></td>`}</tr>`).join('');const head=`<tr><th>Đường dẫn thiết bị<br><span class="small muted">Path1/Path2/Path3</span></th><th>Path 1</th>${compactMode?'':'<th>Path 2</th><th>Path 3</th>'}<th class="right">Tổng</th><th class="right">Trip</th><th class="right">Pickup</th><th class="right">Open</th><th class="right">Close</th><th class="right">Invalid/Comm</th><th class="right">Nghi vấn</th><th class="right">Chattering</th><th class="wrap">Alarm/nhóm chính</th>${compactMode?'':'<th>Thời gian đầu/cuối</th>'}</tr>`;return `<div class="tablewrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>`;}
 function selectDeviceForAnalysis(name){$('targetDevice').value=name;switchView('breaker');analyzeBreaker();}
 function renderQuality(){const map=getMapping();$('structureBox').innerHTML=`<table><tbody><tr><th>File</th><td>${esc(sourceName)}</td></tr><tr><th>Sheet</th><td>${esc(currentSheet?.name||'')}</td></tr><tr><th>Dòng header</th><td>${(headerInfo.headerRow+1)}</td></tr><tr><th>Số cột</th><td>${fmt(headerInfo.headers.length)}</td></tr><tr><th>Thời gian</th><td>${stats.timeStart?formatDate(stats.timeStart):'Không nhận được'} → ${stats.timeEnd?formatDate(stats.timeEnd):'Không nhận được'}</td></tr>${Object.keys(fieldLabels).map(f=>`<tr><th>${fieldLabels[f]}</th><td>${map[f]===COL_NONE?'<span class="dangerText">Không dùng</span>':esc(colLetters(Number(map[f]))+' - '+headerInfo.headers[Number(map[f])])}</td></tr>`).join('')}</tbody></table>`;const dupRows=stats.dupGroups.slice(0,12).map(r=>`<tr><td>${fmt(r.dupCount)}</td><td>${esc(r.time)}</td><td>${esc(r.device)}</td><td>${esc(r.deviceCode||'')}</td><td class="wrap">${esc(r.point)}</td><td class="wrap">${esc(r.pointPath||'')}</td><td>${esc(r.status)}</td><td>${esc(r.value)}</td><td>${esc(r.dupInd.join(', '))}</td><td>${esc(r.dupRows.join(', '))}</td></tr>`).join('');$('duplicateBox').innerHTML=`<div class="notice ${stats.dupRows?'warn':'good'}">Dữ liệu gốc ${fmt(stats.rawCount)} dòng; sau khử trùng còn ${fmt(stats.uniqueCount)} sự kiện; loại ${fmt(stats.dupRows)} dòng trùng (${pct(stats.dupRows,stats.rawCount)}).</div><div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Số dòng trùng</th><th>Thời gian</th><th>Đường dẫn thiết bị</th><th class="wrap">Alarm</th><th>Status</th><th>Value</th><th>Ind gom được</th><th>Row Excel</th></tr></thead><tbody>${dupRows||'<tr><td colspan="8">Không có nhóm trùng.</td></tr>'}</tbody></table></div>`;$('codeBox').innerHTML=tableFromPairs(stats.codes.slice(0,40),['Mã','Số sự kiện']);}
@@ -944,7 +1765,7 @@ function showSample(){const rows=rawRows.slice(0,20);const html=`<div class="tab
 body.focusHideUpload .focusEmergency,body.focusHidePwa .focusEmergency,body.focusHideMapping .focusEmergency,body.focusHideAdvanced .focusEmergency,body.focusCompact .focusEmergency{display:block}
 body:not(.fileLoaded) main>section.card.noPrint:nth-of-type(2){display:block!important}
 </style><body><main><h2>20 dòng đầu - ${esc(currentSheet?.name||'')}</h2>${html}</main></body>`);w.document.close();}}
-function switchView(view){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===view));if(window.syncResponsiveTabMenu)window.syncResponsiveTabMenu();}
+function switchView(view){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===view));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===view));if(window.syncResponsiveTabMenu)window.syncResponsiveTabMenu();if(window.renderLazyView) window.renderLazyView(view);}
 
 function setupResponsiveTabMenu(){
   const tabs=$('tabs'); if(!tabs||tabs.dataset.mobileMenuReady==='1')return; tabs.dataset.mobileMenuReady='1';
@@ -976,7 +1797,7 @@ function setupResponsiveTabMenu(){
 }
 
 
-const fileInput=$('fileInput');fileInput.addEventListener('click',()=>{fileInput.value='';});fileInput.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f){setStatus('Chưa chọn file.','notice warn');return;}try{setStatus('Đã chọn <b>'+esc(f.name)+'</b>, đang đọc dữ liệu Excel...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});$('sheetSelect').addEventListener('change',e=>loadSheet(Number(e.target.value)));$('analyzeBtn').addEventListener('click',analyzeCurrent);$('dedupeToggle').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('dateMode').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('chatThreshold').addEventListener('change',()=>{if(rawRows.length){stats=buildStats();renderChattering();renderOverview();renderDeviceGroups();renderDeviceSuggestions();renderIdentityV10();renderIdentityDictionary();renderV15Diagnosis();renderV7Diagnosis();renderV8Diagnosis();renderDeepAnalysis();}});$('rowLimit').addEventListener('change',renderRaw);$('deepRefreshBtn')?.addEventListener('click',renderDeepAnalysis);$('deepGapSec')?.addEventListener('change',renderDeepAnalysis);$('deepCorrSec')?.addEventListener('change',renderDeepAnalysis);$('deepTripWindow')?.addEventListener('change',renderDeepAnalysis);['v7TripOpenWindow','v7PickupTripWindow','v7CauseWindow','v7GraphWindow','v7NoiseMode','v7PreferSameDevice','v7UseCodeAlias','v7StrictStatus'].forEach(id=>$(id)?.addEventListener('change',renderV7Diagnosis));$('v7RefreshBtn')?.addEventListener('click',renderV7Diagnosis);['v8PrimaryWindow','v8ExtendedWindow','v8IncidentGap','v8CorrWindow','v8NoiseMode','v8UseAlias','v8StrictStatus','v8UseDataQuality'].forEach(id=>$(id)?.addEventListener('change',renderV8Diagnosis));$('v8RefreshBtn')?.addEventListener('click',renderV8Diagnosis);['v15PrimaryWindow','v15ExtendedWindow','v15IncidentGap','v15CorrWindow','v15HideTopo','v15OnlyOperational','v15HideCleared','v15UseDict'].forEach(id=>$(id)?.addEventListener('change',renderV15Diagnosis));$('v15TargetDevice')?.addEventListener('keydown',e=>{if(e.key==='Enter')renderV15Diagnosis();});$('v15TargetDevice')?.addEventListener('input',()=>{});$('v15RefreshBtn')?.addEventListener('click',renderV15Diagnosis);$('v15SaveRulesBtn')?.addEventListener('click',v15SaveRuleText);$('v15ResetRulesBtn')?.addEventListener('click',()=>{const arr=v15DefaultRules();if($('v15RulesText'))$('v15RulesText').value=JSON.stringify(arr,null,2);v15SaveRules(arr);v15SetRuleStatus('Đã khôi phục bộ luật mặc định.','okText');renderV15Diagnosis();});$('v15DownloadRulesBtn')?.addEventListener('click',v15DownloadRules);$('v15ShareRulesBtn')?.addEventListener('click',v15ShareRules);$('v15ExportReportBtn')?.addEventListener('click',v15ExportSmartReport);$('identityRefreshBtn')?.addEventListener('click',renderIdentityV10);$('identityOpenWindow')?.addEventListener('change',renderIdentityV10);$('dictSaveBtn')?.addEventListener('click',saveDictRule);$('dictNewBtn')?.addEventListener('click',()=>{fillDictForm({});setDictStatus('Form đã làm mới.','');});$('dictAddSelectedPathBtn')?.addEventListener('click',addCurrentSelectedPath);$('dictApplyBtn')?.addEventListener('click',()=>{applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã áp dụng lại từ điển vào phân tích.','okText');});$('dictSuggestBtn')?.addEventListener('click',suggestDictRules);$('dictExportBtn')?.addEventListener('click',()=>{if($('dictJsonBox'))$('dictJsonBox').value=exportIdentityConfigText();setDictStatus('Đã xuất JSON vào ô cấu hình.','okText');});$('dictDownloadBtn')?.addEventListener('click',downloadIdentityConfig);$('dictShareBtn')?.addEventListener('click',shareIdentityConfig);$('dictImportTextBtn')?.addEventListener('click',()=>importIdentityConfigText($('dictJsonBox')?.value||''));$('dictClearAllBtn')?.addEventListener('click',()=>{if(confirm('Xóa toàn bộ quy tắc định danh V14 đã lưu trên trình duyệt này?')){identityDictionary={version:14,updatedAt:'',rules:[]};saveIdentityDictionary();applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã xóa toàn bộ quy tắc.','warnText');}});$('dictPathSearch')?.addEventListener('input',renderDictDetectedPaths);$('dictRuleSearch')?.addEventListener('input',renderDictRulesBox);$('dictImportFile')?.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;importIdentityConfigText(await f.text());e.target.value='';});$('applyFilterBtn').addEventListener('click',applyFilter);document.querySelectorAll('[data-seq-col]').forEach(cb=>cb.addEventListener('change',()=>renderSequence(filtered&&filtered.length?filtered:uniqueRecords)));$('seqColsShowAll')?.addEventListener('click',()=>setSeqDetailColumns(true));$('seqColsHideDetail')?.addEventListener('click',()=>setSeqDetailColumns(false));$('fText').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});$('analyzeBreakerBtn').addEventListener('click',analyzeBreaker);$('targetDevice').addEventListener('keydown',e=>{if(e.key==='Enter')analyzeBreaker();});$('exportCsvBtn').addEventListener('click',exportCsv);$('exportReportBtn').addEventListener('click',exportReport);$('sampleBtn').addEventListener('click',showSample);document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));setupResponsiveTabMenu();$('deviceGroupSearch')?.addEventListener('input',renderDeviceGroups);$('deviceGroupSort')?.addEventListener('change',renderDeviceGroups);$('deviceGroupClear')?.addEventListener('click',()=>{$('deviceGroupSearch').value='';renderDeviceGroups();});$('deviceGroupBox')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});$('deviceRiskTop')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',async e=>{const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;try{setStatus('Đã thả <b>'+esc(f.name)+'</b>, đang đọc dữ liệu Excel...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});
+const fileInput=$('fileInput');fileInput.addEventListener('click',()=>{fileInput.value='';});fileInput.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f){setStatus('Chưa chọn file.','notice warn');return;}try{setStatus('Đã chọn <b>'+esc(f.name)+'</b>, đang đọc dữ liệu Excel...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});$('sheetSelect').addEventListener('change',e=>loadSheet(Number(e.target.value)));$('analyzeBtn').addEventListener('click',analyzeCurrent);$('dedupeToggle').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('dateMode').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('chatThreshold').addEventListener('change',()=>{if(rawRows.length){stats=buildStats();renderChattering();renderOverview();renderDeviceGroups();renderDeviceSuggestions();renderIdentityV10();renderIdentityDictionary();renderV15Diagnosis();renderV7Diagnosis();renderV8Diagnosis();renderDeepAnalysis();}});$('rowLimit').addEventListener('change',renderRaw);$('deepRefreshBtn')?.addEventListener('click',renderDeepAnalysis);$('deepGapSec')?.addEventListener('change',renderDeepAnalysis);$('deepCorrSec')?.addEventListener('change',renderDeepAnalysis);$('deepTripWindow')?.addEventListener('change',renderDeepAnalysis);['v7TripOpenWindow','v7PickupTripWindow','v7CauseWindow','v7GraphWindow','v7NoiseMode','v7PreferSameDevice','v7UseCodeAlias','v7StrictStatus'].forEach(id=>$(id)?.addEventListener('change',renderV7Diagnosis));$('v7RefreshBtn')?.addEventListener('click',renderV7Diagnosis);['v8PrimaryWindow','v8ExtendedWindow','v8IncidentGap','v8CorrWindow','v8NoiseMode','v8UseAlias','v8StrictStatus','v8UseDataQuality'].forEach(id=>$(id)?.addEventListener('change',renderV8Diagnosis));$('v8RefreshBtn')?.addEventListener('click',renderV8Diagnosis);['v15PrimaryWindow','v15ExtendedWindow','v15IncidentGap','v15CorrWindow','v15HideTopo','v15OnlyOperational','v15HideCleared','v15UseDict'].forEach(id=>$(id)?.addEventListener('change',renderV15Diagnosis));$('v15TargetDevice')?.addEventListener('keydown',e=>{if(e.key==='Enter')renderV15Diagnosis();});$('v15TargetDevice')?.addEventListener('input',()=>{});$('v15RefreshBtn')?.addEventListener('click',renderV15Diagnosis);$('v15SaveRulesBtn')?.addEventListener('click',v15SaveRuleText);$('v15ResetRulesBtn')?.addEventListener('click',()=>{const arr=v15DefaultRules();if($('v15RulesText'))$('v15RulesText').value=JSON.stringify(arr,null,2);v15SaveRules(arr);v15SetRuleStatus('Đã khôi phục bộ luật mặc định.','okText');renderV15Diagnosis();});$('v15DownloadRulesBtn')?.addEventListener('click',v15DownloadRules);$('v15ShareRulesBtn')?.addEventListener('click',v15ShareRules);$('v15ExportReportBtn')?.addEventListener('click',v15ExportSmartReport);$('identityRefreshBtn')?.addEventListener('click',renderIdentityV10);$('identityOpenWindow')?.addEventListener('change',renderIdentityV10);$('dictSaveBtn')?.addEventListener('click',saveDictRule);$('dictNewBtn')?.addEventListener('click',()=>{fillDictForm({});setDictStatus('Form đã làm mới.','');});$('dictAddSelectedPathBtn')?.addEventListener('click',addCurrentSelectedPath);$('dictApplyBtn')?.addEventListener('click',()=>{applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã áp dụng lại từ điển vào phân tích.','okText');});$('dictSuggestBtn')?.addEventListener('click',suggestDictRules);$('dictExportBtn')?.addEventListener('click',()=>{if($('dictJsonBox'))$('dictJsonBox').value=exportIdentityConfigText();setDictStatus('Đã xuất JSON vào ô cấu hình.','okText');});$('dictDownloadBtn')?.addEventListener('click',downloadIdentityConfig);$('dictShareBtn')?.addEventListener('click',shareIdentityConfig);$('dictImportTextBtn')?.addEventListener('click',()=>importIdentityConfigText($('dictJsonBox')?.value||''));$('dictClearAllBtn')?.addEventListener('click',()=>{if(confirm('Xóa toàn bộ quy tắc định danh V14 đã lưu trên trình duyệt này?')){identityDictionary={version:14,updatedAt:'',rules:[]};saveIdentityDictionary();applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã xóa toàn bộ quy tắc.','warnText');}});$('dictPathSearch')?.addEventListener('input',renderDictDetectedPaths);$('dictRuleSearch')?.addEventListener('input',renderDictRulesBox);$('dictImportFile')?.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;importIdentityConfigText(await f.text());e.target.value='';});$('opRefreshBtn')?.addEventListener('click',()=>renderOperationCountReportSafe('Đang cập nhật báo cáo thao tác...'));$('opApplyCustomBtn')?.addEventListener('click',()=>renderOperationCountReportSafe('Đang áp dụng tùy chọn nhận diện thao tác...'));['opDetectMode','opDetailLimit','opPrefilterControl','opExcludeSystem','opTapSeparate','opFanSeparate','opUseCustomRules','opRequireUserConsole','opCustomWithBase'].forEach(id=>{const el=$(id); if(!el)return; el.addEventListener('change',()=>renderOperationCountReportSafe('Đang cập nhật theo tùy chọn '+id+'...'));});['opPrefilterIndText','opCustomInclude','opCustomStatus','opCustomValue','opCustomInd','opCustomExclude','opKwTap','opKwFan','opKwFanMode','opKwRelayMode','opKwSTPT','opKwStation110','opKwMvLine','opKw110','opKw35','opKw22','opRuleNote'].forEach(id=>{const el=$(id); if(!el)return; el.addEventListener('input',()=>opMarkDirty()); el.addEventListener('change',()=>opMarkDirty());});$('opSearchText')?.addEventListener('input',opDebouncedSearchRender);$('opSearchText')?.addEventListener('keydown',e=>{if(e.key==='Enter')renderOperationCountReportSafe('Đang lọc nhanh báo cáo thao tác...');});$('opLoadPresetBtn')?.addEventListener('click',opApplyPreset);$('opSavePrefsBtn')?.addEventListener('click',opSavePrefs);$('opResetPrefsBtn')?.addEventListener('click',opResetPrefs);$('opAddTokenIncludeBtn')?.addEventListener('click',()=>opAppendToken('opCustomInclude'));$('opAddTokenValueBtn')?.addEventListener('click',()=>opAppendToken('opCustomValue'));$('opAddTokenExcludeBtn')?.addEventListener('click',()=>opAppendToken('opCustomExclude'));$('opExportCsvBtn')?.addEventListener('click',exportOperationCountCsv);$('opControlReportBtn')?.addEventListener('click',()=>renderOperationControlReportSafe('Đang cập nhật báo cáo thao tác chỉ Control...'));$('opControlExportCsvBtn')?.addEventListener('click',exportOperationControlCsv);$('applyFilterBtn').addEventListener('click',applyFilter);document.querySelectorAll('[data-seq-col]').forEach(cb=>cb.addEventListener('change',()=>renderSequence(filtered&&filtered.length?filtered:uniqueRecords)));$('seqColsShowAll')?.addEventListener('click',()=>setSeqDetailColumns(true));$('seqColsHideDetail')?.addEventListener('click',()=>setSeqDetailColumns(false));$('fText').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});$('analyzeBreakerBtn').addEventListener('click',analyzeBreaker);$('targetDevice').addEventListener('keydown',e=>{if(e.key==='Enter')analyzeBreaker();});$('exportCsvBtn').addEventListener('click',exportCsv);$('exportReportBtn').addEventListener('click',exportReport);$('sampleBtn').addEventListener('click',showSample);document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));setupResponsiveTabMenu();$('deviceGroupSearch')?.addEventListener('input',renderDeviceGroups);$('deviceGroupSort')?.addEventListener('change',renderDeviceGroups);$('deviceGroupClear')?.addEventListener('click',()=>{$('deviceGroupSearch').value='';renderDeviceGroups();});$('deviceGroupBox')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});$('deviceRiskTop')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',async e=>{const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;try{setStatus('Đã thả <b>'+esc(f.name)+'</b>, đang đọc dữ liệu Excel...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});
 })();
 </script>
 
