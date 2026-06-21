@@ -1,5 +1,5 @@
 /* SCADA Alarm Summary Offline Analyzer - Service Worker */
-const APP_VERSION = '2026-06-10-esum-pwa-v1';
+const APP_VERSION = '2026-06-10-esum-pwa-v39';
 const CACHE_NAME = 'scada-alarm-analyzer-' + APP_VERSION;
 const APP_ASSETS = [
   './',
