@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SCADA Alarm Summary PWA Offline V66 - Operation Count Restored</title>
+<title>SCADA Alarm Summary PWA Offline V70 - Operation Timeline Filter DIRECT</title>
 <style>
 :root{--bg:#f3f6fb;--panel:#fff;--ink:#101828;--muted:#667085;--line:#d0d5dd;--blue:#155eef;--blue2:#0b4fd5;--green:#039855;--orange:#dc6803;--red:#d92d20;--violet:#6938ef;--cyan:#088ab2;--shadow:0 8px 24px rgba(16,24,40,.08)}
 *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Segoe UI",Tahoma,sans-serif;font-size:14px;line-height:1.42} header{background:linear-gradient(135deg,#092b68,#155eef 55%,#2e90fa);color:#fff;padding:14px 16px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20} header h1{margin:0 0 3px;font-size:20px} header .sub{font-size:13px;opacity:.94} main{max-width:1600px;margin:auto;padding:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-bottom:14px}.card h2,.card h3{margin-top:0}.grid{display:grid;gap:12px}.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}.cols5{grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:1100px){.cols2,.cols3,.cols4,.cols5{grid-template-columns:1fr} header{position:static}}
@@ -55,6 +55,14 @@ body.v58Busy .v58Overlay{display:block}.v58Title{font-weight:900;font-size:15px}
 /* V60 virtual/infinite table */
 .v60VirtualInfo{font-size:12px;color:#667085;margin:4px 0 8px}.v60VirtualWrap{max-height:72vh;overflow:auto}.v60VirtualWrap table{table-layout:auto}.v60VirtualWrap tbody tr.v60Spacer td{padding:0!important;border:0!important;background:transparent!important}.v60VirtualWrap tbody tr:nth-child(even):not(.v60Spacer){background:#fcfcfd}.v60VirtualNote{display:inline-block;border-radius:999px;background:#eff8ff;color:#155eef;border:1px solid #b2ddff;padding:2px 8px;font-weight:800;margin-left:6px}.v60RunBtn{background:#155eef;color:#fff;border-color:#155eef;border-radius:10px;padding:7px 10px;font-weight:900}
 
+/* V70 operation timeline click filter */
+.opClickRow{cursor:pointer}
+.opClickRow:hover td{background:#eff8ff!important}
+.opClickFirst{color:#155eef;font-weight:900;text-decoration:underline;text-underline-offset:2px}
+.opTimelineFilterNote{margin-bottom:8px}
+.opTimelineFilterNote .miniBtn{margin-left:8px}
+.opNoV60{max-height:650px}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#155eef">
@@ -64,7 +72,7 @@ body.v58Busy .v58Overlay{display:block}.v58Title{font-weight:900;font-size:15px}
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
-<header><h1>SCADA Alarm Summary PWA Offline V66 - Operation Count Restored</h1><div class="sub">Đồng nhất mọi hiển thị Đường dẫn thiết bị theo Path 1/Path 2/Path 3 trên bảng, timeline, báo cáo và cache phân tích.</div></header>
+<header><h1>SCADA Alarm Summary PWA Offline V70 - Operation Timeline Filter DIRECT</h1><div class="sub">V70: Sửa trực tiếp luồng Đếm thao tác: click dòng chi tiết lọc timeline và timeline luôn hiện cột Ind.</div></header>
 <div id="v58Overlay" class="v58Overlay noPrint"><button id="v58StopBtn" class="v58Stop" type="button">Yêu cầu dừng sau lô hiện tại</button><button id="v58CloseBtn" class="v58Close" type="button" title="Ẩn thông báo tiến trình">Ẩn</button><div class="v58Title" id="v58Title">Đang xử lý dữ liệu lớn</div><div class="v58Msg" id="v58Msg">Đang chuẩn bị...</div><div class="v58Bar"><div id="v58Bar"></div></div><div class="v58Meta"><span id="v58Pct">0%</span><span id="v58Rows">0 / 0 dòng</span><span id="v58Elapsed">00:00</span></div></div>
 
 <main>
@@ -1476,7 +1484,7 @@ function v60StaticVirtualTable(container, rowsHtml, headHtml, colCount){
   wrap.addEventListener('scroll',()=>requestAnimationFrame(render)); render();
 }
 function v60AutoVirtualizeRenderedTables(root){
-  try{(root||document).querySelectorAll('.tablewrap:not(.v60VirtualWrap)').forEach(w=>{const table=w.querySelector('table'); if(!table||table.dataset.v60Virtualized)return; const tbody=table.tBodies&&table.tBodies[0]; if(!tbody||tbody.rows.length<350)return; const head=table.tHead?table.tHead.innerHTML:''; const rows=Array.from(tbody.rows).map(tr=>tr.outerHTML); const cc=(table.rows[0]&&table.rows[0].cells.length)||1; table.dataset.v60Virtualized='1'; v60StaticVirtualTable(w,rows,head,cc);});}catch(e){console.warn('V60 auto virtualize failed',e);}
+  try{(root||document).querySelectorAll('.tablewrap:not(.v60VirtualWrap):not(.opNoV60)').forEach(w=>{const table=w.querySelector('table'); if(!table||table.dataset.v60Virtualized)return; const tbody=table.tBodies&&table.tBodies[0]; if(!tbody||tbody.rows.length<350)return; const head=table.tHead?table.tHead.innerHTML:''; const rows=Array.from(tbody.rows).map(tr=>tr.outerHTML); const cc=(table.rows[0]&&table.rows[0].cells.length)||1; table.dataset.v60Virtualized='1'; v60StaticVirtualTable(w,rows,head,cc);});}catch(e){console.warn('V60 auto virtualize failed',e);}
 }
 function v60RawCols(){return [
  {head:'Row',html:r=>'<span class="mono">'+fmt(r.rowNum)+'</span>'},{head:'Thời gian',html:r=>esc(r.time)},{head:'Path 1',html:r=>esc(r.path1||r.station)},{head:'Path 2',html:r=>esc(r.path2||'')},{head:'Path 3',html:r=>esc(r.path3||'')},{head:'Đường dẫn thiết bị',cls:'wrap',html:r=>esc(v64RawDevicePath(r))},{head:'Mã',html:r=>esc(r.deviceCode||'')},{head:'Alarm/Point',cls:'wrap',html:r=>esc(r.point)},{head:'Point path',cls:'wrap',html:r=>esc(r.pointPath||'')},{head:'Status',html:r=>pill(r.status,statusClass(r.status))},{head:'Value',html:r=>esc(r.value)},{head:'Ind',html:r=>esc(r.ind)},{head:'Loại',html:r=>(r.categories||[]).map(c=>pill(c,catClass(c))).join(' ')},{head:'Điểm nặng',html:r=>'<span class="mono">'+fmt(r.severity)+'</span>'},{head:'Comment',cls:'wrap',html:r=>esc(r.comment)}
@@ -2222,68 +2230,104 @@ async function opBuildStatsAsync(reason){
   await delayFrame(0);
   return opFinalizeStats(ctx);
 }
-function opGroupRow(g, extraCols){
-  const first=g.first?esc(g.first.time):'--', last=g.last?esc(g.last.time):'--';
-  let extra='';
-  if(extraCols==='device') extra=`<td>${esc(g.station||'')}</td><td>${esc(g.type||'')}</td>`;
-  return `<tr>${extra}<td class="wrap">${esc(g.label)}</td><td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${first}</td><td>${last}</td></tr>`;
+
+/* ===== V70: Helper lọc timeline thao tác theo dòng bảng chi tiết ===== */
+function opTimelineFilterTitle(kind){return {station110:'trạm 110kV',device:'ngăn lộ / MBA / thiết bị',operator:'Operator/User',console:'Console'}[kind]||'nhóm';}
+function opTimelineSameLabel(a,b){return String(a==null?'':a)===String(b==null?'':b);}
+function opTimelineControlModeFrom(el){try{return !!(el&&el.closest&&el.closest('[id^="opControl"]'));}catch(e){return false;}}
+function opTimelineBasePass(r, controlMode){
+  try{
+    const rule=opRules();
+    const mode=$('opDetectMode')?.value||'auto';
+    const excludeSystem=!!$('opExcludeSystem')?.checked;
+    const tokens=controlMode ? (typeof opControlTokens==='function'?opControlTokens():['Control']) : (typeof opPrefilterTokens==='function'?opPrefilterTokens():[]);
+    if(tokens&&tokens.length&&typeof opPassFastPrefilter==='function'&&!opPassFastPrefilter(r,tokens)) return false;
+    if(typeof opIsCandidatePrepared==='function'&&!opIsCandidatePrepared(r,rule,mode,excludeSystem,[])) return false;
+    const search=$('opSearchText')?.value||'';
+    if(search&&typeof opSearchMatchPrepared==='function'&&!opSearchMatchPrepared(r,norm(search))) return false;
+    return true;
+  }catch(e){console.warn('V70 opTimelineBasePass error',e);return false;}
 }
-function opRenderGroupTable(arr, extraCols){
-  arr = arr || [];
-  const headerExtra = extraCols==='device' ? [
-    {head:'Trạm/Path 1', cell:g=>'<td>'+esc(g.station||'')+'</td>'},
-    {head:'Loại thiết bị', cell:g=>'<td>'+esc(g.type||g.deviceType||'')+'</td>'}
-  ] : [];
-  const cols = headerExtra.concat([
-    {head:'Nhóm', cls:'wrap', cell:g=>'<td class="wrap">'+esc(g.label)+'</td>'},
-    {head:'Tổng', cell:g=>'<td class="right"><b>'+fmt(g.grandTotal)+'</b></td>'},
-    {head:'110kV TBA', cell:g=>'<td class="right">'+fmt(g.tba110)+'</td>'},
-    {head:'35kV TBA', cell:g=>'<td class="right">'+fmt(g.tba35)+'</td>'},
-    {head:'22kV TBA', cell:g=>'<td class="right">'+fmt(g.tba22)+'</td>'},
-    {head:'ĐD trung áp', cell:g=>'<td class="right">'+fmt(g.mvline)+'</td>'},
-    {head:'Trung áp', cell:g=>'<td class="right">'+fmt(g.mvTotal)+'</td>'},
-    {head:'Chuyển nấc', cell:g=>'<td class="right">'+fmt(g.tap)+'</td>'},
-    {head:'Quạt', cell:g=>'<td class="right">'+fmt(g.fan)+'</td>'},
-    {head:'Chế độ quạt', cell:g=>'<td class="right">'+fmt(g.fanMode)+'</td>'},
-    {head:'Chế độ rơ-le', cell:g=>'<td class="right">'+fmt(g.relayMode)+'</td>'},
-    {head:'STPT', cell:g=>'<td class="right">'+fmt(g.stpt)+'</td>'},
-    {head:'Khác', cell:g=>'<td class="right">'+fmt(g.other)+'</td>'},
-    {head:'Đầu', cell:g=>'<td>'+(g.first?esc(g.first.time):'--')+'</td>'},
-    {head:'Cuối', cell:g=>'<td>'+(g.last?esc(g.last.time):'--')+'</td>'}
-  ]);
-  if(typeof window.v45VirtualTableHtml === 'function'){
-    return '<div class="small muted">Hiển thị toàn bộ '+fmt(arr.length)+' dòng bằng cuộn ảo. Không còn lỗi Number(\'all\') làm rỗng bảng.</div>'+window.v45VirtualTableHtml(arr, cols, {emptyText:'Chưa có dữ liệu thao tác.', force:true, rowH:34});
+function opTimelineRowMatch(r, kind, label){
+  try{
+    if(kind==='station110') return opIsTbaStation(r)&&opTimelineSameLabel(opStationLabel(r),label);
+    if(kind==='device') return opTimelineSameLabel(opGroupKey(r),label);
+    if(kind==='operator') return opTimelineSameLabel((compact(r.operator)||'(trống)'),label);
+    if(kind==='console') return opTimelineSameLabel((compact(r.console)||'(trống)'),label);
+  }catch(e){console.warn('V70 opTimelineRowMatch error',e);}
+  return false;
+}
+function opBuildTimelineRowsForFilter(kind,label,controlMode){
+  const src=uniqueRecords||[], out=[];
+  for(let i=0;i<src.length;i++){
+    const r=src[i];
+    if(!opTimelineBasePass(r,controlMode)) continue;
+    if(!opTimelineRowMatch(r,kind,label)) continue;
+    out.push(r);
   }
+  out.sort((a,b)=>(b.timeDate||0)-(a.timeDate||0));
+  return out;
+}
+function opApplyTimelineFilterFromRow(tr, ev){
+  try{
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    const kind=tr&&tr.getAttribute?tr.getAttribute('data-op-kind'):'';
+    const label=tr&&tr.getAttribute?tr.getAttribute('data-op-label'):'';
+    if(!kind||!label) return false;
+    const control=opTimelineControlModeFrom(tr);
+    const targetId=control?'opControlTimelineBox':'opTimelineBox';
+    const rows=opBuildTimelineRowsForFilter(kind,label,control);
+    renderVirtualOperationTimeline(targetId,rows,true,control?'Không có timeline Control liên quan.':'Không có timeline liên quan.',{kind,label,control});
+    try{tr.classList.add('dictSelected');setTimeout(()=>tr.classList.remove('dictSelected'),900);}catch(_e){}
+    const target=$(targetId); if(target&&target.scrollIntoView) target.scrollIntoView({behavior:'smooth',block:'start'});
+    return false;
+  }catch(e){console.warn('V70 opApplyTimelineFilterFromRow error',e);return false;}
+}
+function opResetTimelineFilter(btn, ev){
+  try{
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    const control=!!(btn&&btn.getAttribute&&btn.getAttribute('data-op-control')==='1');
+    const op=control?window.__lastOperationControlStats:window.__lastOperationStats;
+    if(op&&op.timeline) renderVirtualOperationTimeline(control?'opControlTimelineBox':'opTimelineBox',op.timeline,true,control?'Không có timeline Control.':'Không có timeline.');
+    return false;
+  }catch(e){console.warn('V70 opResetTimelineFilter error',e);return false;}
+}
+function opTimelineRowClickAttrs(kind,label){return ' class="opClickRow" data-op-kind="'+esc(kind)+'" data-op-label="'+esc(label||'')+'" title="Bấm dòng này để lọc Timeline thao tác gần nhất" onclick="return opApplyTimelineFilterFromRow(this,event)"';}
+function opClickableFirstCell(text){return '<td class="wrap opClickFirst">'+esc(text||'')+'</td>';}
+function opBindTimelineClickFallback(){
+  const root=$('operationCount'); if(!root||root.dataset.v70ClickBound==='1') return; root.dataset.v70ClickBound='1';
+  root.addEventListener('click',function(e){
+    const reset=e.target&&e.target.closest?e.target.closest('.opTimelineResetBtn'):null;
+    if(reset){opResetTimelineFilter(reset,e);return;}
+    const row=e.target&&e.target.closest?e.target.closest('tr.opClickRow'):null;
+    if(row){opApplyTimelineFilterFromRow(row,e);}
+  },true);
+}
+
+function opGroupRow(g, extraCols, clickKind){
+  const first=g.first?esc(g.first.time):'--', last=g.last?esc(g.last.time):'--';
+  const kind=clickKind || (extraCols==='device'?'device':'station110');
+  let extra='';
+  if(extraCols==='device') extra=`<td>${esc(g.station||'')}</td><td>${esc(g.type||g.deviceType||'')}</td>`;
+  return `<tr${opTimelineRowClickAttrs(kind,g.label)}>${extra}${opClickableFirstCell(g.label)}<td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${first}</td><td>${last}</td></tr>`;
+}
+function opRenderGroupTable(arr, extraCols, clickKind){
+  arr = arr || [];
+  clickKind = clickKind || (extraCols==='device' ? 'device' : 'station110');
   const lim = opDetailLimitValue(arr.length);
   const shown = Number.isFinite(lim) ? arr.slice(0, lim) : arr;
   const headerExtraHtml=extraCols==='device'?'<th>Trạm/Path 1</th><th>Loại thiết bị</th>':'';
-  return `<div class="small muted">Hiển thị ${opDetailLimitLabel(arr.length)} dòng. Dùng ô lọc nhanh nếu danh sách quá dài.</div><div class="tablewrap"><table><thead><tr>${headerExtraHtml}<th class="wrap">Nhóm</th><th>Tổng</th><th>110kV TBA</th><th>35kV TBA</th><th>22kV TBA</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${shown.map(g=>opGroupRow(g,extraCols)).join('')||'<tr><td colspan="16">Chưa có dữ liệu thao tác.</td></tr>'}</tbody></table></div>`;
+  const colSpan=extraCols==='device'?17:15;
+  const note = `<div class="small muted">V70: bấm vào <b>dòng / cột đầu tiên</b> để lọc Timeline thao tác gần nhất. Hiển thị ${opDetailLimitLabel(arr.length)} dòng.</div>`;
+  return `${note}<div class="tablewrap opNoV60"><table class="opClickableTable"><thead><tr>${headerExtraHtml}<th class="wrap">Nhóm</th><th>Tổng</th><th>110kV TBA</th><th>35kV TBA</th><th>22kV TBA</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${shown.map(g=>opGroupRow(g,extraCols,clickKind)).join('')||`<tr><td colspan="${colSpan}">Chưa có dữ liệu thao tác.</td></tr>`}</tbody></table></div>`;
 }
-function opRenderPersonTable(arr, kind){
+function opRenderPersonTable(arr, kind, clickKind){
   arr = arr || [];
-  const cols = [
-    {head:kind||'Nhóm', cell:g=>'<td class="wrap">'+esc(g.label)+'</td>'},
-    {head:'Tổng', cell:g=>'<td class="right"><b>'+fmt(g.grandTotal)+'</b></td>'},
-    {head:'110kV', cell:g=>'<td class="right">'+fmt(g.tba110)+'</td>'},
-    {head:'35kV', cell:g=>'<td class="right">'+fmt(g.tba35)+'</td>'},
-    {head:'22kV', cell:g=>'<td class="right">'+fmt(g.tba22)+'</td>'},
-    {head:'ĐD trung áp', cell:g=>'<td class="right">'+fmt(g.mvline)+'</td>'},
-    {head:'Trung áp', cell:g=>'<td class="right">'+fmt(g.mvTotal)+'</td>'},
-    {head:'Chuyển nấc', cell:g=>'<td class="right">'+fmt(g.tap)+'</td>'},
-    {head:'Quạt', cell:g=>'<td class="right">'+fmt(g.fan)+'</td>'},
-    {head:'Chế độ quạt', cell:g=>'<td class="right">'+fmt(g.fanMode)+'</td>'},
-    {head:'Chế độ rơ-le', cell:g=>'<td class="right">'+fmt(g.relayMode)+'</td>'},
-    {head:'STPT', cell:g=>'<td class="right">'+fmt(g.stpt)+'</td>'},
-    {head:'Khác', cell:g=>'<td class="right">'+fmt(g.other)+'</td>'},
-    {head:'Đầu', cell:g=>'<td>'+(g.first?esc(g.first.time):'--')+'</td>'},
-    {head:'Cuối', cell:g=>'<td>'+(g.last?esc(g.last.time):'--')+'</td>'}
-  ];
-  if(typeof window.v45VirtualTableHtml === 'function'){
-    return '<div class="small muted">Hiển thị toàn bộ '+fmt(arr.length)+' dòng bằng cuộn ảo.</div>'+window.v45VirtualTableHtml(arr, cols, {emptyText:'Chưa có dữ liệu.', force:true, rowH:34});
-  }
+  clickKind = clickKind || (String(kind||'').toLowerCase().indexOf('console')>=0 ? 'console' : 'operator');
   const lim = opDetailLimitValue(arr.length);
   const shown = Number.isFinite(lim) ? arr.slice(0, lim) : arr;
-  return `<div class="tablewrap"><table><thead><tr><th>${kind}</th><th>Tổng</th><th>110kV</th><th>35kV</th><th>22kV</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${shown.map(g=>`<tr><td class="wrap">${esc(g.label)}</td><td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${g.first?esc(g.first.time):'--'}</td><td>${g.last?esc(g.last.time):'--'}</td></tr>`).join('')||'<tr><td colspan="15">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>`;
+  const note = `<div class="small muted">V70: bấm vào <b>dòng / cột đầu tiên</b> để lọc Timeline thao tác gần nhất. Hiển thị ${opDetailLimitLabel(arr.length)} dòng.</div>`;
+  return `${note}<div class="tablewrap opNoV60"><table class="opClickableTable"><thead><tr><th class="wrap">${esc(kind||'Nhóm')}</th><th>Tổng</th><th>110kV</th><th>35kV</th><th>22kV</th><th>ĐD trung áp</th><th>Trung áp</th><th>Chuyển nấc</th><th>Quạt</th><th>Chế độ quạt</th><th>Chế độ rơ-le</th><th>STPT</th><th>Khác</th><th>Đầu</th><th>Cuối</th></tr></thead><tbody>${shown.map(g=>`<tr${opTimelineRowClickAttrs(clickKind,g.label)}>${opClickableFirstCell(g.label)}<td class="right"><b>${fmt(g.grandTotal)}</b></td><td class="right">${fmt(g.tba110)}</td><td class="right">${fmt(g.tba35)}</td><td class="right">${fmt(g.tba22)}</td><td class="right">${fmt(g.mvline)}</td><td class="right">${fmt(g.mvTotal)}</td><td class="right">${fmt(g.tap)}</td><td class="right">${fmt(g.fan)}</td><td class="right">${fmt(g.fanMode)}</td><td class="right">${fmt(g.relayMode)}</td><td class="right">${fmt(g.stpt)}</td><td class="right">${fmt(g.other)}</td><td>${g.first?esc(g.first.time):'--'}</td><td>${g.last?esc(g.last.time):'--'}</td></tr>`).join('')||'<tr><td colspan="15">Chưa có dữ liệu.</td></tr>'}</tbody></table></div>`;
 }
 function renderOperationCountReport(){
   if(!$('opKpiBox')) return;
@@ -2295,11 +2339,12 @@ function renderOperationCountReport(){
   $('opSummaryBox').innerHTML=filterNote+`<div class="notice good"><b>Công thức kiểm tra:</b><br>Tổng trung áp = ${fmt(t.tba35)} + ${fmt(t.tba22)} + ${fmt(t.mvline)} = <b>${fmt(t.mvTotal)}</b><br>Tổng thao tác = ${fmt(t.tap)} + ${fmt(t.fan)} + ${fmt(t.fanMode)} + ${fmt(t.relayMode)} + ${fmt(t.stpt)} + ${fmt(t.other)} + ${fmt(t.tba110)} + ${fmt(t.mvTotal)} = <b>${fmt(t.grandTotal)}</b></div>`+
     `<div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Chỉ tiêu</th><th>Số lần</th></tr></thead><tbody><tr><td>Tổng số lần thao tác phía 110kV của các TBA</td><td class="right">${fmt(t.tba110)}</td></tr><tr><td>Tổng số lần thao tác phía 35kV của các TBA</td><td class="right">${fmt(t.tba35)}</td></tr><tr><td>Tổng số lần thao tác phía 22kV của các TBA</td><td class="right">${fmt(t.tba22)}</td></tr><tr><td>Tổng số lần thao tác phía đường dây trung áp</td><td class="right">${fmt(t.mvline)}</td></tr><tr><td><b>Tổng số lần thao tác phía trung áp</b></td><td class="right"><b>${fmt(t.mvTotal)}</b></td></tr><tr><td>Tổng số lần thao tác chuyển nấc phân áp</td><td class="right">${fmt(t.tap)}</td></tr><tr><td>Tổng số lần thao tác bật/tắt quạt</td><td class="right">${fmt(t.fan)}</td></tr><tr><td>Tổng số lần thao tác chế độ tự động/tại chỗ của quạt</td><td class="right">${fmt(t.fanMode)}</td></tr><tr><td>Tổng số lần thao tác hệ thống khóa/chế độ rơ-le bảo vệ</td><td class="right">${fmt(t.relayMode)}</td></tr><tr><td>Tổng số lần thao tác STPT / LoadShedding</td><td class="right">${fmt(t.stpt)}</td></tr><tr><td>Tổng số lần thao tác khác</td><td class="right">${fmt(t.other)}</td></tr><tr><td><b>Tổng số lần thao tác</b></td><td class="right"><b>${fmt(t.grandTotal)}</b></td></tr></tbody></table></div>`;
   $('opTopStationBox').innerHTML=barRowsForOperation(op.station.slice(0,15));
-  $('opStation110Box').innerHTML=opRenderGroupTable(op.station110);
-  $('opDeviceBox').innerHTML=opRenderGroupTable(op.device,'device');
-  $('opOperatorBox').innerHTML=opRenderPersonTable(op.operator,'Operator/User');
-  $('opConsoleBox').innerHTML=opRenderPersonTable(op.console,'Console');
-  renderVirtualOperationTimeline('opTimelineBox', op.timeline, false, 'Không có timeline.');
+  $('opStation110Box').innerHTML=opRenderGroupTable(op.station110,null,'station110');
+  $('opDeviceBox').innerHTML=opRenderGroupTable(op.device,'device','device');
+  $('opOperatorBox').innerHTML=opRenderPersonTable(op.operator,'Operator/User','operator');
+  $('opConsoleBox').innerHTML=opRenderPersonTable(op.console,'Console','console');
+  renderVirtualOperationTimeline('opTimelineBox', op.timeline, true, 'Không có timeline.');
+  opBindTimelineClickFallback();
   window.__lastOperationStats=op;
 }
 
@@ -2340,18 +2385,19 @@ function opDebouncedSearchRender(){
 // V43: cuộn ảo cho bảng timeline để không dựng hàng nghìn DOM node cùng lúc.
 window.__virtualTimelineTables = window.__virtualTimelineTables || {};
 function opTimelineRowHtmlV43(r, includeInd){
-  const indCell = includeInd ? `<td>${esc(r.ind||'')}</td>` : '';
-  return `<tr class="vrow"><td>${esc(r.time)}</td><td>${esc(r.path1)}</td><td class="wrap">${esc(opGroupKey(r))}</td><td>${esc(r.status)}</td><td>${esc(r.value)}</td>${indCell}<td>${esc(r.operator||'')}</td><td>${esc(r.console||'')}</td><td>${esc(opClassifyLabel(opClassify(r)))}</td></tr>`;
+  return `<tr class="vrow"><td>${esc(r.time)}</td><td>${esc(r.path1)}</td><td class="wrap">${esc(opGroupKey(r))}</td><td>${esc(r.status)}</td><td>${esc(r.value)}</td><td>${esc(r.ind||'')}</td><td>${esc(r.operator||'')}</td><td>${esc(r.console||'')}</td><td>${esc(opClassifyLabel(opClassify(r)))}</td></tr>`;
 }
-function renderVirtualOperationTimeline(containerId, rows, includeInd, emptyText){
+function renderVirtualOperationTimeline(containerId, rows, includeInd, emptyText, filterInfo){
   const el=$(containerId); if(!el) return;
   rows = rows || [];
-  const colCount = includeInd ? 9 : 8;
-  if(!rows.length){ el.innerHTML=`<div class="notice warn">${esc(emptyText||'Không có timeline.')}</div>`; return; }
+  const control=!!(filterInfo&&filterInfo.control);
+  const resetBtn = filterInfo ? `<button type="button" class="secondary miniBtn opTimelineResetBtn" data-op-control="${control?'1':'0'}" onclick="return opResetTimelineFilter(this,event)">Hiện toàn bộ timeline</button>` : '';
+  const note = filterInfo ? `<div class="notice good opTimelineFilterNote"><b>Đang lọc timeline theo ${esc(opTimelineFilterTitle(filterInfo.kind))}:</b> ${esc(filterInfo.label||'')} — <b>${fmt(rows.length)}</b> thao tác liên quan. ${resetBtn}</div>` : `<div class="small muted" style="margin-bottom:6px">V70: Timeline thao tác luôn có cột <b>Ind</b>. Bấm vào dòng/cột đầu tiên ở các bảng chi tiết phía trên để lọc nhanh.</div>`;
+  const colCount = 9;
+  if(!rows.length){ el.innerHTML=note+`<div class="notice warn">${esc(emptyText||'Không có timeline.')}</div>`; return; }
   const id=safeId('vtab');
   const rowH=42, buffer=18;
-  const indHead = includeInd ? '<th>Ind</th>' : '';
-  el.innerHTML=`<div class="virtualInfo"><span id="${id}_info">Chuẩn bị timeline...</span><button type="button" class="secondary virtualTinyBtn" id="${id}_top">Về đầu</button><button type="button" class="secondary virtualTinyBtn" id="${id}_bottom">Về cuối</button></div><div class="tablewrap virtualTableWrap" id="${id}_wrap"><table class="virtualTable"><thead><tr><th>Thời gian</th><th>Trạm</th><th class="wrap">Thiết bị/điểm</th><th>Status</th><th>Value</th>${indHead}<th>Operator</th><th>Console</th><th>Nhóm</th></tr></thead><tbody id="${id}_body"></tbody></table></div>`;
+  el.innerHTML=`${note}<div class="virtualInfo"><span id="${id}_info">Chuẩn bị timeline...</span><button type="button" class="secondary virtualTinyBtn" id="${id}_top">Về đầu</button><button type="button" class="secondary virtualTinyBtn" id="${id}_bottom">Về cuối</button></div><div class="tablewrap virtualTableWrap" id="${id}_wrap"><table class="virtualTable"><thead><tr><th>Thời gian</th><th>Trạm</th><th class="wrap">Thiết bị/điểm</th><th>Status</th><th>Value</th><th>Ind</th><th>Operator</th><th>Console</th><th>Nhóm</th></tr></thead><tbody id="${id}_body"></tbody></table></div>`;
   const wrap=$(id+'_wrap'), body=$(id+'_body'), info=$(id+'_info');
   if(!wrap||!body) return;
   let lastStart=-1, ticking=false;
@@ -2365,8 +2411,8 @@ function renderVirtualOperationTimeline(containerId, rows, includeInd, emptyText
     const topH=start*rowH, bottomH=Math.max(0,(rows.length-end)*rowH);
     const top=topH?`<tr class="virtualSpacer"><td colspan="${colCount}" style="height:${topH}px;padding:0;border:0"></td></tr>`:'';
     const bottom=bottomH?`<tr class="virtualSpacer"><td colspan="${colCount}" style="height:${bottomH}px;padding:0;border:0"></td></tr>`:'';
-    body.innerHTML=top+rows.slice(start,end).map(r=>opTimelineRowHtmlV43(r,includeInd)).join('')+bottom;
-    if(info) info.innerHTML=`<b>Timeline cuộn ảo:</b> đang hiển thị ${fmt(start+1)}-${fmt(end)} / ${fmt(rows.length)} dòng. Chỉ dựng phần đang xem nên cuộn được dữ liệu lớn.`;
+    body.innerHTML=top+rows.slice(start,end).map(r=>opTimelineRowHtmlV43(r,true)).join('')+bottom;
+    if(info) info.innerHTML=`<b>Timeline cuộn ảo:</b> đang hiển thị ${fmt(start+1)}-${fmt(end)} / ${fmt(rows.length)} dòng. Có cột Ind để theo dõi nguồn sự kiện.`;
   }
   function requestPaint(){ if(!ticking){ ticking=true; requestAnimationFrame(paint); } }
   wrap.addEventListener('scroll', requestPaint, {passive:true});
@@ -2453,11 +2499,12 @@ function opRenderSummaryTable(op, prefix, title){
 function renderOperationControlReport(op){
   opRenderSummaryTable(op,'opControl','Tổng thao tác Control');
   $('opControlTopStationBox').innerHTML=barRowsForOperation(op.station.slice(0,15));
-  $('opControlStation110Box').innerHTML=opRenderGroupTable(op.station110);
-  $('opControlDeviceBox').innerHTML=opRenderGroupTable(op.device,'device');
-  $('opControlOperatorBox').innerHTML=opRenderPersonTable(op.operator,'Operator/User');
-  $('opControlConsoleBox').innerHTML=opRenderPersonTable(op.console,'Console');
+  $('opControlStation110Box').innerHTML=opRenderGroupTable(op.station110,null,'station110');
+  $('opControlDeviceBox').innerHTML=opRenderGroupTable(op.device,'device','device');
+  $('opControlOperatorBox').innerHTML=opRenderPersonTable(op.operator,'Operator/User','operator');
+  $('opControlConsoleBox').innerHTML=opRenderPersonTable(op.console,'Console','console');
   renderVirtualOperationTimeline('opControlTimelineBox', op.timeline, true, 'Không có timeline Control.');
+  opBindTimelineClickFallback();
   window.__lastOperationControlStats=op;
 }
 let opControlBusy=false;
@@ -2569,9 +2616,10 @@ function v66SetupOperationCount(){
   $('opControlReportBtn')?.addEventListener('click',()=>renderOperationControlReportSafe('Đang cập nhật báo cáo thao tác chỉ Control...'));
   $('opControlExportCsvBtn')?.addEventListener('click',exportOperationControlCsv);
   setOperationCountPlaceholder();
+  opBindTimelineClickFallback();
 }
 v66SetupOperationCount();
-try{setStatus('V66: đã bổ sung lại báo cáo đếm số lần thao tác và báo cáo Control từ phiên bản thao tác gần nhất.','notice good');}catch(e){}
+try{setStatus('V70: đã sửa trực tiếp Đếm thao tác - bấm dòng chi tiết lọc timeline, timeline luôn hiện cột Ind.','notice good');}catch(e){}
 
 
 const fileInput=$('fileInput');fileInput.addEventListener('click',()=>{fileInput.value='';});fileInput.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f){setStatus('Chưa chọn file.','notice warn');return;}try{setStatus('Đã chọn <b>'+esc(f.name)+'</b>, đang đọc dữ liệu. Nếu file lớn, V59 sẽ tự xử lý theo lô...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});$('sheetSelect').addEventListener('change',e=>loadSheet(Number(e.target.value)));$('analyzeBtn').addEventListener('click',analyzeCurrent);$('dedupeToggle').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('dateMode').addEventListener('change',()=>{if(rawRows.length) analyzeCurrent();});$('chatThreshold').addEventListener('change',()=>{if(rawRows.length){if(v59IsBig()){setStatus('V59: dữ liệu lớn - không tự chạy lại toàn bộ chattering/diagnosis khi đổi ngưỡng. Hãy chạy tác vụ cần thiết để tránh treo.','notice warn');return;}stats=buildStats();renderChattering();renderOverview();renderDeviceGroups();renderDeviceSuggestions();renderIdentityV10();renderIdentityDictionary();renderV15Diagnosis();renderV7Diagnosis();renderV8Diagnosis();renderDeepAnalysis();}});$('rowLimit').addEventListener('change',renderRaw);$('deepRefreshBtn')?.addEventListener('click',renderDeepAnalysis);$('deepGapSec')?.addEventListener('change',renderDeepAnalysis);$('deepCorrSec')?.addEventListener('change',renderDeepAnalysis);$('deepTripWindow')?.addEventListener('change',renderDeepAnalysis);['v7TripOpenWindow','v7PickupTripWindow','v7CauseWindow','v7GraphWindow','v7NoiseMode','v7PreferSameDevice','v7UseCodeAlias','v7StrictStatus'].forEach(id=>$(id)?.addEventListener('change',renderV7Diagnosis));$('v7RefreshBtn')?.addEventListener('click',renderV7Diagnosis);['v8PrimaryWindow','v8ExtendedWindow','v8IncidentGap','v8CorrWindow','v8NoiseMode','v8UseAlias','v8StrictStatus','v8UseDataQuality'].forEach(id=>$(id)?.addEventListener('change',renderV8Diagnosis));$('v8RefreshBtn')?.addEventListener('click',renderV8Diagnosis);['v15PrimaryWindow','v15ExtendedWindow','v15IncidentGap','v15CorrWindow','v15HideTopo','v15OnlyOperational','v15HideCleared','v15UseDict'].forEach(id=>$(id)?.addEventListener('change',renderV15Diagnosis));$('v15TargetDevice')?.addEventListener('keydown',e=>{if(e.key==='Enter')renderV15Diagnosis();});$('v15TargetDevice')?.addEventListener('input',()=>{});$('v15RefreshBtn')?.addEventListener('click',renderV15Diagnosis);$('v15SaveRulesBtn')?.addEventListener('click',v15SaveRuleText);$('v15ResetRulesBtn')?.addEventListener('click',()=>{const arr=v15DefaultRules();if($('v15RulesText'))$('v15RulesText').value=JSON.stringify(arr,null,2);v15SaveRules(arr);v15SetRuleStatus('Đã khôi phục bộ luật mặc định.','okText');renderV15Diagnosis();});$('v15DownloadRulesBtn')?.addEventListener('click',v15DownloadRules);$('v15ShareRulesBtn')?.addEventListener('click',v15ShareRules);$('v15ExportReportBtn')?.addEventListener('click',v15ExportSmartReport);$('identityRefreshBtn')?.addEventListener('click',renderIdentityV10);$('identityOpenWindow')?.addEventListener('change',renderIdentityV10);$('dictSaveBtn')?.addEventListener('click',saveDictRule);$('dictNewBtn')?.addEventListener('click',()=>{fillDictForm({});setDictStatus('Form đã làm mới.','');});$('dictAddSelectedPathBtn')?.addEventListener('click',addCurrentSelectedPath);$('dictApplyBtn')?.addEventListener('click',async()=>{if(v59IsBig()){v58BusyStarted=Date.now();try{v58SetProgress('V59: áp dụng từ điển V14','Đang áp dụng theo lô trên dữ liệu lớn...',0,uniqueRecords.length);await v58ApplyIdentityAsync();stats=await v58BuildStatsAsync();renderKpis();renderOverview();renderDeviceGroups();renderDeviceSuggestions();renderIdentityDictionary();renderIdentityV10();setDictStatus('Đã áp dụng lại từ điển theo lô cho dữ liệu lớn.','okText');setStatus('Đã áp dụng lại từ điển V14 theo lô, không dùng buildStats đồng bộ.','notice good');}catch(e){setDictStatus('Lỗi áp dụng từ điển: '+(e&&e.message?e.message:e),'dangerText');}finally{setTimeout(v58HideProgress,500);}return;}applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã áp dụng lại từ điển vào phân tích.','okText');});$('dictSuggestBtn')?.addEventListener('click',suggestDictRules);$('dictExportBtn')?.addEventListener('click',()=>{if($('dictJsonBox'))$('dictJsonBox').value=exportIdentityConfigText();setDictStatus('Đã xuất JSON vào ô cấu hình.','okText');});$('dictDownloadBtn')?.addEventListener('click',downloadIdentityConfig);$('dictShareBtn')?.addEventListener('click',shareIdentityConfig);$('dictImportTextBtn')?.addEventListener('click',()=>importIdentityConfigText($('dictJsonBox')?.value||''));$('dictClearAllBtn')?.addEventListener('click',()=>{if(confirm('Xóa toàn bộ quy tắc định danh V14 đã lưu trên trình duyệt này?')){identityDictionary={version:14,updatedAt:'',rules:[]};saveIdentityDictionary();applyIdentityDictionaryToRecords();if(uniqueRecords.length){stats=buildStats();renderAll();}setDictStatus('Đã xóa toàn bộ quy tắc.','warnText');}});$('dictPathSearch')?.addEventListener('input',renderDictDetectedPaths);$('dictRuleSearch')?.addEventListener('input',renderDictRulesBox);$('dictImportFile')?.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;importIdentityConfigText(await f.text());e.target.value='';});$('applyFilterBtn').addEventListener('click',applyFilter);document.querySelectorAll('[data-seq-col]').forEach(cb=>cb.addEventListener('change',()=>renderSequence(filtered&&filtered.length?filtered:uniqueRecords)));$('seqColsShowAll')?.addEventListener('click',()=>setSeqDetailColumns(true));$('seqColsHideDetail')?.addEventListener('click',()=>setSeqDetailColumns(false));$('fText').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});$('analyzeBreakerBtn').addEventListener('click',analyzeBreaker);$('targetDevice').addEventListener('keydown',e=>{if(e.key==='Enter')analyzeBreaker();});$('exportCsvBtn').addEventListener('click',exportCsv);$('exportReportBtn').addEventListener('click',exportReport);$('sampleBtn').addEventListener('click',showSample);document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.view)));setupResponsiveTabMenu();$('deviceGroupSearch')?.addEventListener('input',renderDeviceGroups);$('deviceGroupSort')?.addEventListener('change',renderDeviceGroups);$('deviceGroupClear')?.addEventListener('click',()=>{$('deviceGroupSearch').value='';renderDeviceGroups();});$('deviceGroupBox')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});$('deviceRiskTop')?.addEventListener('click',e=>{const b=e.target.closest('.devicePick');if(b)selectDeviceForAnalysis(b.dataset.device);});const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',async e=>{const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;try{setStatus('Đã thả <b>'+esc(f.name)+'</b>, đang đọc dữ liệu. Nếu file lớn, V59 sẽ tự xử lý theo lô...','notice');await parseFile(f);}catch(err){setStatus('Lỗi khi đọc file: '+esc(err&&err.message?err.message:err),'notice bad');}});
